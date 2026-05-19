@@ -1,0 +1,90 @@
+/* =============================================
+   variables.css — Tokens de diseño globales
+   Centro de Estudiantes Digital — Instituto N°57
+   ============================================= */
+
+:root {
+  /* --- Colores principales --- */
+  --color-primary:       #1A3A5C;
+  --color-primary-light: #4A9FDB;
+  --color-primary-dark:  #0F2338;
+
+  /* --- Categorías de novedades --- */
+  --color-academico:        #1A6FA0;
+  --color-academico-bg:     #EAF4FB;
+  --color-social:           #1A7A42;
+  --color-social-bg:        #EAFAF1;
+  --color-institucional:    #9A6F08;
+  --color-institucional-bg: #FEF9E7;
+  --color-urgente:          #A93226;
+  --color-urgente-bg:       #FDEDEC;
+
+  /* --- Colores de calendario --- */
+  --color-parcial:       #E74C3C;
+  --color-final:         #8E44AD;
+  --color-institucional-cal: #1A3A5C;
+  --color-feriado:       #7F8C8D;
+  --color-receso:        #F39C12;
+  --color-evento:        #2ECC71;
+
+  /* --- Roles --- */
+  --color-admin-bg:     #FEF9E7;
+  --color-admin-text:   #9A6F08;
+  --color-delegado-bg:  #F4ECF7;
+  --color-delegado-text:#6C3483;
+  --color-docente-bg:   #EAF4FB;
+  --color-docente-text: #1A6FA0;
+  --color-alumno-bg:    #EAFAF1;
+  --color-alumno-text:  #1A7A42;
+
+  /* --- Neutros --- */
+  --color-bg:           #F5F7FA;
+  --color-surface:      #FFFFFF;
+  --color-border:       #E0E4EA;
+  --color-text:         #1A1A2E;
+  --color-text-muted:   #6B7280;
+  --color-text-light:   #9CA3AF;
+
+  /* --- Estados --- */
+  --color-success:      #2ECC71;
+  --color-warning:      #F39C12;
+  --color-danger:       #E74C3C;
+  --color-info:         #4A9FDB;
+
+  /* --- Tipografía --- */
+  --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Courier New', monospace;
+  --font-size-xs:   11px;
+  --font-size-sm:   13px;
+  --font-size-base: 15px;
+  --font-size-md:   17px;
+  --font-size-lg:   20px;
+  --font-size-xl:   24px;
+  --font-size-2xl:  30px;
+
+  /* --- Espaciado --- */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+  --space-2xl: 48px;
+
+  /* --- Bordes --- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* --- Sombras --- */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+
+  /* --- Navbar --- */
+  --navbar-height: 64px;
+
+  /* --- Transiciones --- */
+  --transition: 0.2s ease;
+}

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi perfil — CE Digital N°57</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/reset.css">
+  <link rel="stylesheet" href="../../css/components.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+</head>
+<body>
+
+  <div id="navbar"></div>
+
+  <main class="page-wrapper" style="max-width:700px;">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Mi perfil</h1>
+        <p class="page-subtitle">Información de tu cuenta</p>
+      </div>
+    </div>
+
+    <div id="alert-global" class="alert" style="display:none;"></div>
+
+    <!-- Tarjeta de perfil -->
+    <div class="card" style="margin-bottom:var(--space-lg);">
+      <div style="display:flex; align-items:center; gap:var(--space-lg); margin-bottom:var(--space-lg);">
+        <div id="avatar-grande" style="width:72px; height:72px; border-radius:50%;
+             background:var(--color-primary); color:#fff; display:flex;
+             align-items:center; justify-content:center; font-size:28px; font-weight:700;
+             flex-shrink:0;"></div>
+        <div>
+          <h2 id="perfil-nombre" style="font-size:22px; font-weight:700; color:var(--color-primary);"></h2>
+          <div style="display:flex; align-items:center; gap:10px; margin-top:6px;">
+            <span id="perfil-badge" class="badge"></span>
+            <span id="perfil-email" style="font-size:13px; color:var(--color-text-muted);"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="perfil-carrera" style="display:none; padding:12px; background:var(--color-bg);
+           border-radius:var(--radius-sm); font-size:14px; color:var(--color-text-muted);
+           margin-bottom:var(--space-lg);">
+        🎓 <span id="carrera-nombre"></span>
+      </div>
+
+      <!-- Formulario de edición -->
+      <h3 style="font-size:15px; font-weight:600; margin-bottom:var(--space-md);">Editar información</h3>
+      <form id="form-perfil" novalidate>
+        <div class="grid-2" style="gap:var(--space-md);">
+          <div class="form-group">
+            <label class="form-label" for="input-nombre">Nombre completo</label>
+            <input class="form-input" type="text" id="input-nombre" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-email">Correo electrónico</label>
+            <input class="form-input" type="email" id="input-email" required>
+          </div>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--color-border); margin:var(--space-md) 0;">
+        <h4 style="font-size:14px; font-weight:600; margin-bottom:var(--space-md); color:var(--color-text-muted);">
+          Cambiar contraseña (opcional)
+        </h4>
+
+        <div class="grid-2" style="gap:var(--space-md);">
+          <div class="form-group">
+            <label class="form-label" for="input-pass-nueva">Nueva contraseña</label>
+            <input class="form-input" type="password" id="input-pass-nueva" placeholder="mínimo 6 caracteres">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-pass-confirmar">Confirmar contraseña</label>
+            <input class="form-input" type="password" id="input-pass-confirmar" placeholder="repetir contraseña">
+          </div>
+        </div>
+
+        <div style="display:flex; gap:var(--space-sm); margin-top:var(--space-sm);">
+          <button type="submit" class="btn btn--primary">Guardar cambios</button>
+          <button type="button" class="btn btn--ghost" onclick="cancelarEdicion()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Mis inscripciones -->
+    <div class="card">
+      <h3 style="font-size:15px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-md);">
+        🎟️ Mis inscripciones a eventos
+      </h3>
+      <div id="mis-inscripciones" class="stack--sm"></div>
+    </div>
+
+    <!-- Cerrar sesión -->
+    <div style="margin-top:var(--space-lg); text-align:center;">
+      <button class="btn btn--danger" onclick="confirmarLogout()">Cerrar sesión</button>
+    </div>
+
+  </main>
+
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script>
+    Router.verificarAcceso();
+    Router.renderNavbar();
+
+    const usuario = Auth.getUsuario();
+
+    async function iniciar() {
+      // Datos del perfil
+      document.getElementById('avatar-grande').textContent = usuario.avatar;
+      document.getElementById('perfil-nombre').textContent = usuario.nombre;
+      document.getElementById('perfil-email').textContent = usuario.email;
+      document.getElementById('perfil-badge').textContent = Utils.capitalizar(usuario.perfil);
+      document.getElementById('perfil-badge').className = `badge badge--${usuario.perfil}`;
+
+      // Formulario
+      document.getElementById('input-nombre').value = usuario.nombre;
+      document.getElementById('input-email').value = usuario.email;
+
+      // Carrera
+      if (usuario.carrera_id) {
+        const carrera = await API.getCarreraPorId(usuario.carrera_id);
+        if (carrera) {
+          document.getElementById('perfil-carrera').style.display = 'block';
+          document.getElementById('carrera-nombre').textContent = carrera.nombre;
+        }
+      }
+
+      // Inscripciones
+      const [inscripciones, eventos] = await Promise.all([
+        API.getInscripciones(),
+        API.getEventos()
+      ]);
+
+      const misInscripciones = inscripciones
+        .filter(i => i.usuario_id === usuario.id)
+        .map(i => ({ ...i, evento: eventos.find(e => e.id === i.evento_id) }))
+        .filter(i => i.evento);
+
+      const contenedor = document.getElementById('mis-inscripciones');
+      if (misInscripciones.length === 0) {
+        contenedor.innerHTML = `<p style="font-size:14px; color:var(--color-text-muted);">
+          No estás inscripto a ningún evento todavía.
+        </p>`;
+      } else {
+        contenedor.innerHTML = misInscripciones.map(i => `
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 0;
+               border-bottom:1px solid var(--color-border);">
+            <span style="font-size:24px;">🎟️</span>
+            <div style="flex:1;">
+              <div style="font-size:14px; font-weight:500;">${i.evento.titulo}</div>
+              <div style="font-size:12px; color:var(--color-text-muted);">
+                📅 ${Utils.formatearFecha(i.evento.fecha_inicio)} · ${i.evento.lugar}
+              </div>
+            </div>
+            <span class="badge badge--${i.evento.estado}">${Utils.capitalizar(i.evento.estado)}</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    document.getElementById('form-perfil').addEventListener('submit', (e) => {
+      e.preventDefault();
+      Utils.limpiarError('input-nombre');
+      Utils.limpiarError('input-email');
+      Utils.limpiarError('input-pass-nueva');
+
+      const nombre = document.getElementById('input-nombre').value.trim();
+      const email  = document.getElementById('input-email').value.trim();
+      const passNueva = document.getElementById('input-pass-nueva').value;
+      const passConf  = document.getElementById('input-pass-confirmar').value;
+
+      let valido = true;
+      if (!nombre) { Utils.mostrarError('input-nombre', 'El nombre es obligatorio.'); valido = false; }
+      if (!Utils.validarEmail(email)) { Utils.mostrarError('input-email', 'Correo inválido.'); valido = false; }
+      if (passNueva && !Utils.validarPassword(passNueva)) {
+        Utils.mostrarError('input-pass-nueva', 'La contraseña debe tener al menos 6 caracteres.');
+        valido = false;
+      }
+      if (passNueva && passNueva !== passConf) {
+        Utils.mostrarError('input-pass-confirmar', 'Las contraseñas no coinciden.');
+        valido = false;
+      }
+      if (!valido) return;
+
+      // Actualizar localStorage (en 2do semestre esto sería un PATCH a la API)
+      const sesionActualizada = { ...usuario, nombre, email,
+        avatar: Utils.iniciales(nombre) };
+      localStorage.setItem(Auth.SESSION_KEY, JSON.stringify(sesionActualizada));
+
+      Utils.mostrarAlerta('Perfil actualizado correctamente.', 'success');
+      document.getElementById('perfil-nombre').textContent = nombre;
+      document.getElementById('avatar-grande').textContent = Utils.iniciales(nombre);
+      Router.renderNavbar();
+    });
+
+    function cancelarEdicion() {
+      document.getElementById('input-nombre').value = usuario.nombre;
+      document.getElementById('input-email').value = usuario.email;
+      document.getElementById('input-pass-nueva').value = '';
+      document.getElementById('input-pass-confirmar').value = '';
+    }
+
+    function confirmarLogout() {
+      if (confirm('¿Seguro que querés cerrar sesión?')) Auth.logout();
+    }
+
+    iniciar();
+  </script>
+  <script src="../../js/chatbot.js"></script>
+  <script>Chatbot.init();</script>
+</body>
+</html>

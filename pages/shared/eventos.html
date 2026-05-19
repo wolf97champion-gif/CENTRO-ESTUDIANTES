@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eventos — CE Digital N°57</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/reset.css">
+  <link rel="stylesheet" href="../../css/components.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+</head>
+<body>
+
+  <div id="navbar"></div>
+
+  <main class="page-wrapper">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Eventos</h1>
+        <p class="page-subtitle">Actividades y eventos organizados por el Centro de Estudiantes</p>
+      </div>
+      <div id="btn-nuevo-evento" style="display:none;">
+        <a href="../delegado/eventos-admin.html" class="btn btn--primary">+ Nuevo evento</a>
+      </div>
+    </div>
+
+    <div class="filters-bar">
+      <span class="filters-bar__label">Estado:</span>
+      <button class="btn btn--sm btn--accent" data-filtro="todos" onclick="filtrar('todos')">Todos</button>
+      <button class="btn btn--sm btn--ghost" data-filtro="abierto" onclick="filtrar('abierto')">✅ Abiertos</button>
+      <button class="btn btn--sm btn--ghost" data-filtro="finalizado" onclick="filtrar('finalizado')">🏁 Finalizados</button>
+    </div>
+
+    <div id="alert-global" class="alert" style="display:none;"></div>
+    <div id="contenedor-eventos" class="grid-auto">
+      <div class="spinner"></div>
+    </div>
+
+  </main>
+
+  <!-- Modal de detalle de evento -->
+  <div id="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5);
+       z-index:200; align-items:center; justify-content:center; padding:20px;">
+    <div id="modal-content" style="background:var(--color-surface); border-radius:var(--radius-lg);
+         max-width:520px; width:100%; padding:var(--space-xl); box-shadow:var(--shadow-lg); position:relative;">
+      <button onclick="cerrarModal()" style="position:absolute;top:16px;right:16px;font-size:20px;
+              background:none;border:none;cursor:pointer;color:var(--color-text-muted);">✕</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script>
+    Router.verificarAcceso();
+    Router.renderNavbar();
+
+    const perfil = Auth.getPerfil();
+    const usuario = Auth.getUsuario();
+
+    if (perfil === 'admin' || perfil === 'delegado') {
+      document.getElementById('btn-nuevo-evento').style.display = 'block';
+    }
+
+    let todosLosEventos = [];
+    let inscripciones = [];
+    let filtroActivo = 'todos';
+
+    async function cargarEventos() {
+      [todosLosEventos, inscripciones] = await Promise.all([
+        API.getEventos(),
+        API.getInscripciones()
+      ]);
+      renderizar(todosLosEventos);
+    }
+
+    function filtrar(estado) {
+      filtroActivo = estado;
+      document.querySelectorAll('[data-filtro]').forEach(btn => {
+        btn.className = btn.dataset.filtro === estado
+          ? 'btn btn--sm btn--accent'
+          : 'btn btn--sm btn--ghost';
+      });
+      const resultado = estado === 'todos'
+        ? todosLosEventos
+        : todosLosEventos.filter(e => e.estado === estado);
+      renderizar(resultado);
+    }
+
+    function estaInscripto(eventoId) {
+      return inscripciones.some(i => i.evento_id === eventoId && i.usuario_id === usuario.id);
+    }
+
+    function inscriptosCount(eventoId) {
+      return inscripciones.filter(i => i.evento_id === eventoId).length;
+    }
+
+    function renderizar(eventos) {
+      const contenedor = document.getElementById('contenedor-eventos');
+
+      if (eventos.length === 0) {
+        contenedor.innerHTML = `
+          <div class="empty-state" style="grid-column:1/-1">
+            <div class="empty-state__icon">🗓️</div>
+            <div class="empty-state__title">Sin eventos</div>
+            <div class="empty-state__text">No hay eventos disponibles en este momento.</div>
+          </div>`;
+        return;
+      }
+
+      contenedor.innerHTML = eventos.map(e => {
+        const inscripto = estaInscripto(e.id);
+        const count = inscriptosCount(e.id);
+        const cupoDisponible = e.cupo - count;
+        const fechaInicio = new Date(e.fecha_inicio);
+        const pasado = e.estado === 'finalizado';
+
+        return `
+          <div class="card" style="opacity:${pasado ? '0.75' : '1'}; display:flex; flex-direction:column; gap:12px;">
+            <div style="background:var(--color-bg); border-radius:var(--radius-sm);
+                        padding:16px; text-align:center; font-size:36px;">🎟️</div>
+            <div>
+              <div class="flex-between" style="margin-bottom:6px;">
+                <span class="badge badge--${e.estado}">${Utils.capitalizar(e.estado)}</span>
+                ${inscripto ? '<span class="badge badge--alumno">✓ Inscripto</span>' : ''}
+              </div>
+              <h3 class="card__title">${e.titulo}</h3>
+            </div>
+            <p class="card__body">${Utils.truncar(e.descripcion, 100)}</p>
+            <div class="card__meta" style="flex-direction:column; align-items:flex-start; gap:4px;">
+              <span>📅 ${Utils.formatearFecha(e.fecha_inicio)}</span>
+              <span>📍 ${e.lugar}</span>
+              <span>👥 ${count} / ${e.cupo} inscriptos ${cupoDisponible <= 5 && !pasado ? `<strong style="color:var(--color-danger);">(quedan ${cupoDisponible})</strong>` : ''}</span>
+            </div>
+            <div style="margin-top:auto; display:flex; gap:8px;">
+              <button class="btn btn--ghost btn--sm" onclick="verDetalle(${e.id})" style="flex:1">Ver más</button>
+              ${!pasado && !inscripto
+                ? `<button class="btn btn--accent btn--sm" onclick="inscribirse(${e.id})" style="flex:1">Inscribirse</button>`
+                : ''}
+              ${!pasado && inscripto
+                ? `<button class="btn btn--ghost btn--sm" onclick="cancelarInscripcion(${e.id})" style="flex:1; color:var(--color-danger); border-color:var(--color-danger);">Cancelar</button>`
+                : ''}
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function verDetalle(eventoId) {
+      const evento = todosLosEventos.find(e => e.id === eventoId);
+      if (!evento) return;
+
+      const inscripto = estaInscripto(evento.id);
+      const count = inscriptosCount(evento.id);
+
+      document.getElementById('modal-body').innerHTML = `
+        <div style="font-size:48px; text-align:center; margin-bottom:16px;">🎟️</div>
+        <div class="flex-between" style="margin-bottom:12px;">
+          <span class="badge badge--${evento.estado}">${Utils.capitalizar(evento.estado)}</span>
+          ${inscripto ? '<span class="badge badge--alumno">✓ Ya estás inscripto</span>' : ''}
+        </div>
+        <h2 style="font-size:20px; font-weight:700; color:var(--color-primary); margin-bottom:12px;">${evento.titulo}</h2>
+        <p style="color:var(--color-text-muted); font-size:14px; margin-bottom:20px; line-height:1.7;">${evento.descripcion}</p>
+        <div class="stack--sm" style="font-size:14px; color:var(--color-text-muted); margin-bottom:20px;">
+          <div>📅 <strong>Inicio:</strong> ${Utils.formatearFecha(evento.fecha_inicio)}</div>
+          <div>🏁 <strong>Fin:</strong> ${Utils.formatearFecha(evento.fecha_fin)}</div>
+          <div>📍 <strong>Lugar:</strong> ${evento.lugar}</div>
+          <div>👥 <strong>Inscriptos:</strong> ${count} de ${evento.cupo}</div>
+        </div>
+        ${evento.estado === 'abierto' && !inscripto
+          ? `<button class="btn btn--primary btn--full" onclick="inscribirse(${evento.id}); cerrarModal();">Inscribirse al evento</button>`
+          : ''}
+        ${evento.estado === 'abierto' && inscripto
+          ? `<button class="btn btn--ghost btn--full" style="color:var(--color-danger);border-color:var(--color-danger);"
+               onclick="cancelarInscripcion(${evento.id}); cerrarModal();">Cancelar inscripción</button>`
+          : ''}
+      `;
+      document.getElementById('modal-overlay').style.display = 'flex';
+    }
+
+    function cerrarModal() {
+      document.getElementById('modal-overlay').style.display = 'none';
+    }
+
+    function inscribirse(eventoId) {
+      const evento = todosLosEventos.find(e => e.id === eventoId);
+      const count = inscriptosCount(eventoId);
+      if (count >= evento.cupo) {
+        Utils.mostrarAlerta('Este evento no tiene más cupo disponible.', 'warning');
+        return;
+      }
+      inscripciones.push({ id: Date.now(), evento_id: eventoId, usuario_id: usuario.id });
+      Utils.mostrarAlerta(`¡Te inscribiste a "${evento.titulo}"!`, 'success');
+      filtrar(filtroActivo);
+    }
+
+    function cancelarInscripcion(eventoId) {
+      const evento = todosLosEventos.find(e => e.id === eventoId);
+      inscripciones = inscripciones.filter(
+        i => !(i.evento_id === eventoId && i.usuario_id === usuario.id)
+      );
+      Utils.mostrarAlerta(`Cancelaste tu inscripción a "${evento.titulo}".`, 'info');
+      filtrar(filtroActivo);
+    }
+
+    // Cerrar modal al hacer click en el overlay
+    document.getElementById('modal-overlay').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('modal-overlay')) cerrarModal();
+    });
+
+    cargarEventos();
+  </script>
+  <script src="../../js/chatbot.js"></script>
+  <script>Chatbot.init();</script>
+</body>
+</html>

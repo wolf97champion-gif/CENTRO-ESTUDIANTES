@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscriptos — CE Digital N°57</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/reset.css">
+  <link rel="stylesheet" href="../../css/components.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+</head>
+<body>
+
+  <div id="navbar"></div>
+
+  <main class="page-wrapper">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Inscriptos por evento</h1>
+        <p class="page-subtitle">Consultá quién está inscripto en cada actividad</p>
+      </div>
+    </div>
+
+    <div id="alert-global" class="alert" style="display:none;"></div>
+
+    <!-- Selector de evento -->
+    <div class="card" style="margin-bottom:var(--space-lg);">
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label" for="select-evento">Seleccioná un evento</label>
+        <select class="form-select" id="select-evento" onchange="cargarInscriptos()">
+          <option value="">-- Elegí un evento --</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Info del evento seleccionado -->
+    <div id="info-evento" style="display:none;" class="card" style="margin-bottom:var(--space-lg);"></div>
+
+    <!-- Tabla de inscriptos -->
+    <div id="contenedor-inscriptos"></div>
+
+  </main>
+
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script>
+    Router.verificarAcceso();
+    Auth.requiereRol('admin', 'delegado');
+    Router.renderNavbar();
+
+    let eventos = [];
+    let inscripciones = [];
+    let usuarios = [];
+
+    async function iniciar() {
+      [eventos, inscripciones, usuarios] = await Promise.all([
+        API.getEventos(),
+        API.getInscripciones(),
+        API.getUsuarios()
+      ]);
+
+      const select = document.getElementById('select-evento');
+      eventos.forEach(e => {
+        const count = inscripciones.filter(i => i.evento_id === e.id).length;
+        const opt = document.createElement('option');
+        opt.value = e.id;
+        opt.textContent = `${e.titulo} (${count} inscriptos) — ${Utils.capitalizar(e.estado)}`;
+        select.appendChild(opt);
+      });
+    }
+
+    function cargarInscriptos() {
+      const eventoId = parseInt(document.getElementById('select-evento').value);
+      if (!eventoId) {
+        document.getElementById('info-evento').style.display = 'none';
+        document.getElementById('contenedor-inscriptos').innerHTML = '';
+        return;
+      }
+
+      const evento = eventos.find(e => e.id === eventoId);
+      const inscritos = inscripciones
+        .filter(i => i.evento_id === eventoId)
+        .map(i => ({ ...i, usuario: usuarios.find(u => u.id === i.usuario_id) }))
+        .filter(i => i.usuario);
+
+      // Info del evento
+      const porcentaje = Math.round((inscritos.length / evento.cupo) * 100);
+      document.getElementById('info-evento').style.display = 'block';
+      document.getElementById('info-evento').innerHTML = `
+        <div class="flex-between" style="flex-wrap:wrap; gap:12px;">
+          <div>
+            <h3 style="font-size:16px; font-weight:700; color:var(--color-primary);">${evento.titulo}</h3>
+            <div class="card__meta" style="margin-top:4px;">
+              <span>📅 ${Utils.formatearFecha(evento.fecha_inicio)}</span>
+              <span>📍 ${evento.lugar}</span>
+              <span class="badge badge--${evento.estado}">${Utils.capitalizar(evento.estado)}</span>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:28px; font-weight:800; color:var(--color-primary);">
+              ${inscritos.length}<span style="font-size:16px; color:var(--color-text-muted);">/${evento.cupo}</span>
+            </div>
+            <div style="font-size:12px; color:var(--color-text-muted);">inscriptos</div>
+          </div>
+        </div>
+        <div style="height:8px; background:var(--color-border); border-radius:4px; overflow:hidden; margin-top:12px;">
+          <div style="height:100%; width:${porcentaje}%;
+            background:${porcentaje>=90?'var(--color-danger)':porcentaje>=60?'var(--color-warning)':'var(--color-success)'};
+            border-radius:4px;"></div>
+        </div>
+      `;
+
+      // Tabla
+      const contenedor = document.getElementById('contenedor-inscriptos');
+      if (inscritos.length === 0) {
+        contenedor.innerHTML = `<div class="empty-state">
+          <div class="empty-state__icon">👤</div>
+          <div class="empty-state__title">Sin inscriptos todavía</div>
+          <div class="empty-state__text">Nadie se inscribió a este evento aún.</div>
+        </div>`;
+        return;
+      }
+
+      contenedor.innerHTML = `
+        <div class="flex-between" style="margin-bottom:var(--space-md);">
+          <h3 style="font-size:15px; font-weight:700; color:var(--color-primary);">Lista de inscriptos</h3>
+          <button class="btn btn--ghost btn--sm" onclick="Utils.mostrarAlerta('Exportación disponible en 2do semestre.', 'info')">
+            ⬇ Exportar CSV
+          </button>
+        </div>
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Fecha inscripción</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${inscritos.map((i, idx) => `
+                <tr>
+                  <td style="color:var(--color-text-muted);">${idx + 1}</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div style="width:32px;height:32px;border-radius:50%;background:var(--color-primary);
+                        color:#fff;display:flex;align-items:center;justify-content:center;
+                        font-size:11px;font-weight:700;">${i.usuario.avatar}</div>
+                      <span style="font-weight:500;">${i.usuario.nombre}</span>
+                    </div>
+                  </td>
+                  <td style="font-size:13px;color:var(--color-text-muted);">${i.usuario.email}</td>
+                  <td><span class="badge badge--${i.usuario.perfil}">${Utils.capitalizar(i.usuario.perfil)}</span></td>
+                  <td style="font-size:13px;color:var(--color-text-muted);">${Utils.formatearFecha(i.fecha_inscripcion)}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+    iniciar();
+  </script>
+  <script src="../../js/chatbot.js"></script>
+  <script>Chatbot.init();</script>
+</body>
+</html>

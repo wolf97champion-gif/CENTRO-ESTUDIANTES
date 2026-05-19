@@ -1,0 +1,57 @@
+{
+  "eventos": [
+    {
+      "id": 1,
+      "titulo": "Jornada de bienvenida 2025",
+      "descripcion": "Actividades recreativas y presentación de carreras para ingresantes y alumnos de primer año.",
+      "fecha_inicio": "2025-04-25T10:00:00",
+      "fecha_fin": "2025-04-25T16:00:00",
+      "lugar": "Patio central del instituto",
+      "cupo": 80,
+      "autor_id": 2,
+      "estado": "abierto",
+      "imagen": null
+    },
+    {
+      "id": 2,
+      "titulo": "Taller de CV y entrevistas laborales",
+      "descripcion": "Taller práctico para preparar el curriculum vitae y enfrentar entrevistas de trabajo en el área de tecnología.",
+      "fecha_inicio": "2025-05-08T18:00:00",
+      "fecha_fin": "2025-05-08T20:00:00",
+      "lugar": "Aula Magna",
+      "cupo": 40,
+      "autor_id": 2,
+      "estado": "abierto",
+      "imagen": null
+    },
+    {
+      "id": 3,
+      "titulo": "Hackathon Datos e IA 2025",
+      "descripcion": "Competencia de 24 horas para desarrollar soluciones con datos abiertos. Equipos de hasta 4 personas. Habrá premios para los tres primeros puestos.",
+      "fecha_inicio": "2025-06-14T09:00:00",
+      "fecha_fin": "2025-06-15T09:00:00",
+      "lugar": "Laboratorio de informática",
+      "cupo": 60,
+      "autor_id": 2,
+      "estado": "abierto",
+      "imagen": null
+    },
+    {
+      "id": 4,
+      "titulo": "Charla: Salidas laborales en Ciencia de Datos",
+      "descripcion": "Profesionales del sector compartirán su experiencia y hablarán sobre el mercado laboral actual en IA y Datos.",
+      "fecha_inicio": "2025-03-20T17:00:00",
+      "fecha_fin": "2025-03-20T19:00:00",
+      "lugar": "Aula 12",
+      "cupo": 50,
+      "autor_id": 2,
+      "estado": "finalizado",
+      "imagen": null
+    }
+  ],
+  "inscripciones": [
+    { "id": 1, "evento_id": 1, "usuario_id": 4, "fecha_inscripcion": "2025-04-16T10:00:00" },
+    { "id": 2, "evento_id": 1, "usuario_id": 5, "fecha_inscripcion": "2025-04-16T11:30:00" },
+    { "id": 3, "evento_id": 4, "usuario_id": 4, "fecha_inscripcion": "2025-03-15T09:00:00" }
+  ]
+}

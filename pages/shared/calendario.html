@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendario — CE Digital N°57</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/reset.css">
+  <link rel="stylesheet" href="../../css/components.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+   <link rel="stylesheet" href="../../css/calendario.css">
+  <style>
+    /* Grilla del calendario */
+    /* .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .cal-header-day {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      padding: 8px 0;
+    }
+    .cal-cell {
+      min-height: 80px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 6px;
+      position: relative;
+      cursor: default;
+    }
+    .cal-cell--otro-mes { background: var(--color-bg); opacity: 0.5; }
+    .cal-cell--hoy { border-color: var(--color-primary-light); border-width: 2px; }
+    .cal-cell__num {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+    }
+    .cal-cell--hoy .cal-cell__num {
+      background: var(--color-primary);
+      color: #fff;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    .cal-evento-chip {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-bottom: 2px;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #fff;
+      font-weight: 500;
+    }
+    .cal-nav {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .cal-nav h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--color-primary);
+      min-width: 200px;
+      text-align: center;
+    }
+    .leyenda {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .leyenda-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+    .leyenda-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    } */
+  </style>
+</head>
+<body>
+
+  <div id="navbar"></div>
+
+  <main class="page-wrapper">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Calendario académico</h1>
+        <p class="page-subtitle">Fechas importantes, parciales, finales y eventos</p>
+      </div>
+    </div>
+
+    <!-- Leyenda -->
+    <div id="leyenda" class="leyenda"></div>
+
+    <!-- Navegación del mes -->
+    <div class="cal-nav">
+      <button class="btn btn--ghost btn--sm" onclick="cambiarMes(-1)">← Anterior</button>
+      <h2 id="titulo-mes"></h2>
+      <button class="btn btn--ghost btn--sm" onclick="cambiarMes(1)">Siguiente →</button>
+      <button class="btn btn--sm btn--outline" onclick="irAHoy()" style="margin-left:auto;">Hoy</button>
+    </div>
+
+    <!-- Grilla días de semana -->
+    <div class="cal-grid" id="cal-headers" style="margin-bottom:4px;">
+      <div class="cal-header-day">Dom</div>
+      <div class="cal-header-day">Lun</div>
+      <div class="cal-header-day">Mar</div>
+      <div class="cal-header-day">Mié</div>
+      <div class="cal-header-day">Jue</div>
+      <div class="cal-header-day">Vie</div>
+      <div class="cal-header-day">Sáb</div>
+    </div>
+
+    <!-- Grilla del calendario -->
+    <div class="cal-grid" id="cal-body"></div>
+
+    <!-- Próximos eventos -->
+    <div style="margin-top:var(--space-xl);">
+      <h2 style="font-size:18px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-md);">
+        Próximas fechas
+      </h2>
+      <div id="proximas-fechas" class="stack"></div>
+    </div>
+
+  </main>
+
+  <!-- Tooltip de evento -->
+  <div id="tooltip" style="display:none; position:fixed; background:var(--color-surface);
+       border:1px solid var(--color-border); border-radius:var(--radius-md); padding:12px 16px;
+       box-shadow:var(--shadow-md); z-index:300; max-width:260px; font-size:13px;">
+  </div>
+
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script>
+    Router.verificarAcceso();
+    Router.renderNavbar();
+
+    const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                   'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+    let fechasDB = [];
+    let tiposDB = [];
+    let mesActual = new Date().getMonth();
+    let anioActual = new Date().getFullYear();
+
+    async function iniciar() {
+      [fechasDB, tiposDB] = await Promise.all([
+        API.getFechas(),
+        API.getTiposCalendario()
+      ]);
+      renderLeyenda();
+      renderCalendario();
+      renderProximasFechas();
+    }
+
+    function renderLeyenda() {
+      document.getElementById('leyenda').innerHTML = tiposDB.map(t => `
+        <div class="leyenda-item">
+          <div class="leyenda-dot" style="background:${t.color}"></div>
+          <span>${t.nombre}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderCalendario() {
+      document.getElementById('titulo-mes').textContent =
+        `${MESES[mesActual]} ${anioActual}`;
+
+      const primerDia = new Date(anioActual, mesActual, 1).getDay();
+      const diasEnMes = new Date(anioActual, mesActual + 1, 0).getDate();
+      const diasMesAnterior = new Date(anioActual, mesActual, 0).getDate();
+      const hoy = new Date();
+
+      let celdas = [];
+
+      // Días del mes anterior
+      for (let i = primerDia - 1; i >= 0; i--) {
+        celdas.push({ dia: diasMesAnterior - i, otroMes: true });
+      }
+      // Días del mes actual
+      for (let d = 1; d <= diasEnMes; d++) {
+        celdas.push({ dia: d, otroMes: false });
+      }
+      // Completar últimas filas
+      while (celdas.length % 7 !== 0) {
+        celdas.push({ dia: celdas.length - diasEnMes - primerDia + 1, otroMes: true });
+      }
+
+      const body = document.getElementById('cal-body');
+      body.innerHTML = celdas.map(celda => {
+        const esHoy = !celda.otroMes
+          && celda.dia === hoy.getDate()
+          && mesActual === hoy.getMonth()
+          && anioActual === hoy.getFullYear();
+
+        const fechaStr = `${anioActual}-${String(mesActual + 1).padStart(2,'0')}-${String(celda.dia).padStart(2,'0')}`;
+        const eventosDia = fechasDB.filter(f => f.fecha === fechaStr);
+
+        const chips = eventosDia.map(ev => {
+          const tipo = tiposDB.find(t => t.id === ev.tipo);
+          const color = tipo ? tipo.color : '#888';
+          return `<div class="cal-evento-chip" style="background:${color};"
+                    onclick="mostrarTooltip(event, ${ev.id})" title="${ev.titulo}">
+                    ${ev.titulo}
+                  </div>`;
+        }).join('');
+
+        return `
+          <div class="cal-cell ${celda.otroMes ? 'cal-cell--otro-mes' : ''} ${esHoy ? 'cal-cell--hoy' : ''}">
+            <div class="cal-cell__num">${celda.dia}</div>
+            ${chips}
+          </div>`;
+      }).join('');
+    }
+
+    function mostrarTooltip(event, fechaId) {
+      const fecha = fechasDB.find(f => f.id === fechaId);
+      if (!fecha) return;
+      const tipo = tiposDB.find(t => t.id === fecha.tipo);
+
+      const tooltip = document.getElementById('tooltip');
+      tooltip.innerHTML = `
+        <div style="font-weight:600; margin-bottom:4px; color:${tipo ? tipo.color : '#333'};">
+          ${tipo ? tipo.nombre : ''} — ${Utils.formatearFechaCorta(fecha.fecha)}
+        </div>
+        <div style="font-weight:500; margin-bottom:4px;">${fecha.titulo}</div>
+        <div style="color:var(--color-text-muted);">${fecha.descripcion}</div>
+      `;
+      tooltip.style.display = 'block';
+      tooltip.style.left = Math.min(event.clientX + 10, window.innerWidth - 280) + 'px';
+      tooltip.style.top = (event.clientY - 10) + 'px';
+      event.stopPropagation();
+    }
+
+    document.addEventListener('click', () => {
+      document.getElementById('tooltip').style.display = 'none';
+    });
+
+    function renderProximasFechas() {
+      const hoy = new Date();
+      hoy.setHours(0,0,0,0);
+      const proximas = fechasDB
+        .filter(f => new Date(f.fecha) >= hoy)
+        .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+        .slice(0, 5);
+
+      document.getElementById('proximas-fechas').innerHTML = proximas.map(f => {
+        const tipo = tiposDB.find(t => t.id === f.tipo);
+        const color = tipo ? tipo.color : '#888';
+        return `
+          <div class="novedad-card" style="border-left-color:${color};">
+            <div class="flex-between">
+              <h4 style="font-size:15px; font-weight:600;">${f.titulo}</h4>
+              <span class="badge" style="background:${color}20; color:${color};">${tipo ? tipo.nombre : ''}</span>
+            </div>
+            <p class="card__meta" style="margin-top:4px;">
+              📅 ${Utils.formatearFecha(f.fecha)}
+              ${f.descripcion ? ' · ' + f.descripcion : ''}
+            </p>
+          </div>`;
+      }).join('');
+    }
+
+    function cambiarMes(delta) {
+      mesActual += delta;
+      if (mesActual < 0) { mesActual = 11; anioActual--; }
+      if (mesActual > 11) { mesActual = 0; anioActual++; }
+      renderCalendario();
+    }
+
+    function irAHoy() {
+      mesActual = new Date().getMonth();
+      anioActual = new Date().getFullYear();
+      renderCalendario();
+    }
+
+    iniciar();
+  </script>
+  <script src="../../js/chatbot.js"></script>
+  <script>Chatbot.init();</script>
+</body>
+</html>

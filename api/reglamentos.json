@@ -1,0 +1,70 @@
+{
+  "reglamentos": [
+    {
+      "id": 1,
+      "titulo": "Régimen Académico — Reglamento General",
+      "categoria": "academico",
+      "descripcion": "Normas generales de cursada, asistencia, regularidad y promoción.",
+      "archivo": "assets/docs/regimen-academico.pdf",
+      "version": "2025",
+      "fecha": "2025-03-01",
+      "destacado": true
+    },
+    {
+      "id": 2,
+      "titulo": "Reglamento de Convivencia Institucional",
+      "categoria": "convivencia",
+      "descripcion": "Normas de convivencia, derechos y obligaciones de los estudiantes.",
+      "archivo": "assets/docs/convivencia.pdf",
+      "version": "2024",
+      "fecha": "2024-03-01",
+      "destacado": false
+    },
+    {
+      "id": 3,
+      "titulo": "Régimen de Becas y Ayuda Económica",
+      "categoria": "becas",
+      "descripcion": "Requisitos, plazos y procedimientos para solicitar becas institucionales.",
+      "archivo": "assets/docs/becas.pdf",
+      "version": "2025",
+      "fecha": "2025-02-15",
+      "destacado": false
+    },
+    {
+      "id": 4,
+      "titulo": "Estatuto del Centro de Estudiantes",
+      "categoria": "centro",
+      "descripcion": "Organización, funciones y autoridades del Centro de Estudiantes.",
+      "archivo": "assets/docs/estatuto-ce.pdf",
+      "version": "2023",
+      "fecha": "2023-09-01",
+      "destacado": false
+    }
+  ],
+  "categorias": [
+    { "id": "academico",   "nombre": "Régimen Académico" },
+    { "id": "convivencia", "nombre": "Convivencia" },
+    { "id": "becas",       "nombre": "Becas" },
+    { "id": "centro",      "nombre": "Centro de Estudiantes" }
+  ],
+  "faq": [
+    {
+      "id": 1,
+      "pregunta": "¿Cuántas faltas puedo tener antes de perder la regularidad?",
+      "respuesta": "El régimen académico establece un máximo del 25% de inasistencias por materia. Superado ese límite, el alumno pierde la condición de regular.",
+      "categoria": "academico"
+    },
+    {
+      "id": 2,
+      "pregunta": "¿Cómo solicito una beca?",
+      "respuesta": "Debés presentar la documentación indicada en el Régimen de Becas antes del 31 de marzo para el primer cuatrimestre, o antes del 31 de julio para el segundo.",
+      "categoria": "becas"
+    },
+    {
+      "id": 3,
+      "pregunta": "¿Qué hago si tengo un conflicto con un docente?",
+      "respuesta": "Podés acudir al Centro de Estudiantes o a la Dirección del Instituto. El Reglamento de Convivencia detalla el procedimiento formal.",
+      "categoria": "convivencia"
+    }
+  ]
+}

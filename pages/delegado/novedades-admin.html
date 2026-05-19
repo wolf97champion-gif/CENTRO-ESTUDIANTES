@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Novedades — CE Digital N°57</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/reset.css">
+  <link rel="stylesheet" href="../../css/components.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+</head>
+<body>
+
+  <div id="navbar"></div>
+
+  <main class="page-wrapper">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Gestión de novedades</h1>
+        <p class="page-subtitle">Publicá y administrá las novedades del Centro de Estudiantes</p>
+      </div>
+      <button class="btn btn--primary" onclick="abrirFormulario()">+ Nueva novedad</button>
+    </div>
+
+    <div id="alert-global" class="alert" style="display:none;"></div>
+
+    <div class="layout-sidebar">
+
+      <!-- Formulario -->
+      <div>
+        <div class="card" id="panel-formulario" style="display:none; margin-bottom:var(--space-lg);">
+          <h3 id="form-titulo" style="font-size:16px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-lg);">
+            Nueva novedad
+          </h3>
+
+          <form id="form-novedad" novalidate>
+            <input type="hidden" id="input-id">
+
+            <div class="form-group">
+              <label class="form-label" for="input-titulo">Título *</label>
+              <input class="form-input" type="text" id="input-titulo"
+                     placeholder="Ej: Suspensión de clases el viernes" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-contenido">Contenido *</label>
+              <textarea class="form-textarea" id="input-contenido" rows="5"
+                        placeholder="Escribí el contenido completo de la novedad..." required></textarea>
+            </div>
+
+            <div class="grid-2" style="gap:var(--space-md);">
+              <div class="form-group">
+                <label class="form-label" for="input-categoria">Categoría *</label>
+                <select class="form-select" id="input-categoria">
+                  <option value="academico">📚 Académico</option>
+                  <option value="social">🎉 Social</option>
+                  <option value="institucional">🏫 Institucional</option>
+                  <option value="urgente">🔴 Urgente</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="input-destacada">¿Destacar?</label>
+                <select class="form-select" id="input-destacada">
+                  <option value="false">No</option>
+                  <option value="true">⭐ Sí, destacar</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Vista previa en tiempo real -->
+            <div id="vista-previa" style="display:none; margin-bottom:var(--space-md);">
+              <p style="font-size:12px; font-weight:600; color:var(--color-text-muted);
+                        text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">Vista previa</p>
+              <div id="preview-card" class="novedad-card"></div>
+            </div>
+
+            <div style="display:flex; gap:var(--space-sm);">
+              <button type="button" class="btn btn--ghost btn--sm" onclick="togglePrevia()">👁 Vista previa</button>
+              <div style="margin-left:auto; display:flex; gap:var(--space-sm);">
+                <button type="button" class="btn btn--ghost" onclick="cerrarFormulario()">Cancelar</button>
+                <button type="submit" class="btn btn--primary" id="btn-publicar">Publicar</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Lista de novedades publicadas -->
+        <h3 style="font-size:16px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-md);">
+          Novedades publicadas
+        </h3>
+
+        <div class="filters-bar" style="margin-bottom:var(--space-md);">
+          <span class="filters-bar__label">Filtrar:</span>
+          <button class="btn btn--sm btn--accent" data-filtro="todos" onclick="filtrar('todos')">Todas</button>
+          <button class="btn btn--sm btn--ghost" data-filtro="academico"     onclick="filtrar('academico')">Académico</button>
+          <button class="btn btn--sm btn--ghost" data-filtro="social"        onclick="filtrar('social')">Social</button>
+          <button class="btn btn--sm btn--ghost" data-filtro="institucional" onclick="filtrar('institucional')">Institucional</button>
+          <button class="btn btn--sm btn--ghost" data-filtro="urgente"       onclick="filtrar('urgente')">Urgente</button>
+        </div>
+
+        <div id="contenedor-novedades" class="stack"></div>
+      </div>
+
+      <!-- Sidebar: estadísticas -->
+      <div>
+        <div class="card" style="margin-bottom:var(--space-md);">
+          <h3 style="font-size:15px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-md);">
+            📊 Resumen
+          </h3>
+          <div id="stats-novedades" class="stack--sm"></div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:15px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-md);">
+            💡 Consejos
+          </h3>
+          <div class="stack--sm" style="font-size:13px; color:var(--color-text-muted); line-height:1.6;">
+            <p>🔴 Usá <strong>Urgente</strong> solo para avisos críticos como suspensión de clases.</p>
+            <p>⭐ Las novedades <strong>destacadas</strong> aparecen primero en el feed.</p>
+            <p>📚 <strong>Académico</strong> es para fechas de examen, inscripciones y cursada.</p>
+            <p>🎉 <strong>Social</strong> es para eventos y actividades recreativas.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script>
+    Router.verificarAcceso();
+    Auth.requiereRol('admin', 'delegado');
+    Router.renderNavbar();
+
+    const usuario = Auth.getUsuario();
+    let novedades = [];
+    let filtroActivo = 'todos';
+    let previaVisible = false;
+
+    async function iniciar() {
+      novedades = await API.getNovedades();
+      novedades.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+      renderStats();
+      renderNovedades(novedades);
+    }
+
+    function renderStats() {
+      const categorias = ['academico', 'social', 'institucional', 'urgente'];
+      const iconos = { academico: '📚', social: '🎉', institucional: '🏫', urgente: '🔴' };
+      document.getElementById('stats-novedades').innerHTML = [
+        `<div class="flex-between"><span style="font-size:13px;">Total publicadas</span><strong>${novedades.length}</strong></div>`,
+        `<div class="flex-between"><span style="font-size:13px;">⭐ Destacadas</span><strong>${novedades.filter(n => n.destacada).length}</strong></div>`,
+        ...categorias.map(c => `
+          <div class="flex-between">
+            <span style="font-size:13px;">${iconos[c]} ${Utils.capitalizar(c)}</span>
+            <strong>${novedades.filter(n => n.categoria === c).length}</strong>
+          </div>`)
+      ].join('');
+    }
+
+    function filtrar(cat) {
+      filtroActivo = cat;
+      document.querySelectorAll('[data-filtro]').forEach(btn => {
+        btn.className = btn.dataset.filtro === cat ? 'btn btn--sm btn--accent' : 'btn btn--sm btn--ghost';
+      });
+      const resultado = cat === 'todos' ? novedades : novedades.filter(n => n.categoria === cat);
+      renderNovedades(resultado);
+    }
+
+    function renderNovedades(lista) {
+      const contenedor = document.getElementById('contenedor-novedades');
+      if (lista.length === 0) {
+        contenedor.innerHTML = `<div class="empty-state"><div class="empty-state__icon">📭</div>
+          <div class="empty-state__title">Sin novedades</div></div>`;
+        return;
+      }
+      contenedor.innerHTML = lista.map(n => `
+        <div class="novedad-card novedad-card--${n.categoria}">
+          <div class="card__header">
+            <div>
+              ${n.destacada ? '<span style="font-size:11px;color:var(--color-primary-light);font-weight:600;">⭐ DESTACADA &nbsp;</span>' : ''}
+              <h4 style="font-size:15px; font-weight:600;">${n.titulo}</h4>
+            </div>
+            <span class="badge badge--${n.categoria}">${Utils.capitalizar(n.categoria)}</span>
+          </div>
+          <p class="card__body" style="margin:8px 0;">${Utils.truncar(n.contenido, 120)}</p>
+          <div class="card__meta">
+            <span>🕐 ${Utils.tiempoRelativo(n.fecha)}</span>
+            <div style="margin-left:auto; display:flex; gap:6px;">
+              <button class="btn btn--ghost btn--sm" onclick="editarNovedad(${n.id})">✏️ Editar</button>
+              <button class="btn btn--ghost btn--sm" style="color:var(--color-danger);border-color:var(--color-danger);"
+                onclick="eliminarNovedad(${n.id})">🗑 Eliminar</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function abrirFormulario() {
+      document.getElementById('form-titulo').textContent = 'Nueva novedad';
+      document.getElementById('btn-publicar').textContent = 'Publicar';
+      document.getElementById('input-id').value = '';
+      document.getElementById('form-novedad').reset();
+      document.getElementById('vista-previa').style.display = 'none';
+      previaVisible = false;
+      document.getElementById('panel-formulario').style.display = 'block';
+      document.getElementById('panel-formulario').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cerrarFormulario() {
+      document.getElementById('panel-formulario').style.display = 'none';
+    }
+
+    function editarNovedad(id) {
+      const n = novedades.find(n => n.id === id);
+      if (!n) return;
+      document.getElementById('form-titulo').textContent = 'Editar novedad';
+      document.getElementById('btn-publicar').textContent = 'Guardar cambios';
+      document.getElementById('input-id').value = n.id;
+      document.getElementById('input-titulo').value = n.titulo;
+      document.getElementById('input-contenido').value = n.contenido;
+      document.getElementById('input-categoria').value = n.categoria;
+      document.getElementById('input-destacada').value = String(n.destacada);
+      document.getElementById('panel-formulario').style.display = 'block';
+      document.getElementById('panel-formulario').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function eliminarNovedad(id) {
+      const n = novedades.find(n => n.id === id);
+      if (!confirm(`¿Eliminar "${n.titulo}"?`)) return;
+      novedades = novedades.filter(n => n.id !== id);
+      Utils.mostrarAlerta('Novedad eliminada.', 'warning');
+      renderStats();
+      filtrar(filtroActivo);
+    }
+
+    function togglePrevia() {
+      previaVisible = !previaVisible;
+      const panel = document.getElementById('vista-previa');
+      panel.style.display = previaVisible ? 'block' : 'none';
+      if (previaVisible) actualizarPrevia();
+    }
+
+    function actualizarPrevia() {
+      if (!previaVisible) return;
+      const titulo    = document.getElementById('input-titulo').value || 'Sin título';
+      const contenido = document.getElementById('input-contenido').value || 'Sin contenido.';
+      const categoria = document.getElementById('input-categoria').value;
+      const destacada = document.getElementById('input-destacada').value === 'true';
+      document.getElementById('preview-card').className =
+        `novedad-card novedad-card--${categoria}${destacada ? ' novedad-card--destacada' : ''}`;
+      document.getElementById('preview-card').innerHTML = `
+        <div class="card__header">
+          ${destacada ? '<span style="font-size:11px;color:var(--color-primary-light);font-weight:600;">⭐ DESTACADA &nbsp;</span>' : ''}
+          <h4 style="font-size:15px; font-weight:600;">${titulo}</h4>
+          <span class="badge badge--${categoria}">${Utils.capitalizar(categoria)}</span>
+        </div>
+        <p class="card__body" style="margin:8px 0;">${Utils.truncar(contenido, 200)}</p>
+        <div class="card__meta"><span>🕐 ahora mismo</span></div>
+      `;
+    }
+
+    // Actualizar previa al escribir
+    ['input-titulo','input-contenido','input-categoria','input-destacada'].forEach(id => {
+      document.getElementById(id).addEventListener('input', actualizarPrevia);
+      document.getElementById(id).addEventListener('change', actualizarPrevia);
+    });
+
+    document.getElementById('form-novedad').addEventListener('submit', (e) => {
+      e.preventDefault();
+      Utils.limpiarError('input-titulo');
+      Utils.limpiarError('input-contenido');
+
+      const id        = document.getElementById('input-id').value;
+      const titulo    = document.getElementById('input-titulo').value.trim();
+      const contenido = document.getElementById('input-contenido').value.trim();
+      const categoria = document.getElementById('input-categoria').value;
+      const destacada = document.getElementById('input-destacada').value === 'true';
+
+      let valido = true;
+      if (!titulo)    { Utils.mostrarError('input-titulo',    'El título es obligatorio.');   valido = false; }
+      if (!contenido) { Utils.mostrarError('input-contenido', 'El contenido es obligatorio.'); valido = false; }
+      if (!valido) return;
+
+      if (id) {
+        const n = novedades.find(n => n.id === parseInt(id));
+        Object.assign(n, { titulo, contenido, categoria, destacada });
+        Utils.mostrarAlerta('Novedad actualizada correctamente.', 'success');
+      } else {
+        novedades.unshift({
+          id: Utils.nuevoId(novedades),
+          titulo, contenido, categoria, destacada,
+          autor_id: usuario.id,
+          materia_id: null,
+          carrera_id: null,
+          fecha: new Date().toISOString()
+        });
+        Utils.mostrarAlerta('Novedad publicada correctamente.', 'success');
+      }
+
+      cerrarFormulario();
+      renderStats();
+      filtrar(filtroActivo);
+    });
+
+    iniciar();
+  </script>
+  <script src="../../js/chatbot.js"></script>
+  <script>Chatbot.init();</script>
+</body>
+</html>

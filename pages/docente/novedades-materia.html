@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avisos de Materia — CE Digital N°57</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/reset.css">
+  <link rel="stylesheet" href="../../css/components.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+</head>
+<body>
+
+  <div id="navbar"></div>
+
+  <main class="page-wrapper">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Avisos de materias</h1>
+        <p class="page-subtitle">Publicá novedades específicas para tus materias</p>
+      </div>
+      <button class="btn btn--primary" onclick="abrirFormulario()">+ Nuevo aviso</button>
+    </div>
+
+    <div id="alert-global" class="alert" style="display:none;"></div>
+
+    <div class="layout-sidebar">
+
+      <div>
+        <!-- Formulario -->
+        <div class="card" id="panel-formulario" style="display:none; margin-bottom:var(--space-lg);">
+          <h3 id="form-titulo-panel" style="font-size:16px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-lg);">
+            Nuevo aviso de materia
+          </h3>
+
+          <form id="form-aviso" novalidate>
+            <input type="hidden" id="input-id">
+
+            <div class="form-group">
+              <label class="form-label" for="input-materia">Materia *</label>
+              <select class="form-select" id="input-materia" required>
+                <option value="">-- Seleccioná una materia --</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-titulo">Título *</label>
+              <input class="form-input" type="text" id="input-titulo"
+                     placeholder="Ej: Parcial — semana 6" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-contenido">Contenido *</label>
+              <textarea class="form-textarea" id="input-contenido" rows="5"
+                        placeholder="Detallá el aviso para tus alumnos..." required></textarea>
+            </div>
+
+            <div class="grid-2" style="gap:var(--space-md);">
+              <div class="form-group">
+                <label class="form-label" for="input-categoria">Categoría</label>
+                <select class="form-select" id="input-categoria">
+                  <option value="academico">📚 Académico</option>
+                  <option value="urgente">🔴 Urgente</option>
+                  <option value="institucional">🏫 Institucional</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="input-destacada">¿Destacar?</label>
+                <select class="form-select" id="input-destacada">
+                  <option value="false">No</option>
+                  <option value="true">⭐ Sí</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:var(--space-sm); justify-content:flex-end;">
+              <button type="button" class="btn btn--ghost" onclick="cerrarFormulario()">Cancelar</button>
+              <button type="submit" class="btn btn--primary" id="btn-publicar">Publicar aviso</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Mis avisos publicados -->
+        <h3 style="font-size:16px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-md);">
+          Mis avisos publicados
+        </h3>
+        <div id="contenedor-avisos" class="stack"></div>
+      </div>
+
+      <!-- Sidebar -->
+      <div>
+        <div class="card" style="margin-bottom:var(--space-md);">
+          <h3 style="font-size:15px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-md);">
+            📚 Mis materias
+          </h3>
+          <div id="mis-materias" class="stack--sm"></div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:15px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-md);">
+            💡 Recordá
+          </h3>
+          <div class="stack--sm" style="font-size:13px; color:var(--color-text-muted); line-height:1.6;">
+            <p>📢 Los avisos de materia son visibles para <strong>todos los alumnos</strong> de la carrera.</p>
+            <p>🔴 Usá <strong>Urgente</strong> para cambios de último momento.</p>
+            <p>📅 Para cargar fechas de parciales y finales, usá la sección <strong>Fechas de examen</strong>.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script>
+    Router.verificarAcceso();
+    Auth.requiereRol('admin', 'docente');
+    Router.renderNavbar();
+
+    const usuario = Auth.getUsuario();
+    let novedades = [];
+    let todasLasMaterias = [];
+
+    async function iniciar() {
+      const [carreras, novsDB] = await Promise.all([
+        API.getCarreras(),
+        API.getNovedades()
+      ]);
+
+      // Reunir todas las materias de todas las carreras
+      todasLasMaterias = carreras.flatMap(c =>
+        c.materias.map(m => ({ ...m, carrera_nombre: c.nombre, carrera_id: c.id }))
+      );
+
+      // Poblar select de materias
+      const select = document.getElementById('input-materia');
+      carreras.forEach(carrera => {
+        const group = document.createElement('optgroup');
+        group.label = carrera.nombre;
+        carrera.materias.forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m.id;
+          opt.textContent = m.nombre;
+          group.appendChild(opt);
+        });
+        select.appendChild(group);
+      });
+
+      // Mis materias en sidebar
+      const misMaterias = todasLasMaterias.filter(m => m.docente_id === usuario.id);
+      document.getElementById('mis-materias').innerHTML = misMaterias.length === 0
+        ? '<p style="font-size:13px; color:var(--color-text-muted);">No tenés materias asignadas aún.</p>'
+        : misMaterias.map(m => `
+            <div style="padding:8px 0; border-bottom:1px solid var(--color-border);">
+              <div style="font-size:13px; font-weight:500;">${m.nombre}</div>
+              <div style="font-size:11px; color:var(--color-text-muted);">${m.carrera_nombre}</div>
+            </div>`).join('');
+
+      // Filtrar novedades propias (por autor_id)
+      novedades = novsDB.filter(n => n.autor_id === usuario.id);
+      novedades.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+      renderAvisos();
+    }
+
+    function renderAvisos() {
+      const contenedor = document.getElementById('contenedor-avisos');
+      if (novedades.length === 0) {
+        contenedor.innerHTML = `<div class="empty-state">
+          <div class="empty-state__icon">📭</div>
+          <div class="empty-state__title">Sin avisos publicados</div>
+          <div class="empty-state__text">Publicá tu primer aviso con el botón de arriba.</div>
+        </div>`;
+        return;
+      }
+
+      contenedor.innerHTML = novedades.map(n => {
+        const materia = todasLasMaterias.find(m => m.id === n.materia_id);
+        return `
+          <div class="novedad-card novedad-card--${n.categoria}">
+            <div class="card__header">
+              <div>
+                ${n.destacada ? '<span style="font-size:11px;color:var(--color-primary-light);font-weight:600;">⭐ DESTACADA &nbsp;</span>' : ''}
+                <h4 style="font-size:15px; font-weight:600;">${n.titulo}</h4>
+              </div>
+              <span class="badge badge--${n.categoria}">${Utils.capitalizar(n.categoria)}</span>
+            </div>
+            ${materia ? `<div style="font-size:12px; color:var(--color-primary-light); margin:4px 0; font-weight:500;">
+              📖 ${materia.nombre}</div>` : ''}
+            <p class="card__body" style="margin:8px 0;">${Utils.truncar(n.contenido, 130)}</p>
+            <div class="card__meta">
+              <span>🕐 ${Utils.tiempoRelativo(n.fecha)}</span>
+              <div style="margin-left:auto; display:flex; gap:6px;">
+                <button class="btn btn--ghost btn--sm" onclick="editarAviso(${n.id})">✏️ Editar</button>
+                <button class="btn btn--ghost btn--sm" style="color:var(--color-danger);border-color:var(--color-danger);"
+                  onclick="eliminarAviso(${n.id})">🗑</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function abrirFormulario() {
+      document.getElementById('form-titulo-panel').textContent = 'Nuevo aviso de materia';
+      document.getElementById('btn-publicar').textContent = 'Publicar aviso';
+      document.getElementById('input-id').value = '';
+      document.getElementById('form-aviso').reset();
+      document.getElementById('panel-formulario').style.display = 'block';
+      document.getElementById('panel-formulario').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cerrarFormulario() {
+      document.getElementById('panel-formulario').style.display = 'none';
+    }
+
+    function editarAviso(id) {
+      const n = novedades.find(n => n.id === id);
+      if (!n) return;
+      document.getElementById('form-titulo-panel').textContent = 'Editar aviso';
+      document.getElementById('btn-publicar').textContent = 'Guardar cambios';
+      document.getElementById('input-id').value = n.id;
+      document.getElementById('input-titulo').value = n.titulo;
+      document.getElementById('input-contenido').value = n.contenido;
+      document.getElementById('input-categoria').value = n.categoria;
+      document.getElementById('input-destacada').value = String(n.destacada);
+      if (n.materia_id) document.getElementById('input-materia').value = n.materia_id;
+      document.getElementById('panel-formulario').style.display = 'block';
+      document.getElementById('panel-formulario').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function eliminarAviso(id) {
+      const n = novedades.find(n => n.id === id);
+      if (!confirm(`¿Eliminar "${n.titulo}"?`)) return;
+      novedades = novedades.filter(n => n.id !== id);
+      Utils.mostrarAlerta('Aviso eliminado.', 'warning');
+      renderAvisos();
+    }
+
+    document.getElementById('form-aviso').addEventListener('submit', (e) => {
+      e.preventDefault();
+      ['input-titulo','input-contenido','input-materia'].forEach(id => Utils.limpiarError(id));
+
+      const id        = document.getElementById('input-id').value;
+      const materiaId = parseInt(document.getElementById('input-materia').value) || null;
+      const titulo    = document.getElementById('input-titulo').value.trim();
+      const contenido = document.getElementById('input-contenido').value.trim();
+      const categoria = document.getElementById('input-categoria').value;
+      const destacada = document.getElementById('input-destacada').value === 'true';
+
+      let valido = true;
+      if (!materiaId) { Utils.mostrarError('input-materia', 'Seleccioná una materia.'); valido = false; }
+      if (!titulo)    { Utils.mostrarError('input-titulo', 'Requerido.');               valido = false; }
+      if (!contenido) { Utils.mostrarError('input-contenido', 'Requerido.');            valido = false; }
+      if (!valido) return;
+
+      const materia = todasLasMaterias.find(m => m.id === materiaId);
+
+      if (id) {
+        const n = novedades.find(n => n.id === parseInt(id));
+        Object.assign(n, { titulo, contenido, categoria, destacada, materia_id: materiaId,
+          carrera_id: materia ? materia.carrera_id : null });
+        Utils.mostrarAlerta('Aviso actualizado.', 'success');
+      } else {
+        novedades.unshift({
+          id: Utils.nuevoId(novedades),
+          titulo, contenido, categoria, destacada,
+          autor_id: usuario.id,
+          materia_id: materiaId,
+          carrera_id: materia ? materia.carrera_id : null,
+          fecha: new Date().toISOString()
+        });
+        Utils.mostrarAlerta('Aviso publicado correctamente.', 'success');
+      }
+
+      cerrarFormulario();
+      renderAvisos();
+    });
+
+    iniciar();
+  </script>
+  <script src="../../js/chatbot.js"></script>
+  <script>Chatbot.init();</script>
+</body>
+</html>

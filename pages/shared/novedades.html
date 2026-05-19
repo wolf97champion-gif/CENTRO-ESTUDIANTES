@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novedades — CE Digital N°57</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/reset.css">
+  <link rel="stylesheet" href="../../css/components.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+</head>
+<body>
+
+  <div id="navbar"></div>
+
+  <main class="page-wrapper">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Novedades</h1>
+        <p class="page-subtitle">Últimas noticias y avisos del instituto</p>
+      </div>
+      <div id="btn-nueva-novedad" style="display:none;">
+        <a href="../delegado/novedades-admin.html" class="btn btn--primary">+ Nueva novedad</a>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-bar">
+      <span class="filters-bar__label">Filtrar:</span>
+      <button class="btn btn--sm btn--accent" data-filtro="todos" onclick="filtrar('todos')">Todas</button>
+      <button class="btn btn--sm btn--ghost" data-filtro="academico" onclick="filtrar('academico')">📚 Académico</button>
+      <button class="btn btn--sm btn--ghost" data-filtro="social" onclick="filtrar('social')">🎉 Social</button>
+      <button class="btn btn--sm btn--ghost" data-filtro="institucional" onclick="filtrar('institucional')">🏫 Institucional</button>
+      <button class="btn btn--sm btn--ghost" data-filtro="urgente" onclick="filtrar('urgente')">🔴 Urgente</button>
+      <div style="margin-left:auto;">
+        <input class="form-input" type="search" id="buscador" placeholder="Buscar..." style="width:200px; padding:6px 12px;">
+      </div>
+    </div>
+
+    <!-- Alerta global -->
+    <div id="alert-global" class="alert" style="display:none;"></div>
+
+    <!-- Lista de novedades -->
+    <div id="contenedor-novedades" class="stack">
+      <div class="spinner"></div>
+    </div>
+
+  </main>
+
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script>
+    Router.verificarAcceso();
+    Router.renderNavbar();
+
+    // Mostrar botón "nueva novedad" solo a admin y delegado
+    const perfil = Auth.getPerfil();
+    if (perfil === 'admin' || perfil === 'delegado') {
+      document.getElementById('btn-nueva-novedad').style.display = 'block';
+    }
+
+    let todasLasNovedades = [];
+    let filtroActivo = 'todos';
+
+    async function cargarNovedades() {
+      todasLasNovedades = await API.getNovedades();
+      todasLasNovedades.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+      renderizar(todasLasNovedades);
+    }
+
+    function filtrar(categoria) {
+      filtroActivo = categoria;
+
+      // Actualizar estilos de botones
+      document.querySelectorAll('[data-filtro]').forEach(btn => {
+        btn.className = btn.dataset.filtro === categoria
+          ? 'btn btn--sm btn--accent'
+          : 'btn btn--sm btn--ghost';
+      });
+
+      aplicarFiltros();
+    }
+
+    function aplicarFiltros() {
+      const busqueda = document.getElementById('buscador').value.toLowerCase();
+      let resultado = todasLasNovedades;
+
+      if (filtroActivo !== 'todos') {
+        resultado = resultado.filter(n => n.categoria === filtroActivo);
+      }
+      if (busqueda) {
+        resultado = resultado.filter(n =>
+          n.titulo.toLowerCase().includes(busqueda) ||
+          n.contenido.toLowerCase().includes(busqueda)
+        );
+      }
+
+      renderizar(resultado);
+    }
+
+    function renderizar(novedades) {
+      const contenedor = document.getElementById('contenedor-novedades');
+
+      if (novedades.length === 0) {
+        contenedor.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state__icon">📭</div>
+            <div class="empty-state__title">Sin resultados</div>
+            <div class="empty-state__text">No hay novedades que coincidan con el filtro seleccionado.</div>
+          </div>`;
+        return;
+      }
+
+      contenedor.innerHTML = novedades.map(n => `
+        <div class="novedad-card novedad-card--${n.categoria} ${n.destacada ? 'novedad-card--destacada' : ''}">
+          <div class="card__header">
+            <div>
+              ${n.destacada ? '<span style="font-size:11px;color:var(--color-primary-light);font-weight:600;">⭐ DESTACADA &nbsp;</span>' : ''}
+              <h3 class="card__title" style="font-size:16px;">${n.titulo}</h3>
+            </div>
+            <span class="badge badge--${n.categoria}" style="white-space:nowrap;">
+              ${Utils.capitalizar(n.categoria)}
+            </span>
+          </div>
+          <p class="card__body" style="margin: 8px 0 12px;">${Utils.truncar(n.contenido, 200)}</p>
+          <div class="card__meta">
+            <span>🕐 ${Utils.tiempoRelativo(n.fecha)}</span>
+            ${n.materia_id ? '<span>📖 Materia específica</span>' : ''}
+            <a href="#" class="btn btn--sm btn--ghost" style="margin-left:auto; padding:4px 10px;">
+              Ver completa →
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Buscador en tiempo real
+    document.getElementById('buscador').addEventListener('input', aplicarFiltros);
+
+    cargarNovedades();
+  </script>
+  <script src="../../js/chatbot.js"></script>
+  <script>Chatbot.init();</script>
+</body>
+</html>

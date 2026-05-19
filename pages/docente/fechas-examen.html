@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fechas de Examen — CE Digital N°57</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/reset.css">
+  <link rel="stylesheet" href="../../css/components.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+</head>
+<body>
+
+  <div id="navbar"></div>
+
+  <main class="page-wrapper">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Fechas de examen</h1>
+        <p class="page-subtitle">Cargá parciales, finales y entregas al calendario académico</p>
+      </div>
+      <button class="btn btn--primary" onclick="abrirFormulario()">+ Nueva fecha</button>
+    </div>
+
+    <div id="alert-global" class="alert" style="display:none;"></div>
+
+    <div class="layout-sidebar">
+
+      <div>
+        <!-- Formulario -->
+        <div class="card" id="panel-formulario" style="display:none; margin-bottom:var(--space-lg);">
+          <h3 id="form-titulo-panel" style="font-size:16px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-lg);">
+            Nueva fecha de examen
+          </h3>
+
+          <form id="form-fecha" novalidate>
+            <input type="hidden" id="input-id">
+
+            <div class="form-group">
+              <label class="form-label" for="input-materia">Materia *</label>
+              <select class="form-select" id="input-materia" required>
+                <option value="">-- Seleccioná una materia --</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-titulo">Título *</label>
+              <input class="form-input" type="text" id="input-titulo"
+                     placeholder="Ej: 1er Parcial — Técnicas de Programación" required>
+            </div>
+
+            <div class="grid-2" style="gap:var(--space-md);">
+              <div class="form-group">
+                <label class="form-label" for="input-fecha">Fecha *</label>
+                <input class="form-input" type="date" id="input-fecha" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="input-tipo">Tipo *</label>
+                <select class="form-select" id="input-tipo">
+                  <option value="parcial">📝 Parcial</option>
+                  <option value="final">🎓 Final</option>
+                  <option value="institucional">📋 Entrega / TP</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-descripcion">Descripción / temas que entran</label>
+              <textarea class="form-textarea" id="input-descripcion" rows="3"
+                        placeholder="Ej: Entrará todo el contenido hasta arrays y funciones..."></textarea>
+            </div>
+
+            <div style="display:flex; gap:var(--space-sm); justify-content:flex-end;">
+              <button type="button" class="btn btn--ghost" onclick="cerrarFormulario()">Cancelar</button>
+              <button type="submit" class="btn btn--primary" id="btn-guardar">Agregar al calendario</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Lista de fechas cargadas -->
+        <h3 style="font-size:16px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-md);">
+          Fechas cargadas
+        </h3>
+
+        <div class="filters-bar">
+          <span class="filters-bar__label">Tipo:</span>
+          <button class="btn btn--sm btn--accent" data-filtro="todos" onclick="filtrar('todos')">Todas</button>
+          <button class="btn btn--sm btn--ghost" data-filtro="parcial" onclick="filtrar('parcial')">📝 Parciales</button>
+          <button class="btn btn--sm btn--ghost" data-filtro="final" onclick="filtrar('final')">🎓 Finales</button>
+          <button class="btn btn--sm btn--ghost" data-filtro="institucional" onclick="filtrar('institucional')">📋 Entregas</button>
+        </div>
+
+        <div id="contenedor-fechas" class="stack" style="margin-top:var(--space-md);"></div>
+      </div>
+
+      <!-- Sidebar -->
+      <div>
+        <div class="card" style="margin-bottom:var(--space-md);">
+          <h3 style="font-size:15px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-md);">
+            📊 Resumen
+          </h3>
+          <div id="stats-fechas" class="stack--sm"></div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:15px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-md);">
+            📅 Próximas fechas
+          </h3>
+          <div id="proximas" class="stack--sm"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script>
+    Router.verificarAcceso();
+    Auth.requiereRol('admin', 'docente');
+    Router.renderNavbar();
+
+    const usuario = Auth.getUsuario();
+    let fechas = [];
+    let tipos = [];
+    let todasLasMaterias = [];
+    let filtroActivo = 'todos';
+
+    async function iniciar() {
+      const [carreras, fechasDB, tiposDB] = await Promise.all([
+        API.getCarreras(),
+        API.getFechas(),
+        API.getTiposCalendario()
+      ]);
+
+      tipos = tiposDB;
+
+      todasLasMaterias = carreras.flatMap(c =>
+        c.materias.map(m => ({ ...m, carrera_nombre: c.nombre, carrera_id: c.id }))
+      );
+
+      // Poblar select
+      const select = document.getElementById('input-materia');
+      carreras.forEach(carrera => {
+        const group = document.createElement('optgroup');
+        group.label = carrera.nombre;
+        carrera.materias.forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m.id;
+          opt.textContent = m.nombre;
+          group.appendChild(opt);
+        });
+        select.appendChild(group);
+      });
+
+      // Solo fechas con materia (las del docente)
+      fechas = fechasDB.filter(f => f.materia_id !== null);
+      fechas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+      renderStats();
+      renderProximas();
+      renderFechas(fechas);
+    }
+
+    function renderStats() {
+      const hoy = new Date(); hoy.setHours(0,0,0,0);
+      document.getElementById('stats-fechas').innerHTML = [
+        `<div class="flex-between"><span style="font-size:13px;">Total cargadas</span><strong>${fechas.length}</strong></div>`,
+        `<div class="flex-between"><span style="font-size:13px;">📝 Parciales</span><strong>${fechas.filter(f=>f.tipo==='parcial').length}</strong></div>`,
+        `<div class="flex-between"><span style="font-size:13px;">🎓 Finales</span><strong>${fechas.filter(f=>f.tipo==='final').length}</strong></div>`,
+        `<div class="flex-between"><span style="font-size:13px;">📅 Próximas</span><strong>${fechas.filter(f=>new Date(f.fecha)>=hoy).length}</strong></div>`
+      ].join('');
+    }
+
+    function renderProximas() {
+      const hoy = new Date(); hoy.setHours(0,0,0,0);
+      const proximas = fechas.filter(f => new Date(f.fecha) >= hoy).slice(0, 3);
+      document.getElementById('proximas').innerHTML = proximas.length === 0
+        ? '<p style="font-size:13px; color:var(--color-text-muted);">Sin próximas fechas cargadas.</p>'
+        : proximas.map(f => {
+            const tipo = tipos.find(t => t.id === f.tipo);
+            return `<div style="padding:8px 0; border-bottom:1px solid var(--color-border);">
+              <div style="font-size:13px; font-weight:500;">${f.titulo}</div>
+              <div style="font-size:11px; color:var(--color-text-muted); margin-top:2px;">
+                📅 ${Utils.formatearFechaCorta(f.fecha)}
+                <span class="badge" style="background:${tipo?.color}20; color:${tipo?.color}; margin-left:4px;">
+                  ${tipo?.nombre || f.tipo}
+                </span>
+              </div>
+            </div>`;
+          }).join('');
+    }
+
+    function filtrar(tipo) {
+      filtroActivo = tipo;
+      document.querySelectorAll('[data-filtro]').forEach(btn => {
+        btn.className = btn.dataset.filtro === tipo ? 'btn btn--sm btn--accent' : 'btn btn--sm btn--ghost';
+      });
+      const resultado = tipo === 'todos' ? fechas : fechas.filter(f => f.tipo === tipo);
+      renderFechas(resultado);
+    }
+
+    function renderFechas(lista) {
+      const contenedor = document.getElementById('contenedor-fechas');
+      if (lista.length === 0) {
+        contenedor.innerHTML = `<div class="empty-state">
+          <div class="empty-state__icon">📅</div>
+          <div class="empty-state__title">Sin fechas</div>
+          <div class="empty-state__text">Agregá fechas con el botón de arriba.</div>
+        </div>`;
+        return;
+      }
+      const hoy = new Date(); hoy.setHours(0,0,0,0);
+
+      contenedor.innerHTML = lista.map(f => {
+        const tipo = tipos.find(t => t.id === f.tipo);
+        const materia = todasLasMaterias.find(m => m.id === f.materia_id);
+        const pasada = new Date(f.fecha) < hoy;
+
+        return `
+          <div class="novedad-card" style="border-left-color:${tipo?.color || '#888'}; opacity:${pasada ? '.7' : '1'};">
+            <div class="card__header">
+              <div>
+                <h4 style="font-size:15px; font-weight:600;">${f.titulo}</h4>
+                ${materia ? `<div style="font-size:12px; color:var(--color-primary-light); margin-top:2px;">📖 ${materia.nombre}</div>` : ''}
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                <span class="badge" style="background:${tipo?.color}20; color:${tipo?.color};">${tipo?.nombre || f.tipo}</span>
+                ${pasada ? '<span class="badge" style="background:#f0f0f0; color:#888; font-size:10px;">Pasada</span>' : ''}
+              </div>
+            </div>
+            ${f.descripcion ? `<p class="card__body" style="margin:8px 0;">${f.descripcion}</p>` : ''}
+            <div class="card__meta" style="margin-top:8px;">
+              <span>📅 ${Utils.formatearFecha(f.fecha)}</span>
+              <div style="margin-left:auto; display:flex; gap:6px;">
+                <button class="btn btn--ghost btn--sm" onclick="editarFecha(${f.id})">✏️ Editar</button>
+                <button class="btn btn--ghost btn--sm" style="color:var(--color-danger);border-color:var(--color-danger);"
+                  onclick="eliminarFecha(${f.id})">🗑</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function abrirFormulario() {
+      document.getElementById('form-titulo-panel').textContent = 'Nueva fecha de examen';
+      document.getElementById('btn-guardar').textContent = 'Agregar al calendario';
+      document.getElementById('input-id').value = '';
+      document.getElementById('form-fecha').reset();
+      document.getElementById('panel-formulario').style.display = 'block';
+      document.getElementById('panel-formulario').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cerrarFormulario() {
+      document.getElementById('panel-formulario').style.display = 'none';
+    }
+
+    function editarFecha(id) {
+      const f = fechas.find(f => f.id === id);
+      if (!f) return;
+      document.getElementById('form-titulo-panel').textContent = 'Editar fecha';
+      document.getElementById('btn-guardar').textContent = 'Guardar cambios';
+      document.getElementById('input-id').value = f.id;
+      document.getElementById('input-titulo').value = f.titulo;
+      document.getElementById('input-fecha').value = f.fecha;
+      document.getElementById('input-tipo').value = f.tipo;
+      document.getElementById('input-descripcion').value = f.descripcion || '';
+      if (f.materia_id) document.getElementById('input-materia').value = f.materia_id;
+      document.getElementById('panel-formulario').style.display = 'block';
+      document.getElementById('panel-formulario').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function eliminarFecha(id) {
+      const f = fechas.find(f => f.id === id);
+      if (!confirm(`¿Eliminar "${f.titulo}" del calendario?`)) return;
+      fechas = fechas.filter(f => f.id !== id);
+      Utils.mostrarAlerta('Fecha eliminada del calendario.', 'warning');
+      renderStats();
+      renderProximas();
+      filtrar(filtroActivo);
+    }
+
+    document.getElementById('form-fecha').addEventListener('submit', (e) => {
+      e.preventDefault();
+      ['input-materia','input-titulo','input-fecha'].forEach(id => Utils.limpiarError(id));
+
+      const id          = document.getElementById('input-id').value;
+      const materiaId   = parseInt(document.getElementById('input-materia').value) || null;
+      const titulo      = document.getElementById('input-titulo').value.trim();
+      const fecha       = document.getElementById('input-fecha').value;
+      const tipo        = document.getElementById('input-tipo').value;
+      const descripcion = document.getElementById('input-descripcion').value.trim();
+
+      let valido = true;
+      if (!materiaId) { Utils.mostrarError('input-materia', 'Seleccioná una materia.'); valido = false; }
+      if (!titulo)    { Utils.mostrarError('input-titulo',   'Requerido.');             valido = false; }
+      if (!fecha)     { Utils.mostrarError('input-fecha',    'Requerido.');             valido = false; }
+      if (!valido) return;
+
+      const materia = todasLasMaterias.find(m => m.id === materiaId);
+
+      if (id) {
+        const f = fechas.find(f => f.id === parseInt(id));
+        Object.assign(f, { titulo, fecha, tipo, descripcion, materia_id: materiaId,
+          carrera_id: materia?.carrera_id || null });
+        Utils.mostrarAlerta('Fecha actualizada en el calendario.', 'success');
+      } else {
+        fechas.push({
+          id: Utils.nuevoId(fechas),
+          titulo, fecha, tipo, descripcion,
+          materia_id: materiaId,
+          carrera_id: materia?.carrera_id || null
+        });
+        fechas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+        Utils.mostrarAlerta('Fecha agregada al calendario correctamente.', 'success');
+      }
+
+      cerrarFormulario();
+      renderStats();
+      renderProximas();
+      filtrar(filtroActivo);
+    });
+
+    iniciar();
+  </script>
+  <script src="../../js/chatbot.js"></script>
+  <script>Chatbot.init();</script>
+</body>
+</html>

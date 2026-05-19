@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reglamentos — CE Digital N°57</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/reset.css">
+  <link rel="stylesheet" href="../../css/components.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+</head>
+<body>
+
+  <div id="navbar"></div>
+
+  <main class="page-wrapper">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Reglamentación</h1>
+        <p class="page-subtitle">Documentos oficiales, normas y preguntas frecuentes</p>
+      </div>
+    </div>
+
+    <div class="layout-sidebar">
+
+      <!-- Columna principal: documentos -->
+      <div>
+        <div class="filters-bar">
+          <span class="filters-bar__label">Categoría:</span>
+          <button class="btn btn--sm btn--accent" data-filtro="todos" onclick="filtrar('todos')">Todos</button>
+          <div id="filtros-categorias"></div>
+        </div>
+
+        <div id="alert-global" class="alert" style="display:none;"></div>
+        <div id="contenedor-docs" class="stack"></div>
+
+        <!-- FAQ -->
+        <div style="margin-top:var(--space-xl);">
+          <h2 style="font-size:18px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-md);">
+            ❓ Preguntas frecuentes
+          </h2>
+          <div id="contenedor-faq" class="stack"></div>
+        </div>
+      </div>
+
+      <!-- Sidebar: acceso rápido -->
+      <div>
+        <div class="card">
+          <h3 style="font-size:15px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-md);">
+            📌 Documentos destacados
+          </h3>
+          <div id="docs-destacados" class="stack--sm"></div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script>
+    Router.verificarAcceso();
+    Router.renderNavbar();
+
+    let todosLosDocs = [];
+    let categorias = [];
+    let filtroActivo = 'todos';
+
+    async function iniciar() {
+      [todosLosDocs, categorias] = await Promise.all([
+        API.getReglamentos(),
+        API.getCategoriasReglamentos()
+      ]);
+      const faq = await API.getFAQ();
+
+      renderFiltros();
+      renderDocs(todosLosDocs);
+      renderDestacados();
+      renderFAQ(faq);
+    }
+
+    function renderFiltros() {
+      const contenedor = document.getElementById('filtros-categorias');
+      contenedor.style.display = 'flex';
+      contenedor.style.gap = '8px';
+      contenedor.innerHTML = categorias.map(c => `
+        <button class="btn btn--sm btn--ghost" data-filtro="${c.id}" onclick="filtrar('${c.id}')">
+          ${c.nombre}
+        </button>
+      `).join('');
+    }
+
+    function filtrar(catId) {
+      filtroActivo = catId;
+      document.querySelectorAll('[data-filtro]').forEach(btn => {
+        btn.className = btn.dataset.filtro === catId
+          ? 'btn btn--sm btn--accent'
+          : 'btn btn--sm btn--ghost';
+      });
+      const resultado = catId === 'todos'
+        ? todosLosDocs
+        : todosLosDocs.filter(d => d.categoria === catId);
+      renderDocs(resultado);
+    }
+
+    function renderDocs(docs) {
+      const contenedor = document.getElementById('contenedor-docs');
+      if (docs.length === 0) {
+        contenedor.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state__icon">📂</div>
+            <div class="empty-state__title">Sin documentos</div>
+          </div>`;
+        return;
+      }
+
+      contenedor.innerHTML = docs.map(doc => {
+        const cat = categorias.find(c => c.id === doc.categoria);
+        return `
+          <div class="card" style="display:flex; align-items:center; gap:16px;">
+            <div style="font-size:40px; flex-shrink:0;">📄</div>
+            <div style="flex:1;">
+              <div class="flex-between" style="margin-bottom:4px;">
+                <h3 class="card__title" style="font-size:15px;">${doc.titulo}</h3>
+                <span class="badge" style="background:var(--color-academico-bg); color:var(--color-academico);">
+                  ${cat ? cat.nombre : doc.categoria}
+                </span>
+              </div>
+              <p class="card__body" style="margin-bottom:8px;">${doc.descripcion}</p>
+              <div class="card__meta">
+                <span>📅 Versión ${doc.version}</span>
+                <span>·</span>
+                <span>${Utils.formatearFechaCorta(doc.fecha)}</span>
+              </div>
+            </div>
+            <div style="flex-shrink:0;">
+              <a href="../../${doc.archivo}" class="btn btn--primary btn--sm" target="_blank">
+                ⬇ Descargar
+              </a>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function renderDestacados() {
+      const destacados = todosLosDocs.filter(d => d.destacado);
+      document.getElementById('docs-destacados').innerHTML = destacados.map(doc => `
+        <div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--color-border);">
+          <span style="font-size:20px;">📄</span>
+          <div>
+            <div style="font-size:13px; font-weight:500;">${doc.titulo}</div>
+            <div style="font-size:11px; color:var(--color-text-muted);">Versión ${doc.version}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderFAQ(faq) {
+      document.getElementById('contenedor-faq').innerHTML = faq.map((item, i) => `
+        <div class="card" style="cursor:pointer;" onclick="toggleFAQ(${i})">
+          <div class="flex-between">
+            <h4 style="font-size:14px; font-weight:600; color:var(--color-primary);">${item.pregunta}</h4>
+            <span id="faq-icon-${i}" style="font-size:18px; color:var(--color-text-muted);">＋</span>
+          </div>
+          <div id="faq-resp-${i}" style="display:none; margin-top:10px; font-size:13px; color:var(--color-text-muted); line-height:1.7;">
+            ${item.respuesta}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleFAQ(index) {
+      const resp = document.getElementById(`faq-resp-${index}`);
+      const icon = document.getElementById(`faq-icon-${index}`);
+      const visible = resp.style.display !== 'none';
+      resp.style.display = visible ? 'none' : 'block';
+      icon.textContent = visible ? '＋' : '－';
+    }
+
+
+
+    iniciar();
+  </script>
+  <script src="../../js/chatbot.js"></script>
+  <script>Chatbot.init();</script>
+</body>
+</html>

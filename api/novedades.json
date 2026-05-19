@@ -1,0 +1,65 @@
+{
+  "novedades": [
+    {
+      "id": 1,
+      "titulo": "Inscripción abierta — 2do cuatrimestre",
+      "contenido": "Se informa a todos los alumnos que la inscripción para el segundo cuatrimestre estará abierta desde el lunes 21 hasta el viernes 25 de abril. Deben dirigirse a la secretaría con DNI y libreta universitaria.",
+      "categoria": "academico",
+      "autor_id": 3,
+      "materia_id": null,
+      "carrera_id": null,
+      "destacada": true,
+      "fecha": "2025-04-15T09:00:00"
+    },
+    {
+      "id": 2,
+      "titulo": "Jornada de bienvenida para ingresantes",
+      "contenido": "El Centro de Estudiantes organiza una jornada de bienvenida para todos los ingresantes 2025. Habrá actividades recreativas, presentación de las carreras y sorteos. ¡Los esperamos!",
+      "categoria": "social",
+      "autor_id": 2,
+      "materia_id": null,
+      "carrera_id": null,
+      "destacada": false,
+      "fecha": "2025-04-14T14:30:00"
+    },
+    {
+      "id": 3,
+      "titulo": "Suspensión de clases — jueves 17",
+      "contenido": "Por disposición de la dirección, el día jueves 17 de abril no habrá clases en ninguna carrera. Las actividades se retoman normalmente el lunes 22.",
+      "categoria": "urgente",
+      "autor_id": 1,
+      "materia_id": null,
+      "carrera_id": null,
+      "destacada": true,
+      "fecha": "2025-04-15T07:45:00"
+    },
+    {
+      "id": 4,
+      "titulo": "Publicación del calendario de finales",
+      "contenido": "Ya está disponible el calendario de exámenes finales del primer turno. Pueden consultarlo en la sección Calendario o descargarlo desde Reglamentos.",
+      "categoria": "institucional",
+      "autor_id": 1,
+      "materia_id": null,
+      "carrera_id": null,
+      "destacada": false,
+      "fecha": "2025-04-10T10:00:00"
+    },
+    {
+      "id": 5,
+      "titulo": "Parcial de Técnicas de Programación — semana 6",
+      "contenido": "El primer parcial de Técnicas de Programación se realizará el miércoles de la semana 6. Entrará todo el contenido visto hasta arrays y funciones. Consultas por mail.",
+      "categoria": "academico",
+      "autor_id": 3,
+      "materia_id": 1,
+      "carrera_id": 1,
+      "destacada": false,
+      "fecha": "2025-04-08T11:00:00"
+    }
+  ],
+  "categorias": [
+    { "id": "academico",     "nombre": "Académico",     "color": "#1A6FA0", "bg": "#EAF4FB" },
+    { "id": "social",        "nombre": "Social",        "color": "#1A7A42", "bg": "#EAFAF1" },
+    { "id": "institucional", "nombre": "Institucional", "color": "#9A6F08", "bg": "#FEF9E7" },
+    { "id": "urgente",       "nombre": "Urgente",       "color": "#A93226", "bg": "#FDEDEC" }
+  ]
+}

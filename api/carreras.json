@@ -1,0 +1,24 @@
+{
+  "carreras": [
+    {
+      "id": 1,
+      "codigo": "TSCDIAI",
+      "nombre": "Tecnicatura Superior en Ciencia de Datos e Inteligencia Artificial",
+      "materias": [
+        { "id": 1, "nombre": "Técnicas de Programación",        "semestre": 1, "docente_id": 3 },
+        { "id": 2, "nombre": "Aproximación al Campo Laboral",   "semestre": 2, "docente_id": 3 },
+        { "id": 3, "nombre": "Administración de Bases de Datos","semestre": 1, "docente_id": null },
+        { "id": 4, "nombre": "Matemática para Datos",           "semestre": 1, "docente_id": null }
+      ]
+    },
+    {
+      "id": 2,
+      "codigo": "TSRC",
+      "nombre": "Tecnicatura Superior en Redes y Comunicaciones",
+      "materias": [
+        { "id": 5, "nombre": "Redes I",            "semestre": 1, "docente_id": null },
+        { "id": 6, "nombre": "Sistemas Operativos", "semestre": 1, "docente_id": null }
+      ]
+    }
+  ]
+}

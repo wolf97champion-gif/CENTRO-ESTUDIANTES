@@ -1,0 +1,20 @@
+{
+  "fechas": [
+    { "id": 1, "titulo": "Inicio del cuatrimestre",        "tipo": "institucional", "fecha": "2025-03-10", "materia_id": null, "carrera_id": null, "descripcion": "Inicio oficial del primer cuatrimestre 2025." },
+    { "id": 2, "titulo": "Parcial — Técnicas de Programación", "tipo": "parcial",  "fecha": "2025-04-23", "materia_id": 1,    "carrera_id": 1,    "descripcion": "Primer parcial. Contenido: hasta arrays y funciones." },
+    { "id": 3, "titulo": "Parcial — Aproximación al Campo Laboral", "tipo": "parcial", "fecha": "2025-04-30", "materia_id": 2, "carrera_id": 1,  "descripcion": "Trabajo práctico integrador primera parte." },
+    { "id": 4, "titulo": "Feriado nacional — Día del Trabajador", "tipo": "feriado", "fecha": "2025-05-01", "materia_id": null, "carrera_id": null, "descripcion": "No hay clases." },
+    { "id": 5, "titulo": "Semana de finales — 1er turno",   "tipo": "final",        "fecha": "2025-07-07", "materia_id": null, "carrera_id": null, "descripcion": "Inicio del primer turno de exámenes finales." },
+    { "id": 6, "titulo": "Receso invernal",                  "tipo": "receso",       "fecha": "2025-07-14", "materia_id": null, "carrera_id": null, "descripcion": "Receso invernal institucional. Dos semanas." },
+    { "id": 7, "titulo": "Inicio 2do cuatrimestre",          "tipo": "institucional","fecha": "2025-08-04", "materia_id": null, "carrera_id": null, "descripcion": "Reanudación de clases segundo cuatrimestre." },
+    { "id": 8, "titulo": "Jornada de bienvenida 2025",       "tipo": "evento",       "fecha": "2025-04-25", "materia_id": null, "carrera_id": null, "descripcion": "Organizada por el Centro de Estudiantes." }
+  ],
+  "tipos": [
+    { "id": "parcial",       "nombre": "Parcial / Examen", "color": "#E74C3C" },
+    { "id": "final",         "nombre": "Final",            "color": "#8E44AD" },
+    { "id": "institucional", "nombre": "Institucional",    "color": "#1A3A5C" },
+    { "id": "feriado",       "nombre": "Feriado",          "color": "#7F8C8D" },
+    { "id": "receso",        "nombre": "Receso",           "color": "#F39C12" },
+    { "id": "evento",        "nombre": "Evento CE",        "color": "#2ECC71" }
+  ]
+}
