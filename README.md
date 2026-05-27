@@ -1,7 +1,7 @@
 # Centro de Estudiantes Digital — Instituto N°57
 
 Proyecto Integrador — Tecnicatura Superior en Ciencia de Datos e IA  
-Materias: Técnicas de Programación + Aproximación al Campo Laboral
+Materias: Técnicas de Programación + Aproximación al Campo Laboral 
 
 ---
 
