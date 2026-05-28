@@ -7,6 +7,7 @@ Materias: Técnicas de Programación + Aproximación al Campo Laboral
 
 ## Descripción 
 
+
 Plataforma web para centralizar la comunicación y gestión académica del instituto.  
 Permite publicar novedades, consultar el calendario, inscribirse a eventos y acceder a reglamentos, con acceso diferenciado según el rol del usuario.
 
