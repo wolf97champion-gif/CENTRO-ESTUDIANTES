@@ -5,6 +5,7 @@ Materias: Técnicas de Programación + Aproximación al Campo Laboral
 
 ---
 
+
 ## Descripción 
 
 Plataforma web para centralizar la comunicación y gestión académica del instituto.  
