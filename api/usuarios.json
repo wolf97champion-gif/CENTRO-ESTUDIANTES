@@ -1,59 +1,33 @@
-{
-  "usuarios": [
-    {
-      "id": 1,
-      "dni": "11111111",
-      "nombre": "Carlos Administrador",
-      "email": "admin@instituto57.edu.ar",
-      "password": "admin123",
-      "perfil": "admin",
-      "carrera_id": null,
-      "activo": true,
-      "avatar": "CA"
-    },
-    {
-      "id": 2,
-      "dni": "22222222",
-      "nombre": "Laura Delegada",
-      "email": "delegado@instituto57.edu.ar",
-      "password": "delegado123",
-      "perfil": "delegado",
-      "carrera_id": 1,
-      "activo": true,
-      "avatar": "LD"
-    },
-    {
-      "id": 3,
-      "dni": "33333333",
-      "nombre": "Prof. Martín García",
-      "email": "garcia@instituto57.edu.ar",
-      "password": "docente123",
-      "perfil": "docente",
-      "carrera_id": null,
-      "activo": true,
-      "avatar": "MG"
-    },
-    {
-      "id": 4,
-      "dni": "44444444",
-      "nombre": "Juan Pérez",
-      "email": "juan@instituto57.edu.ar",
-      "password": "alumno123",
-      "perfil": "alumno",
-      "carrera_id": 1,
-      "activo": true,
-      "avatar": "JP"
-    },
-    {
-      "id": 5,
-      "dni": "55555555",
-      "nombre": "María López",
-      "email": "maria@instituto57.edu.ar",
-      "password": "alumno123",
-      "perfil": "alumno",
-      "carrera_id": 2,
-      "activo": true,
-      "avatar": "ML"
-    }
-  ]
-}
+[
+  {
+    "id": 1,
+    "usuario": "admin",
+    "password": "1234",
+    "rol": "admin",
+    "nombre": "Administrador General"
+  },
+
+  {
+    "id": 2,
+    "usuario": "delegado",
+    "password": "1234",
+    "rol": "delegado",
+    "nombre": "Delegado Curso"
+  },
+
+  {
+    "id": 3,
+    "usuario": "docente",
+    "password": "1234",
+    "rol": "docente",
+    "nombre": "Profesor Instituto"
+  },
+
+  {
+    "id": 4,
+    "usuario": "estudiante",
+    "password": "1234",
+    "rol": "estudiante",
+    "nombre": "Alumno Regular"
+  }
+]

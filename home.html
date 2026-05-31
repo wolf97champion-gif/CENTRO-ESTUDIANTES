@@ -458,6 +458,7 @@
     }
   </style>
 </head>
+
 <body>
 
 <div class="home-layout">
@@ -601,32 +602,48 @@
     </div>
 
     <nav class="sidebar__nav">
-      <a class="sidebar__nav-item sidebar__nav-item--active" href="home.html">
-        <span class="sidebar__nav-icon">🏠</span> Inicio
-      </a>
-      <a class="sidebar__nav-item" href="#" onclick="irA('pages/shared/novedades.html'); return false;">
-        <span class="sidebar__nav-icon">📢</span> Novedades
-      </a>
-      <a class="sidebar__nav-item" href="#" onclick="irA('pages/shared/eventos.html'); return false;">
-        <span class="sidebar__nav-icon">🎉</span> Eventos
-      </a>
-      <a class="sidebar__nav-item" href="#" onclick="irA('pages/shared/calendario.html'); return false;">
-        <span class="sidebar__nav-icon">📅</span> Calendario
-      </a>
-      <a class="sidebar__nav-item" href="#">
-        <span class="sidebar__nav-icon">💡</span> Propuestas
-      </a>
-      <a class="sidebar__nav-item" href="#" onclick="irA('pages/shared/reglamentos.html'); return false;">
-        <span class="sidebar__nav-icon">📁</span> Documentos
-      </a>
-      <a class="sidebar__nav-item" href="#">
-        <span class="sidebar__nav-icon">✉️</span> Contacto
-      </a>
-      <a class="sidebar__nav-item" href="#">
-        <span class="sidebar__nav-icon">👥</span> Nosotros
-      </a>
-    </nav>
 
+  <a class="sidebar__nav-item sidebar__nav-item--active" href="home.html">
+    <span class="sidebar__nav-icon">🏠</span>
+    Inicio
+  </a>
+
+  <a class="sidebar__nav-item" href="pages/shared/novedades.html">
+    <span class="sidebar__nav-icon">📢</span>
+    Novedades
+  </a>
+
+  <a class="sidebar__nav-item" href="pages/shared/eventos.html">
+    <span class="sidebar__nav-icon">🎉</span>
+    Eventos
+  </a>
+
+  <a class="sidebar__nav-item" href="pages/shared/calendario.html">
+    <span class="sidebar__nav-icon">📅</span>
+    Calendario
+  </a>
+
+  <a class="sidebar__nav-item" href="pages/shared/propuestas.html">
+    <span class="sidebar__nav-icon">💡</span>
+    Propuestas
+  </a>
+
+  <a class="sidebar__nav-item" href="pages/shared/reglamentos.html">
+    <span class="sidebar__nav-icon">📁</span>
+    Documentos
+  </a>
+
+  <a class="sidebar__nav-item" href="pages/shared/contacto.html">
+    <span class="sidebar__nav-icon">📞</span>
+    Contacto
+  </a>
+
+  <a class="sidebar__nav-item" href="pages/shared/nosotros.html">
+    <span class="sidebar__nav-icon">👥</span>
+    Nosotros
+  </a>
+
+</nav>
 
   </aside>
 
@@ -1063,25 +1080,29 @@
   // ── Navegación protegida desde el sidebar ────────────────────────────────
   // Si el usuario no está logueado, muestra un aviso en el sidebar
   // en vez de mandarlo a una página que lo va a rechazar.
-  function irA(url) {
-    if (typeof Auth !== 'undefined' && Auth.estaLogueado()) {
-      window.location.href = typeof Router !== 'undefined' ? Router.url(url) : url;
-    } else {
-      // Abrir el panel de login del botón 👤 y mostrar aviso
-      userPanelAbierto = false;
-      toggleUserPanel();
-      setTimeout(() => {
-        const emailInput = document.getElementById('up-email');
-        if (emailInput) emailInput.focus();
-        const alertEl = document.getElementById('user-panel-alert');
-        if (alertEl) {
-          alertEl.textContent   = '⚠️ Iniciá sesión para acceder a esa sección.';
-          alertEl.style.display = 'block';
-          setTimeout(() => { alertEl.style.display = 'none'; }, 4000);
-        }
-      }, 100);
-    }
+  // ========================================
+  // FUNCION IR A PAGINA
+  // ========================================
+
+     function irA(url) {
+
+  // VALIDAR URL
+
+     if (!url) {
+
+    console.error(
+      "No se envio ninguna URL"
+    );
+
+    return;
+
   }
+
+  // REDIRECCION
+
+  window.location.href = url;
+
+}
 
 
   // ── CHATBOT FLOTANTE — toggle ─────────────────────────────────────────────

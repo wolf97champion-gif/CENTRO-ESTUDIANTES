@@ -1,0 +1,310 @@
+/* =========================================
+   LOGIN - CENTRO DE ESTUDIANTES
+========================================= */
+
+/* RESET */
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* BODY */
+
+body{
+
+  font-family: "Segoe UI", sans-serif;
+
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #07111f,
+      #0f172a,
+      #111827
+    );
+
+  overflow: hidden;
+
+  position: relative;
+}
+
+/* EFECTO FONDO */
+
+body::before{
+
+  content: "";
+
+  position: absolute;
+
+  width: 600px;
+  height: 600px;
+
+  background:
+    rgba(59,130,246,0.15);
+
+  border-radius: 50%;
+
+  filter: blur(120px);
+
+  top: -150px;
+  left: -150px;
+}
+
+body::after{
+
+  content: "";
+
+  position: absolute;
+
+  width: 500px;
+  height: 500px;
+
+  background:
+    rgba(14,165,233,0.12);
+
+  border-radius: 50%;
+
+  filter: blur(100px);
+
+  bottom: -120px;
+  right: -120px;
+}
+
+/* CONTENEDOR LOGIN */
+
+.login-container{
+
+  width: 100%;
+  max-width: 430px;
+
+  padding: 20px;
+
+  position: relative;
+
+  z-index: 2;
+}
+
+/* FORMULARIO */
+
+#loginForm{
+
+  background:
+    rgba(255,255,255,0.08);
+
+  border:
+    1px solid rgba(255,255,255,0.15);
+
+  backdrop-filter: blur(18px);
+
+  border-radius: 24px;
+
+  padding: 45px 35px;
+
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.35);
+
+  animation:
+    fadeIn 0.8s ease;
+}
+
+/* TITULO */
+
+.login-title{
+
+  text-align: center;
+
+  color: white;
+
+  font-size: 2rem;
+
+  margin-bottom: 10px;
+
+  font-weight: 700;
+}
+
+/* SUBTITULO */
+
+.login-subtitle{
+
+  text-align: center;
+
+  color:
+    rgba(255,255,255,0.7);
+
+  margin-bottom: 35px;
+
+  font-size: 0.95rem;
+}
+
+/* INPUT GROUP */
+
+.input-group{
+
+  margin-bottom: 22px;
+
+  display: flex;
+
+  flex-direction: column;
+}
+
+/* LABEL */
+
+.input-group label{
+
+  color:
+    rgba(255,255,255,0.9);
+
+  margin-bottom: 8px;
+
+  font-size: 0.95rem;
+
+  font-weight: 500;
+}
+
+/* INPUTS */
+
+.input-group input,
+.input-group select{
+
+  width: 100%;
+
+  padding: 14px 16px;
+
+  border-radius: 14px;
+
+  border:
+    1px solid rgba(255,255,255,0.15);
+
+  background:
+    rgba(255,255,255,0.08);
+
+  color: white;
+
+  font-size: 1rem;
+
+  outline: none;
+
+  transition: all 0.3s ease;
+}
+
+/* PLACEHOLDER */
+
+.input-group input::placeholder{
+
+  color:
+    rgba(255,255,255,0.5);
+}
+
+/* FOCUS */
+
+.input-group input:focus,
+.input-group select:focus{
+
+  border-color: #3b82f6;
+
+  background:
+    rgba(255,255,255,0.12);
+
+  box-shadow:
+    0 0 0 4px rgba(59,130,246,0.15);
+}
+
+/* SELECT OPTIONS */
+
+.input-group select option{
+
+  background: #0f172a;
+
+  color: white;
+}
+
+/* BOTON LOGIN */
+
+.btn-login{
+
+  width: 100%;
+
+  padding: 15px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #3b82f6
+    );
+
+  color: white;
+
+  font-size: 1rem;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+}
+
+/* HOVER BOTON */
+
+.btn-login:hover{
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 25px rgba(37,99,235,0.35);
+}
+
+/* ACTIVE BOTON */
+
+.btn-login:active{
+
+  transform: scale(0.98);
+}
+
+/* ANIMACION */
+
+@keyframes fadeIn{
+
+  from{
+
+    opacity: 0;
+
+    transform:
+      translateY(25px);
+  }
+
+  to{
+
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+}
+
+/* RESPONSIVE */
+
+@media(max-width: 500px){
+
+  #loginForm{
+
+    padding: 35px 25px;
+  }
+
+  .login-title{
+
+    font-size: 1.7rem;
+  }
+
+}

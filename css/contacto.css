@@ -1,0 +1,301 @@
+/* =========================================
+   CONTACTO - CENTRO DE ESTUDIANTES
+========================================= */
+
+/* RESET */
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* BODY */
+
+body{
+
+  font-family: "Segoe UI", sans-serif;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f4f7fb,
+      #e9eef7
+    );
+
+  color: #0f172a;
+
+  min-height: 100vh;
+}
+
+/* HEADER */
+
+.contact-header{
+
+  width: 100%;
+
+  padding: 30px 20px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0f172a,
+      #1e3a8a
+    );
+
+  color: white;
+
+  text-align: center;
+
+  box-shadow:
+    0 4px 20px rgba(0,0,0,0.15);
+}
+
+/* TITULO */
+
+.contact-title{
+
+  font-size: 2.3rem;
+
+  margin-bottom: 10px;
+
+  font-weight: 700;
+}
+
+/* SUBTITULO */
+
+.contact-subtitle{
+
+  font-size: 1rem;
+
+  opacity: 0.85;
+}
+
+/* CONTENEDOR */
+
+.contact-container{
+
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 50px auto;
+
+  padding: 20px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(320px, 1fr));
+
+  gap: 30px;
+}
+
+/* TARJETAS */
+
+.contact-card{
+
+  background: white;
+
+  border-radius: 22px;
+
+  padding: 35px;
+
+  box-shadow:
+    0 10px 30px rgba(15,23,42,0.08);
+
+  transition: 0.3s ease;
+}
+
+/* HOVER TARJETA */
+
+.contact-card:hover{
+
+  transform: translateY(-5px);
+
+  box-shadow:
+    0 18px 35px rgba(30,58,138,0.12);
+}
+
+/* TITULO TARJETA */
+
+.card-title{
+
+  font-size: 1.4rem;
+
+  color: #1e3a8a;
+
+  margin-bottom: 25px;
+
+  font-weight: 700;
+}
+
+/* INFO */
+
+.contact-info{
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 18px;
+}
+
+/* ITEM */
+
+.info-item{
+
+  background:
+    rgba(30,58,138,0.05);
+
+  border-left:
+    4px solid #2563eb;
+
+  padding: 14px 16px;
+
+  border-radius: 12px;
+}
+
+/* TEXTO */
+
+.info-item h4{
+
+  color: #1e3a8a;
+
+  margin-bottom: 5px;
+
+  font-size: 1rem;
+}
+
+.info-item p{
+
+  color: #334155;
+
+  font-size: 0.95rem;
+}
+
+/* FORMULARIO */
+
+.contact-form{
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+/* INPUTS */
+
+.contact-form input,
+.contact-form textarea{
+
+  width: 100%;
+
+  padding: 14px 16px;
+
+  border-radius: 14px;
+
+  border:
+    1px solid #cbd5e1;
+
+  background: #f8fafc;
+
+  font-size: 1rem;
+
+  outline: none;
+
+  transition: 0.3s ease;
+}
+
+/* TEXTAREA */
+
+.contact-form textarea{
+
+  resize: none;
+
+  min-height: 140px;
+}
+
+/* FOCUS */
+
+.contact-form input:focus,
+.contact-form textarea:focus{
+
+  border-color: #2563eb;
+
+  background: white;
+
+  box-shadow:
+    0 0 0 4px rgba(37,99,235,0.12);
+}
+
+/* BOTON */
+
+.btn-contact{
+
+  padding: 15px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #3b82f6
+    );
+
+  color: white;
+
+  font-size: 1rem;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.3s ease;
+}
+
+/* HOVER BOTON */
+
+.btn-contact:hover{
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 25px rgba(37,99,235,0.25);
+}
+
+/* FOOTER */
+
+.contact-footer{
+
+  margin-top: 50px;
+
+  padding: 25px;
+
+  background: #0f172a;
+
+  color: rgba(255,255,255,0.7);
+
+  text-align: center;
+
+  font-size: 0.95rem;
+}
+
+/* RESPONSIVE */
+
+@media(max-width: 768px){
+
+  .contact-title{
+
+    font-size: 1.9rem;
+  }
+
+  .contact-container{
+
+    grid-template-columns: 1fr;
+  }
+
+}

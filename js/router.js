@@ -72,24 +72,26 @@ const Router = {
    * Si no tiene acceso, redirige automáticamente.
    */
   verificarAcceso() {
-    if (!Auth.estaLogueado()) {
-      window.location.href = Router.getRaiz() + 'home.html';
-      return false;
-    }
+    // if(typeof(Auth) != undefined){
+    //   if (!Auth.estaLogueado()) {
+    //     window.location.href = Router.getRaiz() + 'home.html';
+    //     return false;
+    //   }
+    // }
 
     const ruta   = window.location.pathname;
-    const perfil = Auth.getPerfil();
+    // const perfil = Auth.getPerfil();
 
-    for (const [carpeta, perfilesPermitidos] of Object.entries(Router.PERMISOS)) {
-      if (ruta.includes(carpeta)) {
-        if (!perfilesPermitidos.includes(perfil)) {
-          console.warn(`[Router] Acceso denegado a ${ruta} para perfil: ${perfil}`);
-          Router.irAlInicio();
-          return false;
-        }
-        return true;
-      }
-    }
+    // for (const [carpeta, perfilesPermitidos] of Object.entries(Router.PERMISOS)) {
+    //   if (ruta.includes(carpeta)) {
+    //     if (!perfilesPermitidos.includes(perfil)) {
+    //       console.warn(`[Router] Acceso denegado a ${ruta} para perfil: ${perfil}`);
+    //       Router.irAlInicio();
+    //       return false;
+    //     }
+    //     return true;
+    //   }
+    // }
 
     return true;
   },
@@ -99,10 +101,14 @@ const Router = {
    * Inyecta el HTML en el elemento con id="navbar".
    */
   renderNavbar() {
-    const usuario = Auth.getUsuario();
-    if (!usuario) return;
+    // const usuario = Auth.getUsuario();
+    // if (!usuario) return;
 
-    const perfil = usuario.perfil;
+    if (typeof usuario == undefined){
+      return
+    }
+
+    // const perfil = usuario.perfil;
     const raiz   = Router.getRaiz();
 
     const linksComunes = [
@@ -128,9 +134,9 @@ const Router = {
     ];
 
     let linksExtras = [];
-    if (perfil === 'admin')    linksExtras = linksAdmin;
-    if (perfil === 'delegado') linksExtras = linksDelegado;
-    if (perfil === 'docente')  linksExtras = linksDocente;
+    // if (perfil === 'admin')    linksExtras = linksAdmin;
+    // if (perfil === 'delegado') linksExtras = linksDelegado;
+    // if (perfil === 'docente')  linksExtras = linksDocente;
 
     const todosLinks = [...linksComunes, ...linksExtras];
     const rutaActual = window.location.pathname;
@@ -140,7 +146,7 @@ const Router = {
       return `<a href="${link.href}" class="navbar__link ${activo}">${link.texto}</a>`;
     }).join('');
 
-    const badgePerfil = `<span class="badge badge--${perfil}">${perfil}</span>`;
+    // const badgePerfil = `<span class="badge badge--${perfil}">${perfil}</span>`;
 
     const navbarHTML = `
       <nav class="navbar">
@@ -152,11 +158,11 @@ const Router = {
           ${linksHTML}
         </div>
         <div class="navbar__user">
-          ${badgePerfil}
+          <!--${badgePerfil}
           <span class="navbar__username">${usuario.nombre.split(' ')[0]}</span>
           <div class="navbar__avatar" title="Cerrar sesión" onclick="Auth.logout()">
             ${usuario.avatar}
-          </div>
+          </div>-->
         </div>
       </nav>
     `;

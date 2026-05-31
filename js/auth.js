@@ -1,58 +1,100 @@
-// =====================================
-// LOGIN CE DIGITAL
-// =====================================
+/* =========================================
+   AUTH.JS
+   Sistema de Login CE Digital
+========================================= */
 
-const loginForm = document.getElementById("loginForm");
+document.addEventListener('DOMContentLoaded', () => {
 
-loginForm.addEventListener("submit", function (e) {
+  // ===== FORM =====
+  const form = document.getElementById('loginForm');
 
-  e.preventDefault();
+  if (!form) return;
 
-  // =========================
-  // OBTENER DATOS
-  // =========================
+  // ===== SUBMIT LOGIN =====
+  form.addEventListener('submit', async (e) => {
 
-  const usuario = document.getElementById("usuario").value.trim();
+    e.preventDefault();
 
-  const password = document.getElementById("password").value.trim();
+    // ===== CAMPOS =====
+    const usuario = document
+      .getElementById('usuario')
+      .value
+      .trim();
 
-  const rol = document.getElementById("rol").value;
+    const password = document
+      .getElementById('password')
+      .value
+      .trim();
 
-  // =========================
-  // VALIDACIONES
-  // =========================
+    const rol = document
+      .getElementById('rol')
+      .value;
 
-  if (usuario === "" || password === "" || rol === "") {
+    // ===== VALIDACION SIMPLE =====
+    if (!usuario || !password || !rol) {
 
-    alert("Completa todos los campos.");
+      alert('Completar todos los campos');
 
-    return;
-  }
+      return;
+    }
 
-  // =========================
-  // REDIRECCIONES
-  // =========================
+    try {
 
-  switch (rol) {
+      // ===== LEER JSON =====
+      const response = await fetch('../../api/usuarios.json');
 
-    case "estudiante":
-      window.location.href = "home-estudiante.html";
-      break;
+      if (!response.ok) {
+        throw new Error('No se pudo cargar usuarios.json');
+      }
 
-    case "docente":
-      window.location.href = "home-docente.html";
-      break;
+      const usuarios = await response.json();
 
-    case "delegado":
-      window.location.href = "home-delegado.html";
-      break;
+      // ===== BUSCAR USUARIO =====
+      const usuarioEncontrado = usuarios.find(user => {
 
-    case "admin":
-      window.location.href = "home-admin.html";
-      break;
+        return (
+          user.usuario === usuario &&
+          user.password === password &&
+          user.rol === rol
+        );
 
-    default:
-      alert("Rol no válido.");
-  }
+      });
+
+      // ===== LOGIN OK =====
+      if (usuarioEncontrado) {
+
+        // ===== GUARDAR SESION =====
+        localStorage.setItem(
+          'usuarioActivo',
+          JSON.stringify(usuarioEncontrado)
+        );
+
+        // ===== MENSAJE =====
+        alert(`Bienvenido ${usuarioEncontrado.nombre}`);
+
+        // ===== REDIRECCION =====
+        window.location.href = '../../home.html';
+
+      }
+
+      // ===== LOGIN ERROR =====
+      else {
+
+        alert('Usuario, contraseña o perfil incorrecto');
+
+      }
+
+    }
+
+    // ===== ERROR GENERAL =====
+    catch (error) {
+
+      console.error(error);
+
+      alert('Error al iniciar sesión');
+
+    }
+
+  });
 
 });
