@@ -12,9 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const usuario = document.getElementById('usuario').value.trim();
     const password = document.getElementById('password').value.trim();
-    const rol = document.getElementById('rol').value;
 
-    if (!usuario || !password || !rol) {
+    if (!usuario || !password) {
       alert('Completar todos los campos');
       return;
     }
@@ -25,18 +24,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const usuarios = await response.json();
 
+      // Buscar usuario solo por usuario y contraseña
       const usuarioEncontrado = usuarios.find(user =>
-        user.usuario === usuario &&
-        user.password === password &&
-        user.rol === rol
+        user.usuario === usuario && user.password === password
       );
 
       if (usuarioEncontrado) {
         localStorage.setItem('usuarioActivo', JSON.stringify(usuarioEncontrado));
-        alert(`Bienvenido ${usuarioEncontrado.nombre}`);
+        alert(`Bienvenido ${usuarioEncontrado.nombre} (Rol: ${usuarioEncontrado.rol})`);
         window.location.href = '../../home.html';
       } else {
-        alert('Usuario, contraseña o perfil incorrecto');
+        alert('Usuario o contraseña incorrectos');
       }
 
     } catch (error) {
@@ -69,3 +67,4 @@ const Auth = {
     return usuario ? usuario.rol : null;
   }
 };
+

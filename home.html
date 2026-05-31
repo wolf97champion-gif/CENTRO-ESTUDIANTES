@@ -903,32 +903,51 @@ document.addEventListener('click', (e) => {
     renderCal();
   }
 
-  // ── CAROUSEL ─────────────────────────────────────────────────────────────
-  const slides = [
-    { eyebrow:'Instituto N°57',          title:'Tu voz,<br>nuestra fuerza',      desc:'Trabajamos todos los días por un instituto más inclusivo, participativo y democrático.', illo:'',    btn:'Sumate'      },
-    { eyebrow:'Próximas elecciones',     title:'Elegí a tus<br>representantes',   desc:'Participá en las elecciones del Centro de Estudiantes y hacé escuchar tu voz.',          illo:'🗳️✊', btn:'Más info'     },
-    { eyebrow:'Torneo Intercursos 2025', title:'¡Sumá<br>tu curso!',              desc:'Ya están abiertas las inscripciones. ¡No te lo pierdas!',                                 illo:'⚽🏆', btn:'Inscribirme'  },
-  ];
-  let slideIdx = 0;
-  const ILLO_EDIFICIO = document.getElementById('hero-illo').innerHTML;
+ // ── CAROUSEL ─────────────────────────────────────────────────────────────
+// ── CAROUSEL ─────────────────────────────────────────────────────────────
+const slides = [
+  { eyebrow:'Instituto N°57',          title:'Tu voz,<br>nuestra fuerza',      
+    desc:'Trabajamos todos los días por un instituto más inclusivo, participativo y democrático.', 
+    illo:'', btn:'Sumate' },
 
-  function goSlide(i) {
-    slideIdx = i;
-    const s = slides[i];
-    document.getElementById('hero-eyebrow').textContent = s.eyebrow;
-    document.getElementById('hero-title').innerHTML     = s.title;
-    document.getElementById('hero-desc').textContent    = s.desc;
-    document.getElementById('hero-btn').textContent     = s.btn;
-    document.querySelectorAll('.dot').forEach((d, j) => d.classList.toggle('dot--active', j === i));
-    const iloEl = document.getElementById('hero-illo');
-    if (i === 0) {
-      iloEl.innerHTML = ILLO_EDIFICIO;
-    } else {
-      iloEl.innerHTML = `<span style="font-size:80px;line-height:1;">${s.illo}</span>`;
-    }
+  { eyebrow:'Próximas elecciones',     title:'Elegí a tus<br>representantes',   
+    desc:'Participá en las elecciones del Centro de Estudiantes y hacé escuchar tu voz.', 
+    illo:'🗳️✊', btn:'Más info' },
+
+  // 🔽 Reemplazo del Torneo por temas académicos
+  { eyebrow:'Abril / Mayo',            title:'Parciales<br>en camino',          
+    desc:'Durante los primeros meses se rinden los parciales. Organizá tu estudio y consultá fechas.', 
+    illo:'✍️📖', btn:'Ver cronograma' },
+
+  { eyebrow:'Junio / Julio',           title:'Promociones<br>de materias',      
+    desc:'Recordá que podés promocionar asignaturas si cumplís con los requisitos. ¡Aprovechá la oportunidad!', 
+    illo:'🎓✅', btn:'Más detalles' },
+
+  { eyebrow:'Julio / Agosto',          title:'Final del<br>cuatrimestre',       
+    desc:'Se acercan los exámenes finales. ¡Estén atentos y preparen sus materias!', 
+    illo:'📚📝', btn:'Ver calendario' }
+];
+let slideIdx = 0;
+const ILLO_EDIFICIO = document.getElementById('hero-illo').innerHTML;
+
+function goSlide(i) {
+  slideIdx = i;
+  const s = slides[i];
+  document.getElementById('hero-eyebrow').textContent = s.eyebrow;
+  document.getElementById('hero-title').innerHTML     = s.title;
+  document.getElementById('hero-desc').textContent    = s.desc;
+  document.getElementById('hero-btn').textContent     = s.btn;
+  document.querySelectorAll('.dot').forEach((d, j) => d.classList.toggle('dot--active', j === i));
+  const iloEl = document.getElementById('hero-illo');
+  if (i === 0) {
+    iloEl.innerHTML = ILLO_EDIFICIO;
+  } else {
+    iloEl.innerHTML = `<span style="font-size:80px;line-height:1;">${s.illo}</span>`;
   }
+}
 
-  setInterval(() => goSlide((slideIdx + 1) % slides.length), 5000);
+setInterval(() => goSlide((slideIdx + 1) % slides.length), 5000);
+
 
   // ── NOVEDADES ────────────────────────────────────────────────────────────
   async function cargarNovedades() {
@@ -999,6 +1018,16 @@ document.addEventListener('click', (e) => {
       document.getElementById('notif-badge').style.display = 'none';
     } catch {
       el.innerHTML = '<p style="text-align:center;font-size:12px;color:#9CA3AF;padding:16px;">No se pudieron cargar las novedades.</p>';
+    }
+  }
+
+    function toggleNotif() {
+    const panel = document.getElementById("notif-panel");
+    if (panel.style.display === "block") {
+      panel.style.display = "none";
+    } else {
+      panel.style.display = "block";
+      cargarNotifPanel();
     }
   }
 

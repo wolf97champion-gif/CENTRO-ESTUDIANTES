@@ -6,7 +6,6 @@
     "rol": "admin",
     "nombre": "Administrador General"
   },
-
   {
     "id": 2,
     "usuario": "delegado",
@@ -14,7 +13,6 @@
     "rol": "delegado",
     "nombre": "Delegado Curso"
   },
-
   {
     "id": 3,
     "usuario": "docente",
@@ -22,7 +20,6 @@
     "rol": "docente",
     "nombre": "Profesor Instituto"
   },
-
   {
     "id": 4,
     "usuario": "estudiante",
