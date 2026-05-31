@@ -24,17 +24,18 @@ const API = {
   },
 
   // ---- Usuarios ----
+async getUsuarios() {
+  const res = await fetch(`${API.getBase()}/usuarios.json`);
+  if (!res.ok) throw new Error("No se pudo cargar usuarios.json");
+  const data = await res.json();   // leer una sola vez
+  return data;                     // devolver el resultado
+},
 
-  async getUsuarios() {
-    const res = await fetch(`${API.getBase()}/usuarios.json`);
-    const data = await res.json();
-    return data.usuarios;
-  },
+async getUsuarioPorId(id) {
+  const usuarios = await API.getUsuarios();
+  return usuarios.find(u => u.id === parseInt(id)) || null;
+},
 
-  async getUsuarioPorId(id) {
-    const usuarios = await API.getUsuarios();
-    return usuarios.find(u => u.id === parseInt(id)) || null;
-  },
 
   // ---- Novedades ----
 
