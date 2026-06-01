@@ -1,0 +1,50 @@
+.propuestas-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.propuestas-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #1A3A5C;
+}
+
+.propuestas-subtitle {
+  font-size: 16px;
+  color: #6B7280;
+  margin-bottom: 30px;
+}
+
+.propuestas-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.propuesta-item {
+  background: #fff;
+  border: 1px solid #E0E4EA;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.propuesta-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.propuesta-desc {
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+.propuesta-tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4A9FDB;
+}

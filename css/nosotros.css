@@ -1,0 +1,41 @@
+.nosotros-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.nosotros-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1A3A5C;
+  margin-bottom: 10px;
+}
+
+.nosotros-subtitle {
+  font-size: 16px;
+  color: #6B7280;
+  margin-bottom: 30px;
+}
+
+.nosotros-content p {
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.nosotros-values h2,
+.nosotros-team h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #1A3A5C;
+}
+
+.nosotros-values ul {
+  list-style: none;
+  padding: 0;
+}
+
+.nosotros-values li {
+  margin-bottom: 8px;
+  font-size: 14px;
+}

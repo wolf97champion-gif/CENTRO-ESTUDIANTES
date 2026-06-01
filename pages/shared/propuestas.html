@@ -1,11 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <title>Propuestas | Centro de Estudiantes</title>
+  <link rel="stylesheet" href="../../css/reset.css">
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/propuestas.css">
+  <link rel="stylesheet" href="../../css/navbar.css"> <!-- Importante -->
 </head>
 <body>
-    <h1>propuestas</h1>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="navbar__brand">CE Digital</div>
+    <ul class="navbar__menu">
+      <li><a href="novedades.html">Novedades</a></li>
+      <li><a href="calendario.html">Calendario</a></li>
+      <li><a href="eventos.html">Eventos</a></li>
+      <li><a href="reglamentos.html">Reglamentos</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="usuarios.html">Usuarios</a></li>
+    </ul>
+    <div class="navbar__user">
+      <span class="navbar__icon">A</span>
+      <span class="navbar__label">Administrador General</span>
+      <span class="navbar__badge">admin</span>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <section class="propuestas-container">
+    <h1 class="propuestas-title">💡 Propuestas de los Alumnos</h1>
+    <p class="propuestas-subtitle">Ideas para mejorar nuestro Instituto</p>
+
+    <div class="propuestas-list">
+      <div class="propuesta-item">
+        <h2 class="propuesta-title">Biblioteca Digital</h2>
+        <p class="propuesta-desc">Crear un espacio online con apuntes, libros y material de estudio compartido por docentes y estudiantes.</p>
+        <span class="propuesta-tag">Académico 📚</span>
+      </div>
+
+      <div class="propuesta-item">
+        <h2 class="propuesta-title">Torneos Intercursos</h2>
+        <p class="propuesta-desc">Organizar competencias deportivas y culturales entre cursos para fomentar la integración.</p>
+        <span class="propuesta-tag">Social ⚽</span>
+      </div>
+
+      <div class="propuesta-item">
+        <h2 class="propuesta-title">Charlas de Orientación</h2>
+        <p class="propuesta-desc">Invitar profesionales y egresados para dar charlas sobre salidas laborales y experiencias académicas.</p>
+        <span class="propuesta-tag">Institucional 🏫</span>
+      </div>
+
+      <div class="propuesta-item">
+        <h2 class="propuesta-title">Canal de Urgencias</h2>
+        <p class="propuesta-desc">Habilitar un canal rápido de comunicación para emergencias o problemas urgentes dentro del instituto.</p>
+        <span class="propuesta-tag">Urgente 🚨</span>
+      </div>
+    </div>
+  </section>
 </body>
 </html>

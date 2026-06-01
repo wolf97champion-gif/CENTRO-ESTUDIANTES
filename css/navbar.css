@@ -1,0 +1,52 @@
+.navbar {
+  background-color: #1A3A5C;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+}
+
+.navbar__brand {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.navbar__menu {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar__menu a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.navbar__menu a:hover {
+  text-decoration: underline;
+}
+
+.navbar__user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar__icon {
+  background: #4A9FDB;
+  border-radius: 50%;
+  padding: 6px 10px;
+  font-weight: 700;
+}
+
+.navbar__badge {
+  background: #E0E4EA;
+  color: #1A3A5C;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
