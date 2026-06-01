@@ -14,7 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const password = document.getElementById('password').value.trim();
 
     if (!usuario || !password) {
-      alert('Completar todos los campos');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Por favor, completa todos los campos.'
+      });
       return;
     }
 
@@ -31,15 +35,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (usuarioEncontrado) {
         localStorage.setItem('usuarioActivo', JSON.stringify(usuarioEncontrado));
-        alert(`Bienvenido ${usuarioEncontrado.nombre} (Rol: ${usuarioEncontrado.rol})`);
-        window.location.href = '../../home.html';
+        Swal.fire({
+          icon: 'success',
+          title: 'Bienvenido',
+          text: `Hola ${usuarioEncontrado.nombre} (Rol: ${usuarioEncontrado.rol})`,
+          showConfirmButton: false,
+          timer: 2000
+        }).then(() => {
+          window.location.href = '../../home.html';
+        });
       } else {
-        alert('Usuario o contraseña incorrectos');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de acceso',
+          text: 'Usuario o contraseña incorrectos.'
+        });
       }
 
     } catch (error) {
       console.error(error);
-      alert('Error al iniciar sesión');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo iniciar sesión. Intenta nuevamente.'
+      });
     }
   });
 });
@@ -53,8 +72,13 @@ const Auth = {
   requiereRol(rol) {
     const usuario = this.getUsuario();
     if (!usuario || usuario.rol !== rol) {
-      alert("Acceso denegado. Se requiere rol " + rol);
-      window.location.href = "../../pages/login.html";
+      Swal.fire({
+        icon: 'error',
+        title: 'Acceso denegado',
+        text: `Se requiere rol ${rol}`
+      }).then(() => {
+        window.location.href = "../../pages/login.html";
+      });
     }
   },
 
@@ -67,4 +91,3 @@ const Auth = {
     return usuario ? usuario.rol : null;
   }
 };
-
