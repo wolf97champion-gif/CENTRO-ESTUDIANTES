@@ -1,30 +1,37 @@
 [
   {
     "id": 1,
-    "usuario": "admin",
-    "password": "1234",
-    "rol": "admin",
-    "nombre": "Administrador General"
+    "usuario": "admin.inst57@edu.com",
+    "password": "admin1234",
+    "rol": "administrador",
+    "nombre": "Novoa Michael"
   },
   {
     "id": 2,
-    "usuario": "delegado",
-    "password": "1234",
+    "usuario": "dele.inst57@edu.com",
+    "password": "dele1234",
     "rol": "delegado",
-    "nombre": "Delegado Curso"
+    "nombre": "Canggianelli Antonela"
   },
   {
     "id": 3,
-    "usuario": "docente",
-    "password": "1234",
+    "usuario": "doce.inst57@edu.com",
+    "password": "doce1234",
     "rol": "docente",
-    "nombre": "Profesor Instituto"
+    "nombre": "Haedo Jonathan"
   },
   {
     "id": 4,
-    "usuario": "estudiante",
-    "password": "1234",
+    "usuario": "estu.inst57@edu.com",
+    "password": "estu1234",
     "rol": "estudiante",
-    "nombre": "Alumno Regular"
+    "nombre": "Cepeda Luz"
+  },
+  {
+   "id": 5,
+    "usuario": "estu.inst57@edu.com",
+    "password": "estu12345",
+    "rol": "estudiante",
+    "nombre": "Barrera Joaquin"
   }
 ]
