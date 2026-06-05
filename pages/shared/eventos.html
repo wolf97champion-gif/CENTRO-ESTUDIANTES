@@ -8,6 +8,51 @@
   <link rel="stylesheet" href="../../css/reset.css">
   <link rel="stylesheet" href="../../css/components.css">
   <link rel="stylesheet" href="../../css/layout.css">
+  <style>
+    /* ── Modales ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.activo { display: flex; }
+    .modal-box {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 480px;
+      position: relative;
+      animation: modalIn .18s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(-12px) scale(.97); }
+      to   { opacity: 1; transform: none; }
+    }
+    .modal-box__title { font-size:17px; font-weight:700; color:var(--color-primary); margin-bottom:8px; }
+    .modal-box__desc  { font-size:14px; color:var(--color-text-muted); margin-bottom:var(--space-lg); line-height:1.6; }
+    .modal-box__actions { display:flex; justify-content:flex-end; gap:10px; }
+    .modal-close {
+      position: absolute; top:14px; right:16px;
+      font-size:20px; background:none; border:none;
+      cursor:pointer; color:var(--color-text-muted);
+    }
+    .btn-eliminar-card {
+      background: none;
+      border: 1px solid var(--color-danger, #e53e3e);
+      color: var(--color-danger, #e53e3e);
+      border-radius: var(--radius-sm);
+      font-size: 12px; padding: 3px 10px;
+      cursor: pointer; transition: background .15s;
+    }
+    .btn-eliminar-card:hover { background: rgba(229,62,62,.08); }
+  </style>
 </head>
 <body>
 
@@ -21,7 +66,7 @@
         <p class="page-subtitle">Actividades y eventos organizados por el Centro de Estudiantes</p>
       </div>
       <div id="btn-nuevo-evento" style="display:none;">
-        <a href="../delegado/eventos-admin.html" class="btn btn--primary">+ Nuevo evento</a>
+        <button class="btn btn--primary" onclick="abrirModalAgregar()">+ Nuevo evento</button>
       </div>
     </div>
 
@@ -33,13 +78,11 @@
     </div>
 
     <div id="alert-global" class="alert" style="display:none;"></div>
-    <div id="contenedor-eventos" class="grid-auto">
-      <div class="spinner"></div>
-    </div>
+    <div id="contenedor-eventos" class="grid-auto"><div class="spinner"></div></div>
 
   </main>
 
-  <!-- Modal de detalle de evento -->
+  <!-- Modal detalle de evento (existente) -->
   <div id="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5);
        z-index:200; align-items:center; justify-content:center; padding:20px;">
     <div id="modal-content" style="background:var(--color-surface); border-radius:var(--radius-lg);
@@ -47,6 +90,90 @@
       <button onclick="cerrarModal()" style="position:absolute;top:16px;right:16px;font-size:20px;
               background:none;border:none;cursor:pointer;color:var(--color-text-muted);">✕</button>
       <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       MODAL: Confirmar eliminación
+  ══════════════════════════════════════ -->
+  <div id="modal-confirmar" class="modal-overlay">
+    <div class="modal-box">
+      <button class="modal-close" onclick="cerrarModalConfirmar()">✕</button>
+      <div class="modal-box__title">⚠️ Eliminar evento</div>
+      <div class="modal-box__desc" id="modal-confirmar-desc"></div>
+      <div class="modal-box__actions">
+        <button class="btn btn--ghost btn--sm" onclick="cerrarModalConfirmar()">Cancelar</button>
+        <button class="btn btn--sm" id="btn-confirmar-ok"
+                style="background:var(--color-danger,#e53e3e); color:#fff; border:none;">
+          Sí, eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       MODAL: Agregar evento
+  ══════════════════════════════════════ -->
+  <div id="modal-agregar" class="modal-overlay">
+    <div class="modal-box" style="max-width:560px;">
+      <button class="modal-close" onclick="cerrarModalAgregar()">✕</button>
+      <div class="modal-box__title">+ Nuevo evento</div>
+
+      <div class="stack" style="gap:14px; margin-bottom:var(--space-lg);">
+        <div>
+          <label style="font-size:13px; font-weight:600; display:block; margin-bottom:4px;">Título *</label>
+          <input class="form-input" id="nuevo-titulo" type="text" placeholder="Ej: Torneo intercolegial de ajedrez" style="width:100%;">
+        </div>
+        <div>
+          <label style="font-size:13px; font-weight:600; display:block; margin-bottom:4px;">Descripción *</label>
+          <textarea class="form-input" id="nuevo-descripcion" rows="3"
+                    placeholder="Describí el evento..."
+                    style="width:100%; resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <div style="flex:1;">
+            <label style="font-size:13px; font-weight:600; display:block; margin-bottom:4px;">Fecha de inicio *</label>
+            <input class="form-input" id="nuevo-fecha-inicio" type="date" style="width:100%;">
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:13px; font-weight:600; display:block; margin-bottom:4px;">Fecha de fin</label>
+            <input class="form-input" id="nuevo-fecha-fin" type="date" style="width:100%;">
+          </div>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <div style="flex:1;">
+            <label style="font-size:13px; font-weight:600; display:block; margin-bottom:4px;">Lugar *</label>
+            <input class="form-input" id="nuevo-lugar" type="text" placeholder="Ej: Aula magna" style="width:100%;">
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:13px; font-weight:600; display:block; margin-bottom:4px;">Cupo *</label>
+            <input class="form-input" id="nuevo-cupo" type="number" min="1" placeholder="Ej: 30" style="width:100%;">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-box__actions">
+        <button class="btn btn--ghost btn--sm" onclick="cerrarModalAgregar()">Cancelar</button>
+        <button class="btn btn--primary btn--sm" onclick="confirmarAgregar()">Crear evento</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       MODAL: Confirmar cancelar inscripción
+  ══════════════════════════════════════ -->
+  <div id="modal-cancelar-inscripcion" class="modal-overlay">
+    <div class="modal-box">
+      <button class="modal-close" onclick="cerrarModalCancelar()">✕</button>
+      <div class="modal-box__title">❌ Cancelar inscripción</div>
+      <div class="modal-box__desc" id="modal-cancelar-desc"></div>
+      <div class="modal-box__actions">
+        <button class="btn btn--ghost btn--sm" onclick="cerrarModalCancelar()">Volver</button>
+        <button class="btn btn--sm" id="btn-cancelar-ok"
+                style="background:var(--color-danger,#e53e3e); color:#fff; border:none;">
+          Sí, cancelar inscripción
+        </button>
+      </div>
     </div>
   </div>
 
@@ -58,21 +185,21 @@
     Router.verificarAcceso();
     Router.renderNavbar();
 
-    const perfil = Auth.getPerfil();
+    const perfil  = Auth.getPerfil();
     const usuario = Auth.getUsuario();
+    const esAdmin = perfil === 'admin' || perfil === 'delegado';
 
-    if (perfil === 'admin' || perfil === 'delegado') {
-      document.getElementById('btn-nuevo-evento').style.display = 'block';
-    }
+    if (esAdmin) document.getElementById('btn-nuevo-evento').style.display = 'block';
 
     let todosLosEventos = [];
-    let inscripciones = [];
-    let filtroActivo = 'todos';
+    let inscripciones   = [];
+    let filtroActivo    = 'todos';
+    let eventoAEliminar = null;
+    let eventoACancelar = null;
 
     async function cargarEventos() {
       [todosLosEventos, inscripciones] = await Promise.all([
-        API.getEventos(),
-        API.getInscripciones()
+        API.getEventos(), API.getInscripciones()
       ]);
       renderizar(todosLosEventos);
     }
@@ -90,17 +217,11 @@
       renderizar(resultado);
     }
 
-    function estaInscripto(eventoId) {
-      return inscripciones.some(i => i.evento_id === eventoId && i.usuario_id === usuario.id);
-    }
-
-    function inscriptosCount(eventoId) {
-      return inscripciones.filter(i => i.evento_id === eventoId).length;
-    }
+    const estaInscripto   = id => inscripciones.some(i => i.evento_id === id && i.usuario_id === usuario.id);
+    const inscriptosCount = id => inscripciones.filter(i => i.evento_id === id).length;
 
     function renderizar(eventos) {
       const contenedor = document.getElementById('contenedor-eventos');
-
       if (eventos.length === 0) {
         contenedor.innerHTML = `
           <div class="empty-state" style="grid-column:1/-1">
@@ -115,7 +236,6 @@
         const inscripto = estaInscripto(e.id);
         const count = inscriptosCount(e.id);
         const cupoDisponible = e.cupo - count;
-        const fechaInicio = new Date(e.fecha_inicio);
         const pasado = e.estado === 'finalizado';
 
         return `
@@ -126,6 +246,11 @@
               <div class="flex-between" style="margin-bottom:6px;">
                 <span class="badge badge--${e.estado}">${Utils.capitalizar(e.estado)}</span>
                 ${inscripto ? '<span class="badge badge--alumno">✓ Inscripto</span>' : ''}
+                ${esAdmin
+                  ? `<button class="btn-eliminar-card" data-id="${e.id}" data-titulo="${e.titulo.replace(/"/g,'&quot;')}" onclick="pedirEliminarEvento(this)">
+                       🗑 Eliminar
+                     </button>`
+                  : ''}
               </div>
               <h3 class="card__title">${e.titulo}</h3>
             </div>
@@ -133,7 +258,11 @@
             <div class="card__meta" style="flex-direction:column; align-items:flex-start; gap:4px;">
               <span>📅 ${Utils.formatearFecha(e.fecha_inicio)}</span>
               <span>📍 ${e.lugar}</span>
-              <span>👥 ${count} / ${e.cupo} inscriptos ${cupoDisponible <= 5 && !pasado ? `<strong style="color:var(--color-danger);">(quedan ${cupoDisponible})</strong>` : ''}</span>
+              <span>👥 ${count} / ${e.cupo} inscriptos
+                ${cupoDisponible <= 5 && !pasado
+                  ? `<strong style="color:var(--color-danger);">(quedan ${cupoDisponible})</strong>`
+                  : ''}
+              </span>
             </div>
             <div style="margin-top:auto; display:flex; gap:8px;">
               <button class="btn btn--ghost btn--sm" onclick="verDetalle(${e.id})" style="flex:1">Ver más</button>
@@ -141,17 +270,20 @@
                 ? `<button class="btn btn--accent btn--sm" onclick="inscribirse(${e.id})" style="flex:1">Inscribirse</button>`
                 : ''}
               ${!pasado && inscripto
-                ? `<button class="btn btn--ghost btn--sm" onclick="cancelarInscripcion(${e.id})" style="flex:1; color:var(--color-danger); border-color:var(--color-danger);">Cancelar</button>`
+                ? `<button class="btn btn--ghost btn--sm"
+                     data-id="${e.id}" data-titulo="${e.titulo.replace(/"/g,'&quot;')}"
+                     onclick="pedirCancelarInscripcion(this)"
+                     style="flex:1; color:var(--color-danger); border-color:var(--color-danger);">Cancelar</button>`
                 : ''}
             </div>
           </div>`;
       }).join('');
     }
 
+    /* ── Modal detalle (existente) ── */
     function verDetalle(eventoId) {
       const evento = todosLosEventos.find(e => e.id === eventoId);
       if (!evento) return;
-
       const inscripto = estaInscripto(evento.id);
       const count = inscriptosCount(evento.id);
 
@@ -173,21 +305,27 @@
           ? `<button class="btn btn--primary btn--full" onclick="inscribirse(${evento.id}); cerrarModal();">Inscribirse al evento</button>`
           : ''}
         ${evento.estado === 'abierto' && inscripto
-          ? `<button class="btn btn--ghost btn--full" style="color:var(--color-danger);border-color:var(--color-danger);"
-               onclick="cancelarInscripcion(${evento.id}); cerrarModal();">Cancelar inscripción</button>`
+          ? `<button class="btn btn--ghost btn--full"
+               style="color:var(--color-danger);border-color:var(--color-danger);"
+               data-id="${evento.id}" data-titulo="${evento.titulo.replace(/"/g,'&quot;')}"
+               onclick="pedirCancelarInscripcion(this); cerrarModal();">
+               Cancelar inscripción
+             </button>`
           : ''}
       `;
       document.getElementById('modal-overlay').style.display = 'flex';
     }
-
     function cerrarModal() {
       document.getElementById('modal-overlay').style.display = 'none';
     }
+    document.getElementById('modal-overlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-overlay')) cerrarModal();
+    });
 
+    /* ── Inscripción directa (sin confirmación) ── */
     function inscribirse(eventoId) {
       const evento = todosLosEventos.find(e => e.id === eventoId);
-      const count = inscriptosCount(eventoId);
-      if (count >= evento.cupo) {
+      if (inscriptosCount(eventoId) >= evento.cupo) {
         Utils.mostrarAlerta('Este evento no tiene más cupo disponible.', 'warning');
         return;
       }
@@ -196,18 +334,89 @@
       filtrar(filtroActivo);
     }
 
-    function cancelarInscripcion(eventoId) {
-      const evento = todosLosEventos.find(e => e.id === eventoId);
+    /* ── Modal: Confirmar cancelar inscripción ── */
+    function pedirCancelarInscripcion(btn) {
+      eventoACancelar = parseInt(btn.dataset.id);
+      const titulo = btn.dataset.titulo;
+      document.getElementById('modal-cancelar-desc').textContent =
+        `¿Confirmás que querés cancelar tu inscripción a "${titulo}"?`;
+      document.getElementById('btn-cancelar-ok').onclick = ejecutarCancelar;
+      document.getElementById('modal-cancelar-inscripcion').classList.add('activo');
+    }
+    function cerrarModalCancelar() {
+      eventoACancelar = null;
+      document.getElementById('modal-cancelar-inscripcion').classList.remove('activo');
+    }
+    function ejecutarCancelar() {
+      const evento = todosLosEventos.find(e => e.id === eventoACancelar);
       inscripciones = inscripciones.filter(
-        i => !(i.evento_id === eventoId && i.usuario_id === usuario.id)
+        i => !(i.evento_id === eventoACancelar && i.usuario_id === usuario.id)
       );
+      cerrarModalCancelar();
       Utils.mostrarAlerta(`Cancelaste tu inscripción a "${evento.titulo}".`, 'info');
       filtrar(filtroActivo);
     }
 
-    // Cerrar modal al hacer click en el overlay
-    document.getElementById('modal-overlay').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('modal-overlay')) cerrarModal();
+    /* ── Modal: Confirmar eliminación de evento ── */
+    function pedirEliminarEvento(btn) {
+      eventoAEliminar = parseInt(btn.dataset.id);
+      const titulo = btn.dataset.titulo;
+      document.getElementById('modal-confirmar-desc').textContent =
+        `¿Estás seguro que querés eliminar el evento "${titulo}"? Esta acción no se puede deshacer.`;
+      document.getElementById('btn-confirmar-ok').onclick = ejecutarEliminar;
+      document.getElementById('modal-confirmar').classList.add('activo');
+    }
+    function cerrarModalConfirmar() {
+      eventoAEliminar = null;
+      document.getElementById('modal-confirmar').classList.remove('activo');
+    }
+    function ejecutarEliminar() {
+      todosLosEventos = todosLosEventos.filter(e => e.id !== eventoAEliminar);
+      cerrarModalConfirmar();
+      filtrar(filtroActivo);
+      Utils.mostrarAlerta('Evento eliminado.', 'info');
+    }
+
+    /* ── Modal: Agregar evento ── */
+    function abrirModalAgregar() {
+      ['nuevo-titulo','nuevo-descripcion','nuevo-lugar'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('nuevo-cupo').value = '';
+      document.getElementById('nuevo-fecha-inicio').value = '';
+      document.getElementById('nuevo-fecha-fin').value = '';
+      document.getElementById('modal-agregar').classList.add('activo');
+    }
+    function cerrarModalAgregar() {
+      document.getElementById('modal-agregar').classList.remove('activo');
+    }
+    function confirmarAgregar() {
+      const titulo       = document.getElementById('nuevo-titulo').value.trim();
+      const descripcion  = document.getElementById('nuevo-descripcion').value.trim();
+      const fecha_inicio = document.getElementById('nuevo-fecha-inicio').value;
+      const fecha_fin    = document.getElementById('nuevo-fecha-fin').value;
+      const lugar        = document.getElementById('nuevo-lugar').value.trim();
+      const cupo         = parseInt(document.getElementById('nuevo-cupo').value);
+
+      if (!titulo || !descripcion || !fecha_inicio || !lugar || !cupo) {
+        alert('Por favor completá todos los campos obligatorios.');
+        return;
+      }
+      const nuevo = {
+        id: Date.now(),
+        titulo, descripcion, fecha_inicio,
+        fecha_fin: fecha_fin || fecha_inicio,
+        lugar, cupo, estado: 'abierto'
+      };
+      todosLosEventos.unshift(nuevo);
+      cerrarModalAgregar();
+      filtrar(filtroActivo);
+      Utils.mostrarAlerta(`Evento "${titulo}" creado correctamente.`, 'success');
+    }
+
+    /* Cerrar modales al clickear overlay */
+    ['modal-confirmar','modal-agregar','modal-cancelar-inscripcion'].forEach(id => {
+      document.getElementById(id).addEventListener('click', e => {
+        if (e.target.id === id) document.getElementById(id).classList.remove('activo');
+      });
     });
 
     cargarEventos();

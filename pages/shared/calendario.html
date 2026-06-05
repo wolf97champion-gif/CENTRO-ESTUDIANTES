@@ -8,93 +8,72 @@
   <link rel="stylesheet" href="../../css/reset.css">
   <link rel="stylesheet" href="../../css/components.css">
   <link rel="stylesheet" href="../../css/layout.css">
-   <link rel="stylesheet" href="../../css/calendario.css">
+  <link rel="stylesheet" href="../../css/calendario.css">
   <style>
-    /* Grilla del calendario */
-    /* .cal-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-    }
-    .cal-header-day {
-      text-align: center;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--color-text-muted);
-      text-transform: uppercase;
-      padding: 8px 0;
-    }
-    .cal-cell {
-      min-height: 80px;
-      background: var(--color-surface);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      padding: 6px;
-      position: relative;
-      cursor: default;
-    }
-    .cal-cell--otro-mes { background: var(--color-bg); opacity: 0.5; }
-    .cal-cell--hoy { border-color: var(--color-primary-light); border-width: 2px; }
-    .cal-cell__num {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--color-text-muted);
-      margin-bottom: 4px;
-    }
-    .cal-cell--hoy .cal-cell__num {
-      background: var(--color-primary);
-      color: #fff;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
+    /* ── Modales ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      padding: 20px;
     }
-    .cal-evento-chip {
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 3px;
+    .modal-overlay.activo { display: flex; }
+    .modal-box {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 480px;
+      position: relative;
+      animation: modalIn .18s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(-12px) scale(.97); }
+      to   { opacity: 1; transform: none; }
+    }
+    .modal-box__title { font-size:17px; font-weight:700; color:var(--color-primary); margin-bottom:8px; }
+    .modal-box__desc  { font-size:14px; color:var(--color-text-muted); margin-bottom:var(--space-lg); line-height:1.6; }
+    .modal-box__actions { display:flex; justify-content:flex-end; gap:10px; }
+    .modal-close {
+      position: absolute; top:14px; right:16px;
+      font-size:20px; background:none; border:none;
+      cursor:pointer; color:var(--color-text-muted);
+    }
+    /* ── Chip con botón eliminar (solo admin/delegado) ── */
+    .chip-wrap {
+      display: flex;
+      align-items: center;
+      gap: 3px;
       margin-bottom: 2px;
-      cursor: pointer;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    }
+    .chip-del {
+      background: rgba(0,0,0,0.25);
+      border: none;
       color: #fff;
-      font-weight: 500;
+      border-radius: 3px;
+      font-size: 10px;
+      padding: 1px 4px;
+      cursor: pointer;
+      line-height: 1;
+      flex-shrink: 0;
     }
-    .cal-nav {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 20px;
+    .chip-del:hover { background: rgba(229,62,62,.7); }
+    /* ── Botón eliminar en "Próximas fechas" ── */
+    .btn-eliminar-fecha {
+      background: none;
+      border: 1px solid var(--color-danger, #e53e3e);
+      color: var(--color-danger, #e53e3e);
+      border-radius: var(--radius-sm);
+      font-size: 12px; padding: 3px 10px;
+      cursor: pointer; transition: background .15s;
+      white-space: nowrap;
     }
-    .cal-nav h2 {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--color-primary);
-      min-width: 200px;
-      text-align: center;
-    }
-    .leyenda {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .leyenda-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 12px;
-      color: var(--color-text-muted);
-    }
-    .leyenda-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    } */
+    .btn-eliminar-fecha:hover { background: rgba(229,62,62,.08); }
   </style>
 </head>
 <body>
@@ -108,12 +87,14 @@
         <h1 class="page-title">Calendario académico</h1>
         <p class="page-subtitle">Fechas importantes, parciales, finales y eventos</p>
       </div>
+      <!-- Botón visible solo para admin/delegado -->
+      <div id="btn-nueva-fecha" style="display:none;">
+        <button class="btn btn--primary" onclick="abrirModalAgregar()">+ Agregar fecha</button>
+      </div>
     </div>
 
-    <!-- Leyenda -->
     <div id="leyenda" class="leyenda"></div>
 
-    <!-- Navegación del mes -->
     <div class="cal-nav">
       <button class="btn btn--ghost btn--sm" onclick="cambiarMes(-1)">← Anterior</button>
       <h2 id="titulo-mes"></h2>
@@ -121,7 +102,6 @@
       <button class="btn btn--sm btn--outline" onclick="irAHoy()" style="margin-left:auto;">Hoy</button>
     </div>
 
-    <!-- Grilla días de semana -->
     <div class="cal-grid" id="cal-headers" style="margin-bottom:4px;">
       <div class="cal-header-day">Dom</div>
       <div class="cal-header-day">Lun</div>
@@ -132,10 +112,8 @@
       <div class="cal-header-day">Sáb</div>
     </div>
 
-    <!-- Grilla del calendario -->
     <div class="cal-grid" id="cal-body"></div>
 
-    <!-- Próximos eventos -->
     <div style="margin-top:var(--space-xl);">
       <h2 style="font-size:18px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-md);">
         Próximas fechas
@@ -151,6 +129,62 @@
        box-shadow:var(--shadow-md); z-index:300; max-width:260px; font-size:13px;">
   </div>
 
+  <!-- ══════════════════════════════════════
+       MODAL: Confirmar eliminación
+  ══════════════════════════════════════ -->
+  <div id="modal-confirmar" class="modal-overlay">
+    <div class="modal-box">
+      <button class="modal-close" onclick="cerrarModalConfirmar()">✕</button>
+      <div class="modal-box__title">⚠️ Eliminar fecha</div>
+      <div class="modal-box__desc" id="modal-confirmar-desc"></div>
+      <div class="modal-box__actions">
+        <button class="btn btn--ghost btn--sm" onclick="cerrarModalConfirmar()">Cancelar</button>
+        <button class="btn btn--sm" id="btn-confirmar-ok"
+                style="background:var(--color-danger,#e53e3e); color:#fff; border:none;">
+          Sí, eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       MODAL: Agregar fecha
+  ══════════════════════════════════════ -->
+  <div id="modal-agregar" class="modal-overlay">
+    <div class="modal-box" style="max-width:520px;">
+      <button class="modal-close" onclick="cerrarModalAgregar()">✕</button>
+      <div class="modal-box__title">+ Agregar fecha al calendario</div>
+
+      <div class="stack" style="gap:14px; margin-bottom:var(--space-lg);">
+        <div>
+          <label style="font-size:13px; font-weight:600; display:block; margin-bottom:4px;">Título *</label>
+          <input class="form-input" id="nueva-titulo" type="text"
+                 placeholder="Ej: Parcial Matemáticas" style="width:100%;">
+        </div>
+        <div>
+          <label style="font-size:13px; font-weight:600; display:block; margin-bottom:4px;">Descripción</label>
+          <input class="form-input" id="nueva-descripcion" type="text"
+                 placeholder="Ej: Aula 3 — 2do año" style="width:100%;">
+        </div>
+        <div style="display:flex; gap:12px;">
+          <div style="flex:1;">
+            <label style="font-size:13px; font-weight:600; display:block; margin-bottom:4px;">Fecha *</label>
+            <input class="form-input" id="nueva-fecha" type="date" style="width:100%;">
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:13px; font-weight:600; display:block; margin-bottom:4px;">Tipo *</label>
+            <select class="form-input" id="nueva-tipo" style="width:100%;"></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-box__actions">
+        <button class="btn btn--ghost btn--sm" onclick="cerrarModalAgregar()">Cancelar</button>
+        <button class="btn btn--primary btn--sm" onclick="confirmarAgregar()">Guardar fecha</button>
+      </div>
+    </div>
+  </div>
+
   <script src="../../js/auth.js"></script>
   <script src="../../js/router.js"></script>
   <script src="../../js/api.js"></script>
@@ -159,22 +193,29 @@
     Router.verificarAcceso();
     Router.renderNavbar();
 
+    const perfil  = Auth.getPerfil();
+    const esAdmin = perfil === 'admin' || perfil === 'delegado';
+    if (esAdmin) document.getElementById('btn-nueva-fecha').style.display = 'block';
+
     const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
                    'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
-    let fechasDB = [];
-    let tiposDB = [];
-    let mesActual = new Date().getMonth();
+    let fechasDB   = [];
+    let tiposDB    = [];
+    let mesActual  = new Date().getMonth();
     let anioActual = new Date().getFullYear();
+    let fechaAEliminar = null;
 
     async function iniciar() {
       [fechasDB, tiposDB] = await Promise.all([
-        API.getFechas(),
-        API.getTiposCalendario()
+        API.getFechas(), API.getTiposCalendario()
       ]);
       renderLeyenda();
       renderCalendario();
       renderProximasFechas();
+      // Poblar selector de tipos en el modal
+      document.getElementById('nueva-tipo').innerHTML =
+        tiposDB.map(t => `<option value="${t.id}">${t.nombre}</option>`).join('');
     }
 
     function renderLeyenda() {
@@ -187,8 +228,7 @@
     }
 
     function renderCalendario() {
-      document.getElementById('titulo-mes').textContent =
-        `${MESES[mesActual]} ${anioActual}`;
+      document.getElementById('titulo-mes').textContent = `${MESES[mesActual]} ${anioActual}`;
 
       const primerDia = new Date(anioActual, mesActual, 1).getDay();
       const diasEnMes = new Date(anioActual, mesActual + 1, 0).getDate();
@@ -196,19 +236,12 @@
       const hoy = new Date();
 
       let celdas = [];
-
-      // Días del mes anterior
-      for (let i = primerDia - 1; i >= 0; i--) {
+      for (let i = primerDia - 1; i >= 0; i--)
         celdas.push({ dia: diasMesAnterior - i, otroMes: true });
-      }
-      // Días del mes actual
-      for (let d = 1; d <= diasEnMes; d++) {
+      for (let d = 1; d <= diasEnMes; d++)
         celdas.push({ dia: d, otroMes: false });
-      }
-      // Completar últimas filas
-      while (celdas.length % 7 !== 0) {
+      while (celdas.length % 7 !== 0)
         celdas.push({ dia: celdas.length - diasEnMes - primerDia + 1, otroMes: true });
-      }
 
       const body = document.getElementById('cal-body');
       body.innerHTML = celdas.map(celda => {
@@ -217,14 +250,30 @@
           && mesActual === hoy.getMonth()
           && anioActual === hoy.getFullYear();
 
-        const fechaStr = `${anioActual}-${String(mesActual + 1).padStart(2,'0')}-${String(celda.dia).padStart(2,'0')}`;
+        const fechaStr = `${anioActual}-${String(mesActual+1).padStart(2,'0')}-${String(celda.dia).padStart(2,'0')}`;
         const eventosDia = fechasDB.filter(f => f.fecha === fechaStr);
 
         const chips = eventosDia.map(ev => {
-          const tipo = tiposDB.find(t => t.id === ev.tipo);
+          const tipo  = tiposDB.find(t => t.id === ev.tipo);
           const color = tipo ? tipo.color : '#888';
+
+          if (esAdmin) {
+            // Chip con botón eliminar inline
+            return `
+              <div class="chip-wrap">
+                <div class="cal-evento-chip" style="background:${color}; flex:1; margin-bottom:0;"
+                     onclick="mostrarTooltip(event, ${ev.id})" title="${ev.titulo}">
+                  ${ev.titulo}
+                </div>
+                <button class="chip-del" title="Eliminar"
+                        data-id="${ev.id}" data-titulo="${ev.titulo.replace(/"/g,'&quot;')}"
+                        onclick="event.stopPropagation(); pedirEliminarFecha(this)">
+                  ✕
+                </button>
+              </div>`;
+          }
           return `<div class="cal-evento-chip" style="background:${color};"
-                    onclick="mostrarTooltip(event, ${ev.id})" title="${ev.titulo}">
+                       onclick="mostrarTooltip(event, ${ev.id})" title="${ev.titulo}">
                     ${ev.titulo}
                   </div>`;
         }).join('');
@@ -241,7 +290,6 @@
       const fecha = fechasDB.find(f => f.id === fechaId);
       if (!fecha) return;
       const tipo = tiposDB.find(t => t.id === fecha.tipo);
-
       const tooltip = document.getElementById('tooltip');
       tooltip.innerHTML = `
         <div style="font-weight:600; margin-bottom:4px; color:${tipo ? tipo.color : '#333'};">
@@ -252,30 +300,37 @@
       `;
       tooltip.style.display = 'block';
       tooltip.style.left = Math.min(event.clientX + 10, window.innerWidth - 280) + 'px';
-      tooltip.style.top = (event.clientY - 10) + 'px';
+      tooltip.style.top  = (event.clientY - 10) + 'px';
       event.stopPropagation();
     }
-
     document.addEventListener('click', () => {
       document.getElementById('tooltip').style.display = 'none';
     });
 
     function renderProximasFechas() {
-      const hoy = new Date();
-      hoy.setHours(0,0,0,0);
+      const hoy = new Date(); hoy.setHours(0,0,0,0);
       const proximas = fechasDB
         .filter(f => new Date(f.fecha) >= hoy)
         .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
         .slice(0, 5);
 
       document.getElementById('proximas-fechas').innerHTML = proximas.map(f => {
-        const tipo = tiposDB.find(t => t.id === f.tipo);
+        const tipo  = tiposDB.find(t => t.id === f.tipo);
         const color = tipo ? tipo.color : '#888';
         return `
           <div class="novedad-card" style="border-left-color:${color};">
             <div class="flex-between">
               <h4 style="font-size:15px; font-weight:600;">${f.titulo}</h4>
-              <span class="badge" style="background:${color}20; color:${color};">${tipo ? tipo.nombre : ''}</span>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span class="badge" style="background:${color}20; color:${color};">${tipo ? tipo.nombre : ''}</span>
+                ${esAdmin
+                  ? `<button class="btn-eliminar-fecha"
+                       data-id="${f.id}" data-titulo="${f.titulo.replace(/"/g,'&quot;')}"
+                       onclick="pedirEliminarFecha(this)">
+                       🗑 Eliminar
+                     </button>`
+                  : ''}
+              </div>
             </div>
             <p class="card__meta" style="margin-top:4px;">
               📅 ${Utils.formatearFecha(f.fecha)}
@@ -285,15 +340,70 @@
       }).join('');
     }
 
-    function cambiarMes(delta) {
-      mesActual += delta;
-      if (mesActual < 0) { mesActual = 11; anioActual--; }
-      if (mesActual > 11) { mesActual = 0; anioActual++; }
+    /* ── Modal: Confirmar eliminación ── */
+    function pedirEliminarFecha(btn) {
+      fechaAEliminar = parseInt(btn.dataset.id);
+      const titulo = btn.dataset.titulo;
+      document.getElementById('modal-confirmar-desc').textContent =
+        `¿Estás seguro que querés eliminar la fecha "${titulo}"? Esta acción no se puede deshacer.`;
+      document.getElementById('btn-confirmar-ok').onclick = ejecutarEliminar;
+      document.getElementById('modal-confirmar').classList.add('activo');
+    }
+    function cerrarModalConfirmar() {
+      fechaAEliminar = null;
+      document.getElementById('modal-confirmar').classList.remove('activo');
+    }
+    function ejecutarEliminar() {
+      fechasDB = fechasDB.filter(f => f.id !== fechaAEliminar);
+      cerrarModalConfirmar();
       renderCalendario();
+      renderProximasFechas();
+      Utils.mostrarAlerta('Fecha eliminada del calendario.', 'info');
     }
 
+    /* ── Modal: Agregar fecha ── */
+    function abrirModalAgregar() {
+      document.getElementById('nueva-titulo').value = '';
+      document.getElementById('nueva-descripcion').value = '';
+      document.getElementById('nueva-fecha').value = '';
+      if (tiposDB.length) document.getElementById('nueva-tipo').value = tiposDB[0].id;
+      document.getElementById('modal-agregar').classList.add('activo');
+    }
+    function cerrarModalAgregar() {
+      document.getElementById('modal-agregar').classList.remove('activo');
+    }
+    function confirmarAgregar() {
+      const titulo      = document.getElementById('nueva-titulo').value.trim();
+      const descripcion = document.getElementById('nueva-descripcion').value.trim();
+      const fecha       = document.getElementById('nueva-fecha').value;
+      const tipo        = parseInt(document.getElementById('nueva-tipo').value);
+
+      if (!titulo || !fecha) {
+        alert('Por favor completá el título y la fecha.');
+        return;
+      }
+      fechasDB.push({ id: Date.now(), titulo, descripcion, fecha, tipo });
+      cerrarModalAgregar();
+      renderCalendario();
+      renderProximasFechas();
+      Utils.mostrarAlerta(`Fecha "${titulo}" agregada al calendario.`, 'success');
+    }
+
+    /* Cerrar modales al clickear overlay */
+    ['modal-confirmar','modal-agregar'].forEach(id => {
+      document.getElementById(id).addEventListener('click', e => {
+        if (e.target.id === id) document.getElementById(id).classList.remove('activo');
+      });
+    });
+
+    function cambiarMes(delta) {
+      mesActual += delta;
+      if (mesActual < 0)  { mesActual = 11; anioActual--; }
+      if (mesActual > 11) { mesActual = 0;  anioActual++; }
+      renderCalendario();
+    }
     function irAHoy() {
-      mesActual = new Date().getMonth();
+      mesActual  = new Date().getMonth();
       anioActual = new Date().getFullYear();
       renderCalendario();
     }
