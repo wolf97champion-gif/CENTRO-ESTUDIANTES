@@ -193,10 +193,35 @@
 .badge--institucional { background: var(--color-institucional-bg); color: var(--color-institucional); }
 .badge--urgente       { background: var(--color-urgente-bg);       color: var(--color-urgente); }
 
-.badge--admin     { background: var(--color-admin-bg);     color: var(--color-admin-text); }
-.badge--delegado  { background: var(--color-delegado-bg);  color: var(--color-delegado-text); }
-.badge--docente   { background: var(--color-docente-bg);   color: var(--color-docente-text); }
-.badge--alumno    { background: var(--color-alumno-bg);    color: var(--color-alumno-text); }
+.badge--administrador,
+.badge--admin {
+  background: var(--color-admin-bg);
+  color: var(--color-admin-text);
+  border: 1px solid rgba(0,0,0,.08);
+  font-weight: 600;
+}
+
+.badge--delegado {
+  background: var(--color-delegado-bg);
+  color: var(--color-delegado-text);
+  border: 1px solid rgba(0,0,0,.08);
+  font-weight: 600;
+}
+
+.badge--docente {
+  background: var(--color-docente-bg);
+  color: var(--color-docente-text);
+  border: 1px solid rgba(0,0,0,.08);
+  font-weight: 600;
+}
+
+.badge--estudiante,
+.badge--alumno {
+  background: var(--color-alumno-bg);
+  color: var(--color-alumno-text);
+  border: 1px solid rgba(0,0,0,.08);
+  font-weight: 600;
+}
 
 .badge--abierto    { background: #EAF4FB; color: #1A6FA0; }
 .badge--cerrado    { background: #F0F0F0; color: #555; }
