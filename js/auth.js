@@ -5,6 +5,8 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('loginForm');
+
+  // Si no existe el formulario, no ejecuta login
   if (!form) return;
 
   form.addEventListener('submit', async (e) => {
@@ -13,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const usuario = document.getElementById('usuario').value.trim();
     const password = document.getElementById('password').value.trim();
 
+    // ===== VALIDACIÓN CAMPOS =====
     if (!usuario || !password) {
       Swal.fire({
         icon: 'warning',
@@ -23,18 +26,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
+
+      // ===== CARGAR USUARIOS =====
       const response = await fetch('../../api/usuarios.json');
-      if (!response.ok) throw new Error('No se pudo cargar usuarios.json');
+
+      if (!response.ok) {
+        throw new Error('No se pudo cargar usuarios.json');
+      }
 
       const usuarios = await response.json();
 
-      // Buscar usuario solo por usuario y contraseña
+      // ===== BUSCAR USUARIO =====
       const usuarioEncontrado = usuarios.find(user =>
-        user.usuario === usuario && user.password === password
+        user.usuario === usuario &&
+        user.password === password
       );
 
+      // ===== LOGIN EXITOSO =====
       if (usuarioEncontrado) {
-        localStorage.setItem('usuarioActivo', JSON.stringify(usuarioEncontrado));
+
+        // Guardar sesión
+        localStorage.setItem(
+          'usuarioActivo',
+          JSON.stringify(usuarioEncontrado)
+        );
+
         Swal.fire({
           icon: 'success',
           title: 'Bienvenido',
@@ -42,52 +58,151 @@ document.addEventListener('DOMContentLoaded', () => {
           showConfirmButton: false,
           timer: 2000
         }).then(() => {
+
+          // Redirección principal
           window.location.href = '../../home.html';
+
         });
+
       } else {
+
+        // ===== LOGIN INCORRECTO =====
         Swal.fire({
           icon: 'error',
           title: 'Error de acceso',
           text: 'Usuario o contraseña incorrectos.'
         });
+
       }
 
     } catch (error) {
-      console.error(error);
+
+      console.error('Error de login:', error);
+
       Swal.fire({
         icon: 'error',
         title: 'Error',
         text: 'No se pudo iniciar sesión. Intenta nuevamente.'
       });
+
     }
   });
 });
 
-// ===== OBJETO AUTH PARA TODAS LAS PÁGINAS =====
+
+/* =========================================
+   OBJETO AUTH GLOBAL
+========================================= */
+
 const Auth = {
+
+  // ===== OBTENER USUARIO =====
   getUsuario() {
-    return JSON.parse(localStorage.getItem('usuarioActivo'));
-  },
 
-  requiereRol(rol) {
-    const usuario = this.getUsuario();
-    if (!usuario || usuario.rol !== rol) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Acceso denegado',
-        text: `Se requiere rol ${rol}`
-      }).then(() => {
-        window.location.href = "../../pages/login.html";
-      });
+    try {
+      return JSON.parse(localStorage.getItem('usuarioActivo'));
+    } catch (error) {
+      console.error('Error obteniendo usuario:', error);
+      return null;
     }
+
   },
 
+  // ===== VERIFICAR LOGIN =====
   estaLogueado() {
     return !!this.getUsuario();
   },
 
+  // ===== OBTENER PERFIL =====
   getPerfil() {
+
     const usuario = this.getUsuario();
+
     return usuario ? usuario.rol : null;
+
+  },
+
+  // ===== VERIFICAR ROL =====
+  requiereRol(rol) {
+
+    const usuario = this.getUsuario();
+
+    if (!usuario) {
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sesión expirada',
+        text: 'Debes iniciar sesión.'
+      }).then(() => {
+
+        window.location.href = "../../index.html";
+
+      });
+
+      return false;
+    }
+
+    if (usuario.rol !== rol) {
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Acceso denegado',
+        text: `Se requiere rol: ${rol}`
+      }).then(() => {
+
+        window.location.href = "../../home.html";
+
+      });
+
+      return false;
+    }
+
+    return true;
+  },
+
+  // ===== CERRAR SESIÓN =====
+  logout() {
+
+    Swal.fire({
+      icon: 'question',
+      title: 'Cerrar sesión',
+      text: '¿Seguro que deseas cerrar sesión?',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cerrar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+
+      if (result.isConfirmed) {
+
+        // Limpiar datos
+        localStorage.removeItem('usuarioActivo');
+        localStorage.removeItem('token');
+        sessionStorage.clear();
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Sesión cerrada',
+          text: 'Has cerrado sesión correctamente.',
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => {
+
+          // Volver al inicio
+          window.location.href = "../../index.html";
+
+        });
+
+      }
+
+    });
+
   }
+
 };
+
+
+/* =========================================
+   HACER GLOBAL EL OBJETO AUTH
+========================================= */
+
+window.Auth = Auth;

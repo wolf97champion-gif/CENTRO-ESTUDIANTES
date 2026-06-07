@@ -12,15 +12,15 @@ const Router = {
 
   INICIO: {
 
-    admin: 'pages/admin/dashboard.html',
+  administrador: 'pages/admin/dashboard.html',
 
-    delegado: 'pages/shared/novedades.html',
+  delegado: 'pages/shared/novedades.html',
 
-    docente: 'pages/shared/novedades.html',
+  docente: 'pages/shared/novedades.html',
 
-    estudiante: 'pages/shared/novedades.html'
+  estudiante: 'pages/shared/novedades.html'
 
-  },
+},
 
   // =============================================
   // PERMISOS
@@ -28,15 +28,15 @@ const Router = {
 
   PERMISOS: {
 
-    'pages/admin/': ['admin'],
+  'pages/admin/': ['administrador'],
 
-    'pages/delegado/': ['admin', 'delegado'],
+  'pages/delegado/': ['administrador', 'delegado'],
 
-    'pages/docente/': ['admin', 'docente'],
+  'pages/docente/': ['administrador', 'docente'],
 
-    'pages/shared/': ['admin', 'delegado', 'docente', 'estudiante']
+  'pages/shared/': ['administrador', 'delegado', 'docente', 'estudiante']
 
-  },
+},
 
   // =============================================
   // DETECTAR RAIZ
@@ -88,16 +88,44 @@ const Router = {
 // IR AL INICIO (flujo común)
 // =============================================
 irAlInicio() {
-  const usuario = JSON.parse(localStorage.getItem('usuarioActivo'));
 
+  const usuario = JSON.parse(
+    localStorage.getItem('usuarioActivo')
+  );
+
+  // SIN SESION
   if (!usuario) {
-    // Si no hay sesión, mandamos al login
-    window.location.href = Router.getRaiz() + 'pages/login.html';
+
+    window.location.href =
+      Router.getRaiz() +
+      'pages/auth/login.html';
+
     return;
+
   }
 
-  // Si hay sesión, no redirigimos: ya estamos en home
-  // Desde home el usuario decide a dónde ir
+  const perfil = usuario.rol;
+
+  // DESTINO SEGUN ROL
+  const destino =
+    Router.INICIO[perfil];
+
+  // SI EXISTE DESTINO
+  if (destino) {
+
+    window.location.href =
+      Router.getRaiz() +
+      destino;
+
+  } else {
+
+    // FALLBACK
+    window.location.href =
+      Router.getRaiz() +
+      'home.html';
+
+  }
+
 },
 
   // =============================================
@@ -233,7 +261,7 @@ irAlInicio() {
     ];
 
     // =============================================
-    // ADMIN
+    // ADMINISTRADOR
     // =============================================
 
     const linksAdmin = [
@@ -256,11 +284,11 @@ irAlInicio() {
 
     let linksExtras = [];
 
-    if (perfil === 'admin') {
+    if (perfil === 'administrador') {
 
-      linksExtras = linksAdmin;
+  linksExtras = linksAdmin;
 
-    }
+}
 
     if (perfil === 'delegado') {
 
@@ -415,3 +443,5 @@ function logout() {
     'pages/auth/login.html';
 
 }
+
+window.Router = Router;

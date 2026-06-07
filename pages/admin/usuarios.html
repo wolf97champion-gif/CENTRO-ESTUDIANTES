@@ -4,304 +4,956 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestión de Usuarios — CE Digital N°57</title>
+
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/reset.css">
   <link rel="stylesheet" href="../../css/components.css">
   <link rel="stylesheet" href="../../css/layout.css">
 </head>
+
 <body>
 
+  <!-- NAVBAR -->
   <div id="navbar"></div>
 
+  <!-- CONTENIDO -->
   <main class="page-wrapper">
 
+    <!-- HEADER -->
     <div class="page-header">
+
       <div>
-        <h1 class="page-title">Gestión de usuarios</h1>
-        <p class="page-subtitle">Administrá cuentas, roles y permisos</p>
+
+        <h1 class="page-title">
+          Gestión de usuarios
+        </h1>
+
+        <p class="page-subtitle">
+          Administrá cuentas, roles y permisos
+        </p>
+
       </div>
-      <button class="btn btn--primary" onclick="abrirModal()">+ Nuevo usuario</button>
+
+      <button
+        class="btn btn--primary"
+        onclick="abrirModal()"
+      >
+        + Nuevo usuario
+      </button>
+
     </div>
 
+    <!-- FILTROS -->
     <div class="filters-bar">
-      <span class="filters-bar__label">Rol:</span>
-      <button class="btn btn--sm btn--accent" data-filtro="todos" onclick="filtrar('todos')">Todos</button>
-      <button class="btn btn--sm btn--ghost" data-filtro="admin"    onclick="filtrar('admin')">👑 Admin</button>
-      <button class="btn btn--sm btn--ghost" data-filtro="delegado" onclick="filtrar('delegado')">🗣 Delegado</button>
-      <button class="btn btn--sm btn--ghost" data-filtro="docente"  onclick="filtrar('docente')">📚 Docente</button>
-      <button class="btn btn--sm btn--ghost" data-filtro="alumno"   onclick="filtrar('alumno')">🎒 Alumno</button>
+
+      <span class="filters-bar__label">
+        Rol:
+      </span>
+
+      <button
+        class="btn btn--sm btn--accent"
+        data-filtro="todos"
+        onclick="filtrar('todos')"
+      >
+        Todos
+      </button>
+
+      <button
+        class="btn btn--sm btn--ghost"
+        data-filtro="admin"
+        onclick="filtrar('admin')"
+      >
+        👑 Admin
+      </button>
+
+      <button
+        class="btn btn--sm btn--ghost"
+        data-filtro="delegado"
+        onclick="filtrar('delegado')"
+      >
+        🗣 Delegado
+      </button>
+
+      <button
+        class="btn btn--sm btn--ghost"
+        data-filtro="docente"
+        onclick="filtrar('docente')"
+      >
+        📚 Docente
+      </button>
+
+      <button
+        class="btn btn--sm btn--ghost"
+        data-filtro="estudiante"
+        onclick="filtrar('estudiante')"
+      >
+        🎒 Estudiante
+      </button>
+
       <div style="margin-left:auto;">
-        <input class="form-input" type="search" id="buscador" placeholder="Buscar nombre o email..."
-               style="width:220px; padding:6px 12px;">
+
+        <input
+          class="form-input"
+          type="search"
+          id="buscador"
+          placeholder="Buscar nombre o email..."
+          style="width:220px; padding:6px 12px;"
+        >
+
       </div>
+
     </div>
 
-    <div id="alert-global" class="alert" style="display:none;"></div>
+    <!-- ALERTA -->
+    <div
+      id="alert-global"
+      class="alert"
+      style="display:none;"
+    ></div>
 
+    <!-- TABLA -->
     <div class="table-wrapper">
+
       <table class="table">
+
         <thead>
+
           <tr>
+
             <th>Usuario</th>
             <th>Email</th>
             <th>Rol actual</th>
             <th>Estado</th>
             <th>Cambiar rol</th>
             <th>Acciones</th>
+
           </tr>
+
         </thead>
+
         <tbody id="tabla-usuarios">
-          <tr><td colspan="6"><div class="spinner"></div></td></tr>
+
+          <tr>
+
+            <td colspan="6">
+
+              <div class="spinner"></div>
+
+            </td>
+
+          </tr>
+
         </tbody>
+
       </table>
+
     </div>
 
   </main>
 
-  <!-- Modal nuevo/editar usuario -->
-  <div id="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5);
-       z-index:200; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:var(--color-surface); border-radius:var(--radius-lg); max-width:480px;
-         width:100%; padding:var(--space-xl); box-shadow:var(--shadow-lg); position:relative;">
-      <button onclick="cerrarModal()" style="position:absolute;top:16px;right:16px;font-size:20px;
-              background:none;border:none;cursor:pointer;color:var(--color-text-muted);">✕</button>
+  <!-- MODAL -->
+  <div
+    id="modal-overlay"
+    style="
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.5);
+      z-index:200;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    "
+  >
 
-      <h2 id="modal-titulo" style="font-size:18px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-lg);">
+    <div
+      style="
+        background:var(--color-surface);
+        border-radius:var(--radius-lg);
+        max-width:480px;
+        width:100%;
+        padding:var(--space-xl);
+        box-shadow:var(--shadow-lg);
+        position:relative;
+      "
+    >
+
+      <button
+        onclick="cerrarModal()"
+        style="
+          position:absolute;
+          top:16px;
+          right:16px;
+          font-size:20px;
+          background:none;
+          border:none;
+          cursor:pointer;
+          color:var(--color-text-muted);
+        "
+      >
+        ✕
+      </button>
+
+      <h2
+        id="modal-titulo"
+        style="
+          font-size:18px;
+          font-weight:700;
+          color:var(--color-primary);
+          margin-bottom:var(--space-lg);
+        "
+      >
         Nuevo usuario
       </h2>
 
       <form id="form-usuario" novalidate>
+
         <input type="hidden" id="input-id">
 
         <div class="form-group">
-          <label class="form-label" for="input-nombre">Nombre completo</label>
-          <input class="form-input" type="text" id="input-nombre" required>
+
+          <label class="form-label">
+            Nombre completo
+          </label>
+
+          <input
+            class="form-input"
+            type="text"
+            id="input-nombre"
+            required
+          >
+
         </div>
 
         <div class="grid-2" style="gap:var(--space-md);">
+
           <div class="form-group">
-            <label class="form-label" for="input-dni">DNI</label>
-            <input class="form-input" type="text" id="input-dni" placeholder="12345678" required>
+
+            <label class="form-label">
+              DNI
+            </label>
+
+            <input
+              class="form-input"
+              type="text"
+              id="input-dni"
+              placeholder="12345678"
+              required
+            >
+
           </div>
+
           <div class="form-group">
-            <label class="form-label" for="input-perfil">Rol</label>
-            <select class="form-select" id="input-perfil" required>
-              <option value="alumno">🎒 Alumno</option>
-              <option value="docente">📚 Docente</option>
-              <option value="delegado">🗣 Delegado</option>
-              <option value="admin">👑 Admin</option>
+
+            <label class="form-label">
+              Rol
+            </label>
+
+            <select
+              class="form-select"
+              id="input-perfil"
+            >
+
+              <option value="administrador">
+                👑 Administrador
+              </option>
+
+              <option value="delegado">
+                🗣 Delegado
+              </option>
+
+              <option value="docente">
+                📚 Docente
+              </option>
+
+              <option value="estudiante">
+                🎒 Estudiante
+              </option>
+
             </select>
+
           </div>
+
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="input-email">Correo electrónico</label>
-          <input class="form-input" type="email" id="input-email" required>
-        </div>
 
-        <div class="form-group" id="grupo-password">
-          <label class="form-label" for="input-password">Contraseña</label>
-          <input class="form-input" type="password" id="input-password" placeholder="mínimo 6 caracteres">
+          <label class="form-label">
+            Usuario / Correo Electronico
+          </label>
+
+          <input
+            class="form-input"
+            type="email"
+            id="input-usuario"
+            placeholder="usuario@edu.com"
+            required
+>
+          >
+
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="input-activo">Estado</label>
-          <select class="form-select" id="input-activo">
-            <option value="true">✅ Activo</option>
-            <option value="false">❌ Desactivado</option>
+
+          <label class="form-label">
+            Contraseña
+          </label>
+
+          <input
+            class="form-input"
+            type="password"
+            id="input-password"
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label class="form-label">
+            Estado
+          </label>
+
+          <select
+            class="form-select"
+            id="input-activo"
+          >
+
+            <option value="true">
+              ✅ Activo
+            </option>
+
+            <option value="false">
+              ❌ Inactivo
+            </option>
+
           </select>
+
         </div>
 
-        <div style="display:flex; gap:var(--space-sm); margin-top:var(--space-sm);">
-          <button type="submit" class="btn btn--primary" id="btn-guardar">Crear usuario</button>
-          <button type="button" class="btn btn--ghost" onclick="cerrarModal()">Cancelar</button>
+        <div
+          style="
+            display:flex;
+            gap:10px;
+            margin-top:20px;
+          "
+        >
+
+          <button
+            type="submit"
+            class="btn btn--primary"
+            id="btn-guardar"
+          >
+            Guardar
+          </button>
+
+          <button
+            type="button"
+            class="btn btn--ghost"
+            onclick="cerrarModal()"
+          >
+            Cancelar
+          </button>
+
         </div>
+
       </form>
+
     </div>
+
   </div>
 
+  <!-- SCRIPTS -->
+  <script src="../../js/chatbot.js"></script>
+
+  <script>
+    Chatbot.init();
+  </script>
+
+  <!-- SWEET ALERT -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- BASE -->
   <script src="../../js/auth.js"></script>
   <script src="../../js/router.js"></script>
-  <script src="../../js/api.js"></script>
   <script src="../../js/utils.js"></script>
+  <script src="../../js/api.js"></script>
+
+  <!-- SISTEMA -->
   <script>
+
+    // =============================================
+    // SEGURIDAD
+    // =============================================
+
     Router.verificarAcceso();
-    Auth.requiereRol('admin');
+
+    Auth.requiereRol('administrador');
+
     Router.renderNavbar();
 
+    // =============================================
+    // VARIABLES
+    // =============================================
+
     let usuarios = [];
+
     let filtroActivo = 'todos';
 
+    // =============================================
+    // CARGAR
+    // =============================================
+
     async function cargar() {
-      usuarios = await API.getUsuarios();
-      renderTabla(usuarios);
+
+      try {
+
+        usuarios =
+          await API.getUsuarios();
+
+        aplicarFiltros();
+
+      } catch (error) {
+
+        console.error(
+          'Error cargando usuarios:',
+          error
+        );
+
+      }
+
     }
 
+    // =============================================
+    // FILTROS
+    // =============================================
+
     function filtrar(perfil) {
+
       filtroActivo = perfil;
-      document.querySelectorAll('[data-filtro]').forEach(btn => {
-        btn.className = btn.dataset.filtro === perfil
-          ? 'btn btn--sm btn--accent'
-          : 'btn btn--sm btn--ghost';
-      });
+
+      document
+        .querySelectorAll('[data-filtro]')
+        .forEach(btn => {
+
+          btn.className =
+            btn.dataset.filtro === perfil
+              ? 'btn btn--sm btn--accent'
+              : 'btn btn--sm btn--ghost';
+
+        });
+
       aplicarFiltros();
+
     }
 
     function aplicarFiltros() {
-      const busqueda = document.getElementById('buscador').value.toLowerCase();
-      let resultado = usuarios;
-      if (filtroActivo !== 'todos') resultado = resultado.filter(u => u.perfil === filtroActivo);
-      if (busqueda) resultado = resultado.filter(u =>
-        u.nombre.toLowerCase().includes(busqueda) || u.email.toLowerCase().includes(busqueda)
-      );
+
+      const busqueda =
+        document
+          .getElementById('buscador')
+          .value
+          .toLowerCase();
+
+      let resultado = [...usuarios];
+
+      if (filtroActivo !== 'todos') {
+
+        resultado =
+          resultado.filter(
+            u => u.rol === filtroActivo
+          );
+
+      }
+
+      if (busqueda) {
+
+        resultado =
+          resultado.filter(u =>
+
+            u.nombre
+              .toLowerCase()
+              .includes(busqueda)
+
+            ||
+
+            u.usuario
+              .toLowerCase()
+              .includes(busqueda)
+
+          );
+
+      }
+
       renderTabla(resultado);
+
     }
 
-    document.getElementById('buscador').addEventListener('input', aplicarFiltros);
+    document
+      .getElementById('buscador')
+      .addEventListener(
+        'input',
+        aplicarFiltros
+      );
 
-    function renderTabla(lista) {
-      const sesionActual = Auth.getUsuario();
-      document.getElementById('tabla-usuarios').innerHTML = lista.map(u => `
+    // =============================================
+    // TABLA
+    // =============================================
+
+    function renderTabla(lista = []) {
+
+      const sesionActual =
+        Auth.getUsuario();
+
+      const tabla =
+        document.getElementById(
+          'tabla-usuarios'
+        );
+
+      if (!lista.length) {
+
+        tabla.innerHTML = `
+          <tr>
+            <td colspan="6">
+              No hay usuarios.
+            </td>
+          </tr>
+        `;
+
+        return;
+
+      }
+
+      tabla.innerHTML = lista.map(u => `
+
         <tr>
+
           <td>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <div style="width:34px;height:34px;border-radius:50%;background:var(--color-primary);
-                   color:#fff;display:flex;align-items:center;justify-content:center;
-                   font-size:12px;font-weight:700;flex-shrink:0;">${u.avatar}</div>
-              <span style="font-weight:500;">${u.nombre}</span>
+
+            <div
+              style="
+                display:flex;
+                align-items:center;
+                gap:10px;
+              "
+            >
+
+              <div
+                style="
+                  width:34px;
+                  height:34px;
+                  border-radius:50%;
+                  background:var(--color-primary);
+                  color:#fff;
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                  font-size:12px;
+                  font-weight:700;
+                "
+              >
+
+                ${Utils.iniciales(u.nombre)}
+
+              </div>
+
+              <span>
+
+                ${u.nombre}
+
+              </span>
+
             </div>
+
           </td>
-          <td style="color:var(--color-text-muted); font-size:13px;">${u.email}</td>
-          <td><span class="badge badge--${u.perfil}">${Utils.capitalizar(u.perfil)}</span></td>
+
           <td>
-            <span class="badge" style="background:${u.activo ? 'var(--color-social-bg)' : '#f0f0f0'};
-                  color:${u.activo ? 'var(--color-social)' : '#888'};">
-              ${u.activo ? '✅ Activo' : '❌ Inactivo'}
+
+            ${u.usuario}
+
+          </td>
+
+          <td>
+
+            <span class="badge badge--${u.rol}">
+
+              ${u.rol}
+
             </span>
+
           </td>
+
           <td>
+
+            ${u.activo
+              ? '✅ Activo'
+              : '❌ Inactivo'}
+
+          </td>
+
+          <td>
+
             ${u.id !== sesionActual.id ? `
-              <select class="form-select" style="padding:5px 8px; font-size:12px; width:130px;"
-                onchange="cambiarRol(${u.id}, this.value)">
-                <option value="alumno"   ${u.perfil==='alumno'   ? 'selected':''}>🎒 Alumno</option>
-                <option value="docente"  ${u.perfil==='docente'  ? 'selected':''}>📚 Docente</option>
-                <option value="delegado" ${u.perfil==='delegado' ? 'selected':''}>🗣 Delegado</option>
-                <option value="admin"    ${u.perfil==='admin'    ? 'selected':''}>👑 Admin</option>
+
+              <select
+                class="form-select"
+                onchange="cambiarRol(${u.id}, this.value)"
+              >
+
+                <option value="administrador"
+                  ${u.rol === 'administrador' ? 'selected' : ''}>
+                  Administrador
+                </option>
+
+                <option value="delegado"
+                  ${u.rol === 'delegado' ? 'selected' : ''}>
+                  Delegado
+                </option>
+
+                <option value="docente"
+                  ${u.rol === 'docente' ? 'selected' : ''}>
+                  Docente
+                </option>
+
+                <option value="estudiante"
+                  ${u.rol === 'estudiante' ? 'selected' : ''}>
+                  Estudiante
+                </option>
+
               </select>
-            ` : '<span style="font-size:12px; color:var(--color-text-muted);">Tu cuenta</span>'}
+
+            ` : 'Tu cuenta'}
+
           </td>
+
           <td>
-            <div style="display:flex; gap:6px;">
-              <button class="btn btn--ghost btn--sm" onclick="editarUsuario(${u.id})">✏️ Editar</button>
+
+            <div
+              style="
+                display:flex;
+                gap:6px;
+              "
+            >
+
+              <button
+                class="btn btn--ghost btn--sm"
+                onclick="editarUsuario(${u.id})"
+              >
+                ✏️ Editar
+              </button>
+
               ${u.id !== sesionActual.id ? `
-                <button class="btn btn--ghost btn--sm" style="color:var(--color-danger);border-color:var(--color-danger);"
-                  onclick="toggleActivo(${u.id})">
-                  ${u.activo ? '🚫 Desactivar' : '✅ Activar'}
-                </button>` : ''}
+
+                <button
+                  class="btn btn--ghost btn--sm"
+                  onclick="toggleActivo(${u.id})"
+                >
+
+                  ${u.activo
+                    ? '🚫 Desactivar'
+                    : '✅ Activar'}
+
+                </button>
+
+              ` : ''}
+
             </div>
+
           </td>
+
         </tr>
+
       `).join('');
+
     }
 
-    function cambiarRol(userId, nuevoPerfil) {
-      const u = usuarios.find(u => u.id === userId);
-      if (!u) return;
-      const rolAnterior = u.perfil;
-      u.perfil = nuevoPerfil;
-      Utils.mostrarAlerta(
-        `Rol de "${u.nombre}" cambiado de ${Utils.capitalizar(rolAnterior)} a ${Utils.capitalizar(nuevoPerfil)}.`,
-        'success'
+    // =============================================
+    // ROL
+    // =============================================
+
+    function cambiarRol(id, rol) {
+
+      const usuario =
+        usuarios.find(
+          u => u.id === id
+        );
+
+      if (!usuario) return;
+
+      usuario.rol = rol;
+
+      API.guardarUsuarios(
+        usuarios
       );
+
       aplicarFiltros();
+
     }
 
-    function toggleActivo(userId) {
-      const u = usuarios.find(u => u.id === userId);
-      if (!u) return;
-      u.activo = !u.activo;
-      Utils.mostrarAlerta(
-        `Usuario "${u.nombre}" ${u.activo ? 'activado' : 'desactivado'}.`,
-        u.activo ? 'success' : 'warning'
+    // =============================================
+    // ACTIVAR
+    // =============================================
+
+    function toggleActivo(id) {
+
+      const usuario =
+        usuarios.find(
+          u => u.id === id
+        );
+
+      if (!usuario) return;
+
+      usuario.activo =
+        !usuario.activo;
+
+      API.guardarUsuarios(
+        usuarios
       );
+
       aplicarFiltros();
+
     }
 
-    function editarUsuario(userId) {
-      const u = usuarios.find(u => u.id === userId);
-      if (!u) return;
-      document.getElementById('modal-titulo').textContent = 'Editar usuario';
-      document.getElementById('btn-guardar').textContent = 'Guardar cambios';
-      document.getElementById('input-id').value = u.id;
-      document.getElementById('input-nombre').value = u.nombre;
-      document.getElementById('input-dni').value = u.dni;
-      document.getElementById('input-email').value = u.email;
-      document.getElementById('input-perfil').value = u.perfil;
-      document.getElementById('input-activo').value = String(u.activo);
-      document.getElementById('input-password').value = '';
-      document.getElementById('grupo-password').querySelector('label').textContent =
-        'Nueva contraseña (dejar vacío para no cambiar)';
-      document.getElementById('modal-overlay').style.display = 'flex';
-    }
+    // =============================================
+    // MODAL
+    // =============================================
 
     function abrirModal() {
-      document.getElementById('modal-titulo').textContent = 'Nuevo usuario';
-      document.getElementById('btn-guardar').textContent = 'Crear usuario';
-      document.getElementById('form-usuario').reset();
-      document.getElementById('input-id').value = '';
-      document.getElementById('grupo-password').querySelector('label').textContent = 'Contraseña';
-      document.getElementById('modal-overlay').style.display = 'flex';
+
+      document
+        .getElementById(
+          'modal-overlay'
+        )
+        .style.display = 'flex';
+
     }
 
     function cerrarModal() {
-      document.getElementById('modal-overlay').style.display = 'none';
+
+      document
+        .getElementById(
+          'modal-overlay'
+        )
+        .style.display = 'none';
+
     }
 
-    document.getElementById('form-usuario').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const id       = document.getElementById('input-id').value;
-      const nombre   = document.getElementById('input-nombre').value.trim();
-      const dni      = document.getElementById('input-dni').value.trim();
-      const email    = document.getElementById('input-email').value.trim();
-      const perfil   = document.getElementById('input-perfil').value;
-      const activo   = document.getElementById('input-activo').value === 'true';
-      const password = document.getElementById('input-password').value;
+    function editarUsuario(id) {
 
-      let valido = true;
-      if (!nombre) { Utils.mostrarError('input-nombre', 'Requerido.'); valido = false; }
-      if (!Utils.validarDNI(dni)) { Utils.mostrarError('input-dni', 'DNI inválido (7-8 dígitos).'); valido = false; }
-      if (!Utils.validarEmail(email)) { Utils.mostrarError('input-email', 'Email inválido.'); valido = false; }
-      if (!id && !password) { Utils.mostrarError('input-password', 'La contraseña es obligatoria.'); valido = false; }
-      if (password && !Utils.validarPassword(password)) {
-        Utils.mostrarError('input-password', 'Mínimo 6 caracteres.'); valido = false;
+  const usuario =
+    usuarios.find(
+      u => u.id === id
+    );
+
+  if (!usuario) return;
+
+  abrirModal();
+
+  document
+    .getElementById('input-id')
+    .value = usuario.id;
+
+  document
+    .getElementById('input-nombre')
+    .value = usuario.nombre;
+
+  document
+    .getElementById('input-usuario')
+    .value = usuario.usuario || '';
+
+  document
+    .getElementById('input-perfil')
+    .value = usuario.rol;
+
+  document
+    .getElementById('input-activo')
+    .value = String(usuario.activo);
+
+  document
+    .getElementById('input-password')
+    .value = '';
+
+}
+
+// =============================================
+// FORM
+// =============================================
+
+document
+  .getElementById('form-usuario')
+  .addEventListener('submit', function(e) {
+
+    e.preventDefault();
+
+    const id =
+      document
+        .getElementById('input-id')
+        .value;
+
+    const nombre =
+      document
+        .getElementById('input-nombre')
+        .value
+        .trim();
+
+    const usuario =
+      document
+        .getElementById('input-usuario')
+        .value
+        .trim();
+
+    const rol =
+      document
+        .getElementById('input-perfil')
+        .value;
+
+    const activo =
+      document
+        .getElementById('input-activo')
+        .value === 'true';
+
+    const password =
+      document
+        .getElementById('input-password')
+        .value;
+
+    // =============================================
+    // VALIDACIONES
+    // =============================================
+
+    if (!nombre) {
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Nombre requerido'
+      });
+
+      return;
+
+    }
+
+    if (!Utils.validarEmail(usuario)) {
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Correo inválido'
+      });
+
+      return;
+
+    }
+
+    if (!id && !password) {
+
+      Swal.fire({
+        icon: 'error',
+        title: 'La contraseña es obligatoria'
+      });
+
+      return;
+
+    }
+
+    if (password && !Utils.validarPassword(password)) {
+
+      Swal.fire({
+        icon: 'error',
+        title: 'La contraseña debe tener mínimo 6 caracteres'
+      });
+
+      return;
+
+    }
+
+    // =============================================
+    // EDITAR
+    // =============================================
+
+    if (id) {
+
+      const usuarioEditar =
+        usuarios.find(
+          u => u.id === parseInt(id)
+        );
+
+      if (!usuarioEditar) return;
+
+      usuarioEditar.nombre = nombre;
+
+      usuarioEditar.usuario = usuario;
+
+      usuarioEditar.rol = rol;
+
+      usuarioEditar.activo = activo;
+
+      usuarioEditar.avatar =
+        Utils.iniciales(nombre);
+
+      if (password) {
+
+        usuarioEditar.password =
+          password;
+
       }
-      if (!valido) return;
 
-      if (id) {
-        // Editar
-        const u = usuarios.find(u => u.id === parseInt(id));
-        Object.assign(u, { nombre, dni, email, perfil, activo,
-          avatar: Utils.iniciales(nombre),
-          ...(password ? { password } : {})
-        });
-        Utils.mostrarAlerta(`Usuario "${nombre}" actualizado.`, 'success');
-      } else {
-        // Crear
-        usuarios.push({
-          id: Utils.nuevoId(usuarios),
-          nombre, dni, email, perfil, activo, password,
-          avatar: Utils.iniciales(nombre), carrera_id: null
-        });
-        Utils.mostrarAlerta(`Usuario "${nombre}" creado con rol ${Utils.capitalizar(perfil)}.`, 'success');
-      }
+      Swal.fire({
+        icon: 'success',
+        title: 'Usuario actualizado'
+      });
 
-      cerrarModal();
-      aplicarFiltros();
-    });
+    }
+
+    // =============================================
+    // CREAR
+    // =============================================
+
+    else {
+
+      usuarios.push({
+
+        id: Date.now(),
+
+        nombre,
+
+        usuario,
+
+        rol,
+
+        activo,
+
+        password,
+
+        avatar:
+          Utils.iniciales(nombre)
+
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Usuario creado'
+      });
+
+    }
+
+    // =============================================
+    // GUARDAR
+    // =============================================
+
+    API.guardarUsuarios(
+      usuarios
+    );
+
+    cerrarModal();
+
+    aplicarFiltros();
+
+  });
+    // =============================================
+    // INICIAR
+    // =============================================
 
     cargar();
+
   </script>
-  <script src="../../js/chatbot.js"></script>
-  <script>Chatbot.init();</script>
+
 </body>
 </html>

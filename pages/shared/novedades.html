@@ -8,71 +8,8 @@
   <link rel="stylesheet" href="../../css/reset.css">
   <link rel="stylesheet" href="../../css/components.css">
   <link rel="stylesheet" href="../../css/layout.css">
-  <style>
-    /* ── Modal de confirmación / formulario ── */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 300;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .modal-overlay.activo { display: flex; }
-    .modal-box {
-      background: var(--color-surface);
-      border-radius: var(--radius-lg);
-      padding: var(--space-xl);
-      box-shadow: var(--shadow-lg);
-      width: 100%;
-      max-width: 480px;
-      position: relative;
-      animation: modalIn .18s ease;
-    }
-    @keyframes modalIn {
-      from { opacity: 0; transform: translateY(-12px) scale(.97); }
-      to   { opacity: 1; transform: none; }
-    }
-    .modal-box__title {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--color-primary);
-      margin-bottom: 8px;
-    }
-    .modal-box__desc {
-      font-size: 14px;
-      color: var(--color-text-muted);
-      margin-bottom: var(--space-lg);
-      line-height: 1.6;
-    }
-    .modal-box__actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-    }
-    .modal-close {
-      position: absolute;
-      top: 14px; right: 16px;
-      font-size: 20px;
-      background: none; border: none;
-      cursor: pointer;
-      color: var(--color-text-muted);
-    }
-    /* ── Botón eliminar en cada card ── */
-    .btn-eliminar-card {
-      background: none;
-      border: 1px solid var(--color-danger, #e53e3e);
-      color: var(--color-danger, #e53e3e);
-      border-radius: var(--radius-sm);
-      font-size: 12px;
-      padding: 3px 10px;
-      cursor: pointer;
-      transition: background .15s;
-    }
-    .btn-eliminar-card:hover { background: rgba(229,62,62,.08); }
-  </style>
+  <link rel="stylesheet" href="../../css/novedades.css">
+
 </head>
 <body>
 
@@ -215,47 +152,162 @@
       renderizar(resultado);
     }
 
-    function renderizar(novedades) {
-      const contenedor = document.getElementById('contenedor-novedades');
-      if (novedades.length === 0) {
-        contenedor.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state__icon">📭</div>
-            <div class="empty-state__title">Sin resultados</div>
-            <div class="empty-state__text">No hay novedades que coincidan con el filtro seleccionado.</div>
-          </div>`;
-        return;
-      }
+function renderizar(novedades) {
 
-      contenedor.innerHTML = novedades.map(n => `
-        <div class="novedad-card novedad-card--${n.categoria} ${n.destacada ? 'novedad-card--destacada' : ''}">
-          <div class="card__header">
-            <div>
-              ${n.destacada ? '<span style="font-size:11px;color:var(--color-primary-light);font-weight:600;">⭐ DESTACADA &nbsp;</span>' : ''}
-              <h3 class="card__title" style="font-size:16px;">${n.titulo}</h3>
-            </div>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <span class="badge badge--${n.categoria}" style="white-space:nowrap;">
-                ${Utils.capitalizar(n.categoria)}
-              </span>
-              ${esAdmin
-                ? `<button class="btn-eliminar-card" data-id="${n.id}" data-titulo="${n.titulo.replace(/"/g,'&quot;')}" onclick="pedirEliminarNovedad(this)">
-                     🗑 Eliminar
-                   </button>`
-                : ''}
-            </div>
-          </div>
-          <p class="card__body" style="margin:8px 0 12px;">${Utils.truncar(n.contenido, 200)}</p>
-          <div class="card__meta">
-            <span>🕐 ${Utils.tiempoRelativo(n.fecha)}</span>
-            ${n.materia_id ? '<span>📖 Materia específica</span>' : ''}
-            <a href="#" class="btn btn--sm btn--ghost" style="margin-left:auto; padding:4px 10px;">
-              Ver completa →
-            </a>
-          </div>
+  const contenedor =
+    document.getElementById(
+      'contenedor-novedades'
+    );
+
+  if (novedades.length === 0) {
+
+    contenedor.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state__icon">📭</div>
+        <div class="empty-state__title">
+          Sin resultados
         </div>
-      `).join('');
-    }
+        <div class="empty-state__text">
+          No hay novedades que coincidan con el filtro seleccionado.
+        </div>
+      </div>
+    `;
+
+    return;
+  }
+
+  contenedor.innerHTML = novedades.map(n => `
+
+    <div class="novedad-card novedad-card--${n.categoria} ${n.destacada ? 'novedad-card--destacada' : ''}">
+
+      <div class="card__header">
+
+        <div>
+
+          ${
+            n.destacada
+              ? `
+                <span style="
+                  font-size:11px;
+                  color:var(--color-primary-light);
+                  font-weight:600;
+                ">
+                  ⭐ DESTACADA
+                </span>
+              `
+              : ''
+          }
+
+          <h3
+            class="card__title"
+            style="font-size:16px;"
+          >
+            ${n.titulo}
+          </h3>
+
+        </div>
+
+        <div style="
+          display:flex;
+          align-items:center;
+          gap:10px;
+        ">
+
+          <span
+            class="badge badge--${n.categoria}"
+            style="white-space:nowrap;"
+          >
+            ${Utils.capitalizar(n.categoria)}
+          </span>
+
+          ${
+            esAdmin
+              ? `
+                <button
+                  class="btn-eliminar-card"
+                  data-id="${n.id}"
+                  data-titulo="${n.titulo.replace(/"/g,'&quot;')}"
+                  onclick="pedirEliminarNovedad(this)"
+                >
+                  🗑 Eliminar
+                </button>
+              `
+              : ''
+          }
+
+        </div>
+
+      </div>
+
+      <p
+        class="card__body"
+        style="margin:8px 0 12px;"
+      >
+        ${Utils.truncar(n.contenido, 200)}
+      </p>
+
+      <div class="card__meta">
+
+        <span>
+          🕐 ${Utils.tiempoRelativo(n.fecha)}
+        </span>
+
+        ${
+          n.materia_id
+            ? '<span>📖 Materia específica</span>'
+            : ''
+        }
+
+        <button
+          class="btn btn--sm btn--ghost"
+          style="
+            margin-left:auto;
+            padding:4px 10px;
+          "
+          onclick="verNovedad(${n.id})"
+        >
+          Ver completa →
+        </button>
+
+      </div>
+
+    </div>
+
+  `).join('');
+}
+
+function verNovedad(id) {
+
+  const novedad = todasLasNovedades.find(
+    n => n.id === id
+  );
+
+  if (!novedad) return;
+
+  Swal.fire({
+    title: novedad.titulo,
+    html: `
+      <div style="text-align:left;">
+        <div style="margin-bottom:10px;">
+          <span class="badge badge--${novedad.categoria}">
+            ${Utils.capitalizar(novedad.categoria)}
+          </span>
+        </div>
+
+        <div style="margin-bottom:15px;color:#666;">
+          🕐 ${Utils.tiempoRelativo(novedad.fecha)}
+        </div>
+
+        <div style="white-space:pre-line;line-height:1.6;">
+          ${novedad.contenido}
+        </div>
+      </div>
+    `,
+    width: 700,
+    confirmButtonText: 'Cerrar'
+  });
+
+}
 
     /* ── Modal: Agregar ── */
     function abrirModalAgregar() {
@@ -315,18 +367,26 @@
       Utils.mostrarAlerta('Novedad eliminada.', 'info');
     }
 
-    /* Cerrar modales al hacer clic en el overlay */
+        /* Cerrar modales al hacer clic en el overlay */
     document.getElementById('modal-confirmar').addEventListener('click', e => {
       if (e.target === document.getElementById('modal-confirmar')) cerrarModalConfirmar();
     });
+
     document.getElementById('modal-agregar').addEventListener('click', e => {
       if (e.target === document.getElementById('modal-agregar')) cerrarModalAgregar();
     });
 
-    document.getElementById('buscador').addEventListener('input', aplicarFiltros);
-    cargarNovedades();
-  </script>
-  <script src="../../js/chatbot.js"></script>
-  <script>Chatbot.init();</script>
+document.getElementById('buscador').addEventListener('input', aplicarFiltros);
+cargarNovedades();
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="../../js/chatbot.js"></script>
+<script>
+  Chatbot.init();
+</script>
+
 </body>
 </html>

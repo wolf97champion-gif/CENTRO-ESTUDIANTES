@@ -75,9 +75,33 @@ const Utils = {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   },
 
-  // ---- Validaciones ----
+  //Validar EMAIL
+    validarEmail(email) {
 
-  validarEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  },
+
+  validarDNI(dni) {
+
+    return /^\d{7,8}$/.test(dni);
+
+  },
+
+  validarPassword(password) {
+
+    return password.length >= 6;
+
+  },
+
+  nuevoId(lista) {
+
+    if (!lista.length) return 1;
+
+    return Math.max(...lista.map(item => item.id)) + 1;
+
   }
+
 };
+
+window.Utils = Utils;

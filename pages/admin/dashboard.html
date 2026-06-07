@@ -3,170 +3,401 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Dashboard Admin | CE Digital N°57</title>
+
   <link rel="stylesheet" href="../../css/variables.css">
   <link rel="stylesheet" href="../../css/reset.css">
   <link rel="stylesheet" href="../../css/components.css">
   <link rel="stylesheet" href="../../css/layout.css">
 </head>
+
 <body>
 
+  <!-- NAVBAR -->
   <div id="navbar"></div>
 
+  <!-- CONTENIDO -->
   <main class="page-wrapper">
 
+    <!-- HEADER -->
     <div class="page-header">
+
       <div>
-        <h1 class="page-title">Panel de administración</h1>
+        <h1 class="page-title">
+          Panel de administración
+        </h1>
+
         <p class="page-subtitle" id="saludo"></p>
       </div>
+
     </div>
 
-    <!-- Estadísticas -->
-    <div class="grid-4" style="margin-bottom:var(--space-xl);" id="stats">
+    <!-- STATS -->
+    <div
+      class="grid-4"
+      style="margin-bottom:var(--space-xl);"
+      id="stats"
+    >
+
       <div class="spinner"></div>
+
     </div>
 
+    <!-- GRID -->
     <div class="grid-2">
 
-      <!-- Usuarios recientes -->
+      <!-- USUARIOS -->
       <div class="card">
-        <div class="flex-between" style="margin-bottom:var(--space-md);">
-          <h3 style="font-size:16px; font-weight:700; color:var(--color-primary);">👥 Usuarios</h3>
-          <a href="usuarios.html" class="btn btn--sm btn--outline">Ver todos</a>
+
+        <div
+          class="flex-between"
+          style="margin-bottom:var(--space-md);"
+        >
+
+          <h3 style="
+            font-size:16px;
+            font-weight:700;
+            color:var(--color-primary);
+          ">
+            👥 Usuarios
+          </h3>
+
+          <a
+            href="usuarios.html"
+            class="btn btn--sm btn--outline"
+          >
+            Ver todos
+          </a>
+
         </div>
-        <div id="lista-usuarios" class="stack--sm"></div>
+
+        <div
+          id="lista-usuarios"
+          class="stack--sm"
+        ></div>
+
       </div>
 
-      <!-- Accesos rápidos -->
+      <!-- ACCESOS -->
       <div class="card">
-        <h3 style="font-size:16px; font-weight:700; color:var(--color-primary); margin-bottom:var(--space-md);">
+
+        <h3 style="
+          font-size:16px;
+          font-weight:700;
+          color:var(--color-primary);
+          margin-bottom:var(--space-md);
+        ">
           ⚡ Accesos rápidos
         </h3>
+
         <div class="stack--sm">
-          <a href="usuarios.html" class="btn btn--ghost" style="justify-content:flex-start; gap:10px;">
+
+          <a
+            href="usuarios.html"
+            class="btn btn--ghost"
+            style="justify-content:flex-start; gap:10px;"
+          >
             👤 Gestionar usuarios y roles
           </a>
-          <a href="../delegado/novedades-admin.html" class="btn btn--ghost" style="justify-content:flex-start; gap:10px;">
+
+          <a
+            href="../delegado/novedades-admin.html"
+            class="btn btn--ghost"
+            style="justify-content:flex-start; gap:10px;"
+          >
             📰 Publicar novedad
           </a>
-          <a href="../delegado/eventos-admin.html" class="btn btn--ghost" style="justify-content:flex-start; gap:10px;">
+
+          <a
+            href="../delegado/eventos-admin.html"
+            class="btn btn--ghost"
+            style="justify-content:flex-start; gap:10px;"
+          >
             🎟️ Crear evento
           </a>
-          <a href="../shared/novedades.html" class="btn btn--ghost" style="justify-content:flex-start; gap:10px;">
+
+          <a
+            href="../shared/novedades.html"
+            class="btn btn--ghost"
+            style="justify-content:flex-start; gap:10px;"
+          >
             🏠 Ver sitio como usuario
           </a>
+
         </div>
 
-        <hr style="border:none; border-top:1px solid var(--color-border); margin:var(--space-md) 0;">
-
-        <h4 style="font-size:13px; font-weight:600; color:var(--color-text-muted);
-    text-transform:uppercase; letter-spacing:.05em; margin-bottom:12px;">
-    Usuarios disponibles
-      </h4>
-
-<div class="stack--sm" style="font-size:12px; color:var(--color-text-muted);">
-
-  <div>👑 <strong>admin</strong> / 1234</div>
-
-  <div>🗣 <strong>delegado</strong> / 1234</div>
-
-  <div>📚 <strong>docente</strong> / 1234</div>
-
-  <div>🎒 <strong>estudiante</strong> / 1234</div>
-
-</div>
-
-</div> <!-- FIN CARD -->
-
-</div> <!-- FIN GRID-2 -->
-
-</main>
-
-<script src="../../js/auth.js"></script>
-<script src="../../js/router.js"></script>
-<script src="../../js/api.js"></script>
-<script src="../../js/utils.js"></script>
-<script>
-  Router.verificarAcceso();
-
-  // Validar rol admin
-  Auth.requiereRol("admin");
-
-  const usuario = Auth.getUsuario();
-  if (usuario) {
-    document.getElementById("saludo").textContent =
-      `Bienvenido, ${usuario.nombre.split(" ")[0]}. Hoy es ${Utils.formatearFecha(new Date())}`;
-  }
-
-  Router.renderNavbar();
-
-  async function iniciar() {
-    const [usuarios, novedades, eventos, inscripciones] = await Promise.all([
-      API.getUsuarios(),
-      API.getNovedades(),
-      API.getEventos(),
-      API.getInscripciones()
-    ]);
-
-    // Stats
-    const statsData = [
-      { icon: '👥', valor: usuarios.length,      label: 'Usuarios',    color: 'var(--color-primary)' },
-      { icon: '📰', valor: novedades.length,     label: 'Novedades',   color: 'var(--color-academico)' },
-      { icon: '🎟️', valor: eventos.filter(e => e.estado === 'abierto').length, label: 'Eventos activos', color: 'var(--color-social)' },
-      { icon: '✅', valor: inscripciones.length, label: 'Inscripciones', color: 'var(--color-institucional)' }
-    ];
-
-    document.getElementById('stats').innerHTML = statsData.map(s => `
-      <div class="card" style="text-align:center; padding:var(--space-lg);">
-        <div style="font-size:36px; margin-bottom:8px;">${s.icon}</div>
-        <div style="font-size:32px; font-weight:800; color:${s.color};">${s.valor}</div>
-        <div style="font-size:13px; color:var(--color-text-muted); margin-top:4px;">${s.label}</div>
-      </div>
-    `).join('');
-
-    document.getElementById('lista-usuarios').innerHTML = usuarios.slice(0, 4).map(u => `
-      <div style="
-        display:flex;
-        align-items:center;
-        gap:12px;
-        padding:8px 0;
-        border-bottom:1px solid var(--color-border);
-      ">
-        <div style="
-          width:36px;
-          height:36px;
-          border-radius:50%;
-          background:var(--color-primary);
-          color:#fff;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          font-size:13px;
-          font-weight:700;
-          flex-shrink:0;
+        <hr style="
+          border:none;
+          border-top:1px solid var(--color-border);
+          margin:var(--space-md) 0;
         ">
-          ${u.avatar || u.nombre.charAt(0)}
-        </div>
-        <div style="flex:1;">
-          <div style="font-size:14px; font-weight:500;">
-            ${u.nombre}
-          </div>
-          <div style="font-size:12px; color:var(--color-text-muted);">
-            ${u.email || 'Sin usuario'}
-          </div>
-        </div>
-        <span class="badge badge--${u.perfil}">
-          ${Utils.capitalizar(u.perfil)}
-        </span>
-      </div>
-    `).join('');
-  }
 
-  iniciar();
-</script>
-<script src="../../js/chatbot.js"></script>
-<script>Chatbot.init();</script>
+        <!-- USUARIOS DEMO -->
+        <h4 style="
+          font-size:13px;
+          font-weight:600;
+          color:var(--color-text-muted);
+          text-transform:uppercase;
+          letter-spacing:.05em;
+          margin-bottom:12px;
+        ">
+          Usuarios disponibles
+        </h4>
+
+        <div
+          class="stack--sm"
+          style="
+            font-size:12px;
+            color:var(--color-text-muted);
+          "
+        >
+
+          <div>
+            👑 <strong>admin.inst57@edu.com</strong> / admin1234
+          </div>
+
+          <div>
+            🗣 <strong>dele.inst57@edu.com</strong> / dele1234
+          </div>
+
+          <div>
+            📚 <strong>doce.inst57@edu.com</strong> / doce1234
+          </div>
+
+          <div>
+            🎒 <strong>estu.inst57@edu.com</strong> / estu1234
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- SWEETALERT -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- SCRIPTS BASE -->
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/api.js"></script>
+  <script src="../../js/chatbot.js"></script>
+
+  <!-- DASHBOARD -->
+  <script>
+
+    // =========================================
+    // SEGURIDAD
+    // =========================================
+
+    Router.verificarAcceso();
+
+    Auth.requiereRol('administrador');
+
+    // =========================================
+    // NAVBAR
+    // =========================================
+
+    Router.renderNavbar();
+
+    // =========================================
+    // CHATBOT
+    // =========================================
+
+    if (typeof Chatbot !== 'undefined') {
+
+      Chatbot.init();
+
+    }
+
+    // =========================================
+    // SALUDO
+    // =========================================
+
+    const usuario = Auth.getUsuario();
+
+    if (usuario) {
+
+      document.getElementById("saludo").textContent =
+        `Bienvenido, ${usuario.nombre.split(" ")[0]}. Hoy es ${Utils.formatearFecha(new Date())}`;
+
+    }
+
+    // =========================================
+    // INICIAR DASHBOARD
+    // =========================================
+
+    async function iniciar() {
+
+      try {
+
+        const [
+          usuarios,
+          novedades,
+          eventos,
+          inscripciones
+        ] = await Promise.all([
+
+          API.getUsuarios(),
+          API.getNovedades(),
+          API.getEventos(),
+          API.getInscripciones()
+
+        ]);
+
+        // =====================================
+        // STATS
+        // =====================================
+
+        const statsData = [
+
+          {
+            icon: '👥',
+            valor: usuarios.length,
+            label: 'Usuarios',
+            color: 'var(--color-primary)'
+          },
+
+          {
+            icon: '📰',
+            valor: novedades.length,
+            label: 'Novedades',
+            color: 'var(--color-academico)'
+          },
+
+          {
+            icon: '🎟️',
+            valor: eventos.filter(
+              e => e.estado === 'abierto'
+            ).length,
+            label: 'Eventos activos',
+            color: 'var(--color-social)'
+          },
+
+          {
+            icon: '✅',
+            valor: inscripciones.length,
+            label: 'Inscripciones',
+            color: 'var(--color-institucional)'
+          }
+
+        ];
+
+        document.getElementById('stats').innerHTML =
+          statsData.map(s => `
+
+          <div class="card"
+            style="
+              text-align:center;
+              padding:var(--space-lg);
+            "
+          >
+
+            <div style="
+              font-size:36px;
+              margin-bottom:8px;
+            ">
+              ${s.icon}
+            </div>
+
+            <div style="
+              font-size:32px;
+              font-weight:800;
+              color:${s.color};
+            ">
+              ${s.valor}
+            </div>
+
+            <div style="
+              font-size:13px;
+              color:var(--color-text-muted);
+              margin-top:4px;
+            ">
+              ${s.label}
+            </div>
+
+          </div>
+
+        `).join('');
+
+        // =====================================
+        // USUARIOS RECIENTES
+        // =====================================
+
+        document.getElementById('lista-usuarios').innerHTML =
+          usuarios.slice(0, 4).map(u => `
+
+          <div style="
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding:8px 0;
+            border-bottom:1px solid var(--color-border);
+          ">
+
+            <div style="
+              width:36px;
+              height:36px;
+              border-radius:50%;
+              background:var(--color-primary);
+              color:#fff;
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              font-size:13px;
+              font-weight:700;
+              flex-shrink:0;
+            ">
+              ${u.avatar || u.nombre.charAt(0)}
+            </div>
+
+            <div style="flex:1;">
+
+              <div style="
+                font-size:14px;
+                font-weight:500;
+              ">
+                ${u.nombre}
+              </div>
+
+              <div style="
+                font-size:12px;
+                color:var(--color-text-muted);
+              ">
+                ${u.usuario || 'Sin usuario'}
+              </div>
+
+            </div>
+
+            <span class="badge badge--${u.rol}">
+              ${Utils.capitalizar(u.rol)}
+            </span>
+
+          </div>
+
+        `).join('');
+
+      } catch (error) {
+
+        console.error(error);
+
+        document.getElementById('stats').innerHTML = `
+          <div class="card">
+            Error al cargar estadísticas.
+          </div>
+        `;
+
+      }
+
+    }
+
+    iniciar();
+
+  </script>
 
 </body>
 </html>
