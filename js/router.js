@@ -200,29 +200,34 @@ irAlInicio() {
     // LINKS COMUNES
     // =============================================
 
-    const linksComunes = [
+ const linksComunes = [
 
-      {
-        href: raiz + 'pages/shared/novedades.html',
-        texto: 'Novedades'
-      },
+  {
+    href: raiz + 'pages/shared/novedades.html',
+    texto: 'Novedades'
+  },
 
-      {
-        href: raiz + 'pages/shared/calendario.html',
-        texto: 'Calendario'
-      },
+  {
+    href: raiz + 'pages/shared/carreras.html',
+    texto: 'Carreras'
+  },
 
-      {
-        href: raiz + 'pages/shared/eventos.html',
-        texto: 'Eventos'
-      },
+  {
+    href: raiz + 'pages/shared/calendario.html',
+    texto: 'Calendario'
+  },
 
-      {
-        href: raiz + 'pages/shared/reglamentos.html',
-        texto: 'Reglamentos'
-      }
+  {
+    href: raiz + 'pages/shared/eventos.html',
+    texto: 'Eventos'
+  },
 
-    ];
+  {
+    href: raiz + 'pages/shared/reglamentos.html',
+    texto: 'Reglamentos'
+  }
+
+];
 
     // =============================================
     // DOCENTE

@@ -2,64 +2,117 @@
   "novedades": [
     {
       "id": 1,
-      "titulo": "Inscripción abierta — 2do cuatrimestre",
-      "contenido": "Se informa a todos los alumnos que la inscripción para el segundo cuatrimestre estará abierta desde el lunes 21 hasta el viernes 25 de abril. Deben dirigirse a la secretaría con DNI y libreta universitaria.",
+      "titulo": "Inscripción a mesas de exámenes finales de julio",
+      "contenido": "Se encuentra abierta la inscripción para las mesas de exámenes finales correspondientes al turno julio 2026. Los estudiantes podrán inscribirse hasta el 10 de julio inclusive a través de Secretaría Académica. Se recomienda verificar previamente las correlatividades requeridas.",
       "categoria": "academico",
-      "autor_id": 3,
-      "materia_id": null,
-      "carrera_id": null,
-      "destacada": true,
-      "fecha": "2025-04-15T09:00:00"
-    },
-    {
-      "id": 2,
-      "titulo": "Jornada de bienvenida para ingresantes",
-      "contenido": "El Centro de Estudiantes organiza una jornada de bienvenida para todos los ingresantes 2025. Habrá actividades recreativas, presentación de las carreras y sorteos. ¡Los esperamos!",
-      "categoria": "social",
-      "autor_id": 2,
-      "materia_id": null,
-      "carrera_id": null,
-      "destacada": false,
-      "fecha": "2025-04-14T14:30:00"
-    },
-    {
-      "id": 3,
-      "titulo": "Suspensión de clases — jueves 17",
-      "contenido": "Por disposición de la dirección, el día jueves 17 de abril no habrá clases en ninguna carrera. Las actividades se retoman normalmente el lunes 22.",
-      "categoria": "urgente",
       "autor_id": 1,
       "materia_id": null,
       "carrera_id": null,
       "destacada": true,
-      "fecha": "2025-04-15T07:45:00"
+      "fecha": "2026-06-25T08:00:00"
+    },
+    {
+      "id": 2,
+      "titulo": "Cronograma de mesas finales disponible",
+      "contenido": "Ya se encuentra publicado el cronograma oficial de exámenes finales del turno julio-agosto 2026. Los estudiantes pueden consultarlo desde la sección Calendario Académico. Ante cualquier superposición de horarios deberán comunicarse con Coordinación.",
+      "categoria": "institucional",
+      "autor_id": 1,
+      "materia_id": null,
+      "carrera_id": null,
+      "destacada": true,
+      "fecha": "2026-06-23T10:30:00"
+    },
+    {
+      "id": 3,
+      "titulo": "Promoción directa de materias cuatrimestrales",
+      "contenido": "Se recuerda que podrán acceder a la promoción directa aquellos estudiantes que hayan alcanzado el porcentaje mínimo de asistencia y la calificación establecida por cada cátedra. Se recomienda consultar con los docentes las condiciones específicas antes del cierre de cursada.",
+      "categoria": "academico",
+      "autor_id": 3,
+      "materia_id": null,
+      "carrera_id": null,
+      "destacada": false,
+      "fecha": "2026-06-20T15:00:00"
     },
     {
       "id": 4,
-      "titulo": "Publicación del calendario de finales",
-      "contenido": "Ya está disponible el calendario de exámenes finales del primer turno. Pueden consultarlo en la sección Calendario o descargarlo desde Reglamentos.",
+      "titulo": "Inscripción al segundo cuatrimestre 2026",
+      "contenido": "La inscripción a materias del segundo cuatrimestre se realizará entre el 27 y el 31 de julio. Los estudiantes deberán verificar previamente su situación académica y las correlatividades exigidas por cada espacio curricular.",
+      "categoria": "academico",
+      "autor_id": 1,
+      "materia_id": null,
+      "carrera_id": null,
+      "destacada": true,
+      "fecha": "2026-06-18T09:00:00"
+    },
+    {
+      "id": 5,
+      "titulo": "Actualización de reglamento académico",
+      "contenido": "Se encuentra disponible la versión actualizada del reglamento académico institucional. Se recomienda su lectura para conocer los criterios vigentes de evaluación, promoción, regularidad y acreditación de espacios curriculares.",
       "categoria": "institucional",
       "autor_id": 1,
       "materia_id": null,
       "carrera_id": null,
       "destacada": false,
-      "fecha": "2025-04-10T10:00:00"
+      "fecha": "2026-06-15T11:15:00"
     },
     {
-      "id": 5,
-      "titulo": "Parcial de Técnicas de Programación — semana 6",
-      "contenido": "El primer parcial de Técnicas de Programación se realizará el miércoles de la semana 6. Entrará todo el contenido visto hasta arrays y funciones. Consultas por mail.",
-      "categoria": "academico",
-      "autor_id": 3,
-      "materia_id": 1,
-      "carrera_id": 1,
+      "id": 6,
+      "titulo": "Taller de orientación para exámenes finales",
+      "contenido": "El Centro de Estudiantes organizará un encuentro abierto destinado a brindar herramientas de organización y preparación para las mesas de finales. La actividad se desarrollará el 4 de julio en el salón de usos múltiples.",
+      "categoria": "social",
+      "autor_id": 2,
+      "materia_id": null,
+      "carrera_id": null,
       "destacada": false,
-      "fecha": "2025-04-08T11:00:00"
+      "fecha": "2026-06-12T18:00:00"
+    },
+    {
+      "id": 7,
+      "titulo": "Recordatorio de regularidades próximas a vencer",
+      "contenido": "Los estudiantes que adeuden materias de años anteriores deberán verificar la vigencia de sus regularidades antes de inscribirse a las mesas de examen. Ante dudas, comunicarse con Secretaría Académica.",
+      "categoria": "urgente",
+      "autor_id": 1,
+      "materia_id": null,
+      "carrera_id": null,
+      "destacada": true,
+      "fecha": "2026-06-10T08:45:00"
+    },
+    {
+      "id": 8,
+      "titulo": "Receso invernal institucional",
+      "contenido": "Se informa que el instituto permanecerá en receso invernal entre el 20 de julio y el 31 de julio. Durante dicho período funcionarán únicamente las mesas de exámenes programadas y la atención administrativa reducida.",
+      "categoria": "institucional",
+      "autor_id": 1,
+      "materia_id": null,
+      "carrera_id": null,
+      "destacada": false,
+      "fecha": "2026-06-08T12:00:00"
     }
   ],
   "categorias": [
-    { "id": "academico",     "nombre": "Académico",     "color": "#1A6FA0", "bg": "#EAF4FB" },
-    { "id": "social",        "nombre": "Social",        "color": "#1A7A42", "bg": "#EAFAF1" },
-    { "id": "institucional", "nombre": "Institucional", "color": "#9A6F08", "bg": "#FEF9E7" },
-    { "id": "urgente",       "nombre": "Urgente",       "color": "#A93226", "bg": "#FDEDEC" }
+    {
+      "id": "academico",
+      "nombre": "Académico",
+      "color": "#1A6FA0",
+      "bg": "#EAF4FB"
+    },
+    {
+      "id": "social",
+      "nombre": "Social",
+      "color": "#1A7A42",
+      "bg": "#EAFAF1"
+    },
+    {
+      "id": "institucional",
+      "nombre": "Institucional",
+      "color": "#9A6F08",
+      "bg": "#FEF9E7"
+    },
+    {
+      "id": "urgente",
+      "nombre": "Urgente",
+      "color": "#A93226",
+      "bg": "#FDEDEC"
+    }
   ]
 }

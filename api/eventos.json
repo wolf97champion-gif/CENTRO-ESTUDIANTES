@@ -2,34 +2,34 @@
   "eventos": [
     {
       "id": 1,
-      "titulo": "Jornada de bienvenida 2025",
-      "descripcion": "Actividades recreativas y presentación de carreras para ingresantes y alumnos de primer año.",
-      "fecha_inicio": "2025-04-25T10:00:00",
-      "fecha_fin": "2025-04-25T16:00:00",
-      "lugar": "Patio central del instituto",
-      "cupo": 80,
+      "titulo": "Espacio de apoyo para exámenes finales",
+      "descripcion": "Jornada organizada por el Centro de Estudiantes para acompañar a quienes rindan finales durante el turno julio-agosto.",
+      "fecha_inicio": "2026-07-22T17:00:00",
+      "fecha_fin": "2026-07-22T19:30:00",
+      "lugar": "Biblioteca del instituto",
+      "cupo": 100,
       "autor_id": 2,
       "estado": "abierto",
       "imagen": null
     },
     {
       "id": 2,
-      "titulo": "Taller de CV y entrevistas laborales",
-      "descripcion": "Taller práctico para preparar el curriculum vitae y enfrentar entrevistas de trabajo en el área de tecnología.",
-      "fecha_inicio": "2025-05-08T18:00:00",
-      "fecha_fin": "2025-05-08T20:00:00",
+      "titulo": "Jornada de consultas para mesas de examen",
+      "descripcion": "Encuentro destinado a resolver dudas sobre inscripciones, regularidades y correlatividades.",
+      "fecha_inicio": "2026-07-27T18:00:00",
+      "fecha_fin": "2026-07-27T20:00:00",
       "lugar": "Aula Magna",
-      "cupo": 40,
+      "cupo": 80,
       "autor_id": 2,
       "estado": "abierto",
       "imagen": null
     },
     {
       "id": 3,
-      "titulo": "Hackathon Datos e IA 2025",
-      "descripcion": "Competencia de 24 horas para desarrollar soluciones con datos abiertos. Equipos de hasta 4 personas. Habrá premios para los tres primeros puestos.",
-      "fecha_inicio": "2025-06-14T09:00:00",
-      "fecha_fin": "2025-06-15T09:00:00",
+      "titulo": "Inscripción asistida al segundo cuatrimestre",
+      "descripcion": "Acompañamiento para realizar la inscripción a materias del segundo cuatrimestre.",
+      "fecha_inicio": "2026-07-30T16:00:00",
+      "fecha_fin": "2026-07-30T19:00:00",
       "lugar": "Laboratorio de informática",
       "cupo": 60,
       "autor_id": 2,
@@ -38,20 +38,72 @@
     },
     {
       "id": 4,
-      "titulo": "Charla: Salidas laborales en Ciencia de Datos",
-      "descripcion": "Profesionales del sector compartirán su experiencia y hablarán sobre el mercado laboral actual en IA y Datos.",
-      "fecha_inicio": "2025-03-20T17:00:00",
-      "fecha_fin": "2025-03-20T19:00:00",
-      "lugar": "Aula 12",
-      "cupo": 50,
+      "titulo": "Bienvenida al segundo cuatrimestre 2026",
+      "descripcion": "Actividad organizada por el Centro de Estudiantes para recibir a los alumnos al regreso de clases.",
+      "fecha_inicio": "2026-08-10T17:00:00",
+      "fecha_fin": "2026-08-10T20:00:00",
+      "lugar": "Patio central",
+      "cupo": 150,
       "autor_id": 2,
-      "estado": "finalizado",
+      "estado": "abierto",
+      "imagen": null
+    },
+    {
+      "id": 5,
+      "titulo": "Charla sobre promoción y trayectorias académicas",
+      "descripcion": "Información sobre promoción, regularidad y organización académica.",
+      "fecha_inicio": "2026-08-14T18:30:00",
+      "fecha_fin": "2026-08-14T20:30:00",
+      "lugar": "SUM institucional",
+      "cupo": 120,
+      "autor_id": 2,
+      "estado": "abierto",
+      "imagen": null
+    },
+    {
+      "id": 6,
+      "titulo": "Encuentro de integración estudiantil",
+      "descripcion": "Actividad recreativa para estudiantes de todas las carreras.",
+      "fecha_inicio": "2026-08-22T16:00:00",
+      "fecha_fin": "2026-08-22T20:00:00",
+      "lugar": "Patio central",
+      "cupo": 200,
+      "autor_id": 2,
+      "estado": "abierto",
       "imagen": null
     }
   ],
+
   "inscripciones": [
-    { "id": 1, "evento_id": 1, "usuario_id": 4, "fecha_inscripcion": "2025-04-16T10:00:00" },
-    { "id": 2, "evento_id": 1, "usuario_id": 5, "fecha_inscripcion": "2025-04-16T11:30:00" },
-    { "id": 3, "evento_id": 4, "usuario_id": 4, "fecha_inscripcion": "2025-03-15T09:00:00" }
+    {
+      "id": 1,
+      "evento_id": 1,
+      "usuario_id": 4,
+      "fecha_inscripcion": "2026-06-28T09:15:00"
+    },
+    {
+      "id": 2,
+      "evento_id": 1,
+      "usuario_id": 5,
+      "fecha_inscripcion": "2026-06-28T11:40:00"
+    },
+    {
+      "id": 3,
+      "evento_id": 2,
+      "usuario_id": 6,
+      "fecha_inscripcion": "2026-07-01T17:25:00"
+    },
+    {
+      "id": 4,
+      "evento_id": 4,
+      "usuario_id": 7,
+      "fecha_inscripcion": "2026-08-01T14:00:00"
+    },
+    {
+      "id": 5,
+      "evento_id": 6,
+      "usuario_id": 4,
+      "fecha_inscripcion": "2026-08-15T10:00:00"
+    }
   ]
 }

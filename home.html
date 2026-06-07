@@ -153,7 +153,7 @@
       </svg>
     </div>
 
-    <nav class="sidebar__nav">
+<nav class="sidebar__nav">
 
   <a class="sidebar__nav-item sidebar__nav-item--active" href="home.html">
     <span class="sidebar__nav-icon">🏠</span>
@@ -168,6 +168,11 @@
   <a class="sidebar__nav-item" href="pages/shared/eventos.html">
     <span class="sidebar__nav-icon">🎉</span>
     Eventos
+  </a>
+
+  <a class="sidebar__nav-item" href="pages/shared/carreras.html">
+    <span class="sidebar__nav-icon">🎓</span>
+    Carreras
   </a>
 
   <a class="sidebar__nav-item" href="pages/shared/calendario.html">
@@ -504,45 +509,6 @@
             </a>
           </div>
         </div>
-
-        <div class="sec-card">
-          <div class="sec-head">
-            <div class="sec-title">⚡ Accesos Rápidos</div>
-          </div>
-          <div class="accesos-grid">
-            <a class="acceso-item" href="#" onclick="irA('pages/shared/reglamentos.html'); return false;">
-              <span class="acceso-item__icon">📁</span>
-              <span class="acceso-item__label">Documentos</span>
-            </a>
-            <a class="acceso-item" href="#">
-              <span class="acceso-item__icon">📋</span>
-              <span class="acceso-item__label">Actas</span>
-            </a>
-            <a class="acceso-item" href="#" onclick="irA('pages/shared/reglamentos.html'); return false;">
-              <span class="acceso-item__icon">📖</span>
-              <span class="acceso-item__label">Reglamento</span>
-            </a>
-            <a class="acceso-item" href="#">
-              <span class="acceso-item__icon">💡</span>
-              <span class="acceso-item__label">Propuestas</span>
-            </a>
-            <a class="acceso-item" href="#">
-              <span class="acceso-item__icon">👥</span>
-              <span class="acceso-item__label">Comisiones</span>
-            </a>
-            <a class="acceso-item" href="#">
-              <span class="acceso-item__icon">✉️</span>
-              <span class="acceso-item__label">Contacto</span>
-            </a>
-          </div>
-          <div class="idea-banner">
-            <div class="idea-banner__title">⚡ ¿Tenés una idea?</div>
-            <div class="idea-banner__text">Presentá tu propuesta y ayudanos a transformar nuestro instituto.</div>
-            <button class="btn-primary-sm">Presentar propuesta</button>
-          </div>
-        </div>
-
-      </div>
 
     </div><!-- /home-body -->
 
@@ -903,30 +869,31 @@ document.addEventListener('click', (e) => {
     renderCal();
   }
 
- // ── CAROUSEL ─────────────────────────────────────────────────────────────
+// ── CAROUSEL ─────────────────────────────────────────────────────────────
 // ── CAROUSEL ─────────────────────────────────────────────────────────────
 const slides = [
   { eyebrow:'Instituto N°57',          title:'Tu voz,<br>nuestra fuerza',      
     desc:'Trabajamos todos los días por un instituto más inclusivo, participativo y democrático.', 
-    illo:'', btn:'Sumate' },
+    illo:'' },
 
   { eyebrow:'Próximas elecciones',     title:'Elegí a tus<br>representantes',   
     desc:'Participá en las elecciones del Centro de Estudiantes y hacé escuchar tu voz.', 
-    illo:'🗳️✊', btn:'Más info' },
+    illo:'🗳️✊' },
 
   // 🔽 Reemplazo del Torneo por temas académicos
   { eyebrow:'Abril / Mayo',            title:'Parciales<br>en camino',          
     desc:'Durante los primeros meses se rinden los parciales. Organizá tu estudio y consultá fechas.', 
-    illo:'✍️📖', btn:'Ver cronograma' },
+    illo:'✍️📖' },
 
   { eyebrow:'Junio / Julio',           title:'Promociones<br>de materias',      
     desc:'Recordá que podés promocionar asignaturas si cumplís con los requisitos. ¡Aprovechá la oportunidad!', 
-    illo:'🎓✅', btn:'Más detalles' },
+    illo:'🎓✅' },
 
   { eyebrow:'Julio / Agosto',          title:'Final del<br>cuatrimestre',       
     desc:'Se acercan los exámenes finales. ¡Estén atentos y preparen sus materias!', 
-    illo:'📚📝', btn:'Ver calendario' }
+    illo:'📚📝' }
 ];
+
 let slideIdx = 0;
 const ILLO_EDIFICIO = document.getElementById('hero-illo').innerHTML;
 
@@ -936,8 +903,14 @@ function goSlide(i) {
   document.getElementById('hero-eyebrow').textContent = s.eyebrow;
   document.getElementById('hero-title').innerHTML     = s.title;
   document.getElementById('hero-desc').textContent    = s.desc;
-  document.getElementById('hero-btn').textContent     = s.btn;
-  document.querySelectorAll('.dot').forEach((d, j) => d.classList.toggle('dot--active', j === i));
+
+  // Ocultar botón siempre (ya no se usa)
+  document.getElementById('hero-btn').style.display = 'none';
+
+  document.querySelectorAll('.dot').forEach((d, j) => 
+    d.classList.toggle('dot--active', j === i)
+  );
+
   const iloEl = document.getElementById('hero-illo');
   if (i === 0) {
     iloEl.innerHTML = ILLO_EDIFICIO;
@@ -946,7 +919,11 @@ function goSlide(i) {
   }
 }
 
+// Cambio automático cada 5 segundos
 setInterval(() => goSlide((slideIdx + 1) % slides.length), 5000);
+
+// Inicializar primer slide
+goSlide(0);
 
 
   // ── NOVEDADES ────────────────────────────────────────────────────────────

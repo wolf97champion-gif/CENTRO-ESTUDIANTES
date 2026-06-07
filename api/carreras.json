@@ -2,22 +2,183 @@
   "carreras": [
     {
       "id": 1,
-      "codigo": "TSCDIAI",
+      "codigo": "TSCDIA",
       "nombre": "Tecnicatura Superior en Ciencia de Datos e Inteligencia Artificial",
+      "duracion": "3 años",
+      "modalidad": "Presencial",
+      "titulo": "Técnico/a Superior en Ciencia de Datos e Inteligencia Artificial",
+      "perfil": "Forma profesionales capaces de recolectar, procesar y analizar grandes volúmenes de datos, desarrollar modelos predictivos y aplicar técnicas de inteligencia artificial para la resolución de problemas en distintos ámbitos.",
+      "alcance": "Podrá desempeñarse en análisis de datos, machine learning, automatización de procesos, desarrollo de modelos predictivos y proyectos vinculados a la transformación digital.",
       "materias": [
-        { "id": 1, "nombre": "Técnicas de Programación",        "semestre": 1, "docente_id": 3 },
-        { "id": 2, "nombre": "Aproximación al Campo Laboral",   "semestre": 2, "docente_id": 3 },
-        { "id": 3, "nombre": "Administración de Bases de Datos","semestre": 1, "docente_id": null },
-        { "id": 4, "nombre": "Matemática para Datos",           "semestre": 1, "docente_id": null }
+        {
+          "anio": 1,
+          "asignaturas": [
+            { "id": 1, "nombre": "Técnicas de Programación" },
+            { "id": 2, "nombre": "Matemática para Datos" },
+            { "id": 3, "nombre": "Administración de Bases de Datos" },
+            { "id": 4, "nombre": "Sistemas de Información" },
+            { "id": 5, "nombre": "Aproximación al Campo Laboral" }
+          ]
+        },
+        {
+          "anio": 2,
+          "asignaturas": [
+            { "id": 6, "nombre": "Programación Avanzada" },
+            { "id": 7, "nombre": "Estadística Aplicada" },
+            { "id": 8, "nombre": "Minería de Datos" },
+            { "id": 9, "nombre": "Modelado de Datos" },
+            { "id": 10, "nombre": "Práctica Profesional I" }
+          ]
+        },
+        {
+          "anio": 3,
+          "asignaturas": [
+            { "id": 11, "nombre": "Inteligencia Artificial" },
+            { "id": 12, "nombre": "Machine Learning" },
+            { "id": 13, "nombre": "Big Data" },
+            { "id": 14, "nombre": "Gestión de Proyectos Tecnológicos" },
+            { "id": 15, "nombre": "Práctica Profesional II" }
+          ]
+        }
       ]
     },
+
     {
       "id": 2,
-      "codigo": "TSRC",
-      "nombre": "Tecnicatura Superior en Redes y Comunicaciones",
+      "codigo": "PROFING",
+      "nombre": "Profesorado de Inglés",
+      "duracion": "4 años",
+      "modalidad": "Presencial",
+      "titulo": "Profesor/a de Inglés",
+      "perfil": "Forma docentes especializados en la enseñanza del idioma inglés, promoviendo competencias lingüísticas, comunicativas y culturales para distintos niveles educativos.",
+      "alcance": "Podrá desempeñarse en instituciones educativas públicas y privadas de nivel secundario y superior, desarrollando proyectos de enseñanza e investigación educativa.",
       "materias": [
-        { "id": 5, "nombre": "Redes I",            "semestre": 1, "docente_id": null },
-        { "id": 6, "nombre": "Sistemas Operativos", "semestre": 1, "docente_id": null }
+        {
+          "anio": 1,
+          "asignaturas": [
+            { "id": 16, "nombre": "Lengua Inglesa I" },
+            { "id": 17, "nombre": "Fonética y Fonología I" },
+            { "id": 18, "nombre": "Gramática Inglesa I" },
+            { "id": 19, "nombre": "Pedagogía" }
+          ]
+        },
+        {
+          "anio": 2,
+          "asignaturas": [
+            { "id": 20, "nombre": "Lengua Inglesa II" },
+            { "id": 21, "nombre": "Fonética y Fonología II" },
+            { "id": 22, "nombre": "Gramática Inglesa II" },
+            { "id": 23, "nombre": "Psicología Educacional" }
+          ]
+        },
+        {
+          "anio": 3,
+          "asignaturas": [
+            { "id": 24, "nombre": "Didáctica Específica del Inglés" },
+            { "id": 25, "nombre": "Literatura Inglesa" },
+            { "id": 26, "nombre": "Práctica Docente I" }
+          ]
+        },
+        {
+          "anio": 4,
+          "asignaturas": [
+            { "id": 27, "nombre": "Residencia Pedagógica" },
+            { "id": 28, "nombre": "Práctica Docente II" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": 3,
+      "codigo": "PROFMAT",
+      "nombre": "Profesorado de Matemática",
+      "duracion": "4 años",
+      "modalidad": "Presencial",
+      "titulo": "Profesor/a de Matemática",
+      "perfil": "Forma docentes con sólidos conocimientos matemáticos y pedagógicos para la enseñanza en educación secundaria y superior.",
+      "alcance": "Podrá diseñar propuestas de enseñanza, coordinar proyectos educativos y promover el razonamiento lógico y la resolución de problemas.",
+      "materias": [
+        {
+          "anio": 1,
+          "asignaturas": [
+            { "id": 29, "nombre": "Álgebra I" },
+            { "id": 30, "nombre": "Análisis Matemático I" },
+            { "id": 31, "nombre": "Pedagogía" },
+            { "id": 32, "nombre": "Didáctica General" }
+          ]
+        },
+        {
+          "anio": 2,
+          "asignaturas": [
+            { "id": 33, "nombre": "Álgebra II" },
+            { "id": 34, "nombre": "Geometría" },
+            { "id": 35, "nombre": "Psicología Educacional" },
+            { "id": 36, "nombre": "Didáctica de la Matemática I" }
+          ]
+        },
+        {
+          "anio": 3,
+          "asignaturas": [
+            { "id": 37, "nombre": "Probabilidad y Estadística" },
+            { "id": 38, "nombre": "Didáctica de la Matemática II" },
+            { "id": 39, "nombre": "Práctica Docente I" }
+          ]
+        },
+        {
+          "anio": 4,
+          "asignaturas": [
+            { "id": 40, "nombre": "Práctica Docente II" },
+            { "id": 41, "nombre": "Residencia Pedagógica" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": 4,
+      "codigo": "PROFLYL",
+      "nombre": "Profesorado de Lengua y Literatura",
+      "duracion": "4 años",
+      "modalidad": "Presencial",
+      "titulo": "Profesor/a de Lengua y Literatura",
+      "perfil": "Forma docentes especializados en lengua, literatura, análisis del discurso y producción escrita para los niveles secundario y superior.",
+      "alcance": "Podrá desempeñarse en instituciones educativas, proyectos culturales y espacios de promoción de la lectura y la escritura.",
+      "materias": [
+        {
+          "anio": 1,
+          "asignaturas": [
+            { "id": 42, "nombre": "Introducción a los Estudios Literarios" },
+            { "id": 43, "nombre": "Lingüística I" },
+            { "id": 44, "nombre": "Pedagogía" },
+            { "id": 45, "nombre": "Historia Social de la Educación" }
+          ]
+        },
+        {
+          "anio": 2,
+          "asignaturas": [
+            { "id": 46, "nombre": "Literatura Argentina I" },
+            { "id": 47, "nombre": "Lingüística II" },
+            { "id": 48, "nombre": "Psicología Educacional" },
+            { "id": 49, "nombre": "Didáctica General" }
+          ]
+        },
+        {
+          "anio": 3,
+          "asignaturas": [
+            { "id": 50, "nombre": "Literatura Latinoamericana" },
+            { "id": 51, "nombre": "Didáctica de la Lengua y la Literatura" },
+            { "id": 52, "nombre": "Práctica Docente I" }
+          ]
+        },
+        {
+          "anio": 4,
+          "asignaturas": [
+            { "id": 53, "nombre": "Literatura Contemporánea" },
+            { "id": 54, "nombre": "Práctica Docente II" },
+            { "id": 55, "nombre": "Residencia Pedagógica" }
+          ]
+        }
       ]
     }
   ]

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Carreras — CE Digital N°57</title>
+
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/reset.css">
+  <link rel="stylesheet" href="../../css/components.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+  <link rel="stylesheet" href="../../css/carreras.css">
+
+</head>
+
+<body>
+
+  <div id="navbar"></div>
+
+  <main class="page-wrapper">
+
+    <div class="page-header">
+
+      <div>
+
+        <h1 class="page-title">
+          Carreras
+        </h1>
+
+        <p class="page-subtitle">
+          Oferta académica del Instituto Superior de Formación Docente y Técnica N°57
+        </p>
+
+      </div>
+
+    </div>
+
+    <div class="filters-bar">
+
+      <span class="filters-bar__label">
+        Buscar:
+      </span>
+
+      <input
+        class="form-input"
+        id="buscador-carreras"
+        type="search"
+        placeholder="Buscar carrera..."
+        style="max-width:320px;"
+      >
+
+    </div>
+
+    <div
+      id="alert-global"
+      class="alert"
+      style="display:none;"
+    ></div>
+
+    <div
+      id="contenedor-carreras"
+      class="grid-auto"
+    >
+
+      <div class="spinner"></div>
+
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="../../js/auth.js"></script>
+<script src="../../js/router.js"></script>
+<script src="../../js/api.js"></script>
+<script src="../../js/utils.js"></script>
+
+  <script>
+
+    Router.verificarAcceso();
+    Router.renderNavbar();
+
+    let todasLasCarreras = [];
+
+    async function cargarCarreras() {
+
+  try {
+
+    todasLasCarreras =
+      await API.getCarreras();
+
+    renderizarCarreras(
+      todasLasCarreras
+    );
+
+  } catch(error) {
+
+    console.error(error);
+
+    document.getElementById(
+      'contenedor-carreras'
+    ).innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state__icon">⚠️</div>
+        <div class="empty-state__title">Error</div>
+        <div class="empty-state__text">
+          No se pudieron cargar las carreras.
+        </div>
+      </div>
+    `;
+  }
+}
+
+    function renderizarCarreras(carreras) {
+
+      const contenedor =
+        document.getElementById(
+          'contenedor-carreras'
+        );
+
+      if (carreras.length === 0) {
+
+        contenedor.innerHTML = `
+          <div class="empty-state">
+
+            <div class="empty-state__icon">
+              🎓
+            </div>
+
+            <div class="empty-state__title">
+              Sin carreras
+            </div>
+
+            <div class="empty-state__text">
+              No se encontraron carreras.
+            </div>
+
+          </div>
+        `;
+
+        return;
+      }
+
+      contenedor.innerHTML =
+        carreras.map(c => `
+
+          <div class="card carrera-card">
+
+            <div
+              style="
+                text-align:center;
+                font-size:42px;
+                margin-bottom:12px;
+              "
+            >
+              🎓
+            </div>
+
+            <h3
+              class="card__title"
+              style="
+                text-align:center;
+                margin-bottom:12px;
+              "
+            >
+              ${c.nombre}
+            </h3>
+
+            <div
+              class="card__meta"
+              style="
+                display:flex;
+                flex-direction:column;
+                gap:6px;
+              "
+            >
+
+              <span>
+                🕒 ${c.duracion}
+              </span>
+
+              <span>
+                🏫 ${c.modalidad}
+              </span>
+
+            </div>
+
+            <button
+              class="btn btn--primary"
+              style="
+                width:100%;
+                margin-top:16px;
+              "
+              onclick="verCarrera(${c.id})"
+            >
+              Ver carrera
+            </button>
+
+          </div>
+
+        `).join('');
+
+    }
+
+    function verCarrera(id) {
+
+  const carrera =
+    todasLasCarreras.find(
+      c => c.id === id
+    );
+
+  if (!carrera) return;
+
+  let materiasHTML = '';
+
+  carrera.materias.forEach(anio => {
+
+    materiasHTML += `
+      <div style="margin-top:15px;">
+
+        <h4 style="
+          color:var(--color-primary);
+          margin-bottom:8px;
+        ">
+          📚 ${anio.anio}° Año
+        </h4>
+
+        <ul style="
+          margin-left:20px;
+          line-height:1.7;
+        ">
+          ${anio.asignaturas
+            .map(m => `<li>${m.nombre}</li>`)
+            .join('')}
+        </ul>
+
+      </div>
+    `;
+
+  });
+
+  Swal.fire({
+
+    title: carrera.nombre,
+
+    html: `
+
+      <div style="
+        text-align:left;
+        max-height:500px;
+        overflow-y:auto;
+      ">
+
+        <p>
+          <strong>📜 Título:</strong>
+          ${carrera.titulo}
+        </p>
+
+        <p>
+          <strong>⏳ Duración:</strong>
+          ${carrera.duracion}
+        </p>
+
+        <p>
+          <strong>🏫 Modalidad:</strong>
+          ${carrera.modalidad}
+        </p>
+
+        <hr style="margin:15px 0;">
+
+        <h3>👤 Perfil Profesional</h3>
+
+        <p style="line-height:1.6;">
+          ${carrera.perfil}
+        </p>
+
+        <h3 style="margin-top:15px;">
+          🎯 Alcance Profesional
+        </h3>
+
+        <p style="line-height:1.6;">
+          ${carrera.alcance}
+        </p>
+
+        <hr style="margin:15px 0;">
+
+        <h3>📖 Plan de Estudios</h3>
+
+        ${materiasHTML}
+
+      </div>
+
+    `,
+
+    width: 900,
+
+    confirmButtonText: 'Cerrar'
+
+  });
+
+}
+
+        document
+      .getElementById('buscador-carreras')
+      .addEventListener('input', function() {
+
+        const texto =
+          this.value.toLowerCase();
+
+        const resultado =
+          todasLasCarreras.filter(c =>
+            c.nombre
+              .toLowerCase()
+              .includes(texto)
+          );
+
+        renderizarCarreras(resultado);
+
+      });
+
+    cargarCarreras();
+
+  </script>
+
+  <script src="../../js/chatbot.js"></script>
+
+  <script>
+    Chatbot.init();
+  </script>
+
+</body>
+</html>

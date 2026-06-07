@@ -1,0 +1,8 @@
+.carrera-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.carrera-card .card__title {
+  color: var(--color-primary);
+}
