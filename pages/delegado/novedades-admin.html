@@ -127,13 +127,16 @@
     </div>
   </main>
 
-  <script src="../../js/auth.js"></script>
-  <script src="../../js/router.js"></script>
-  <script src="../../js/api.js"></script>
-  <script src="../../js/utils.js"></script>
+<!-- SweetAlert2 (DEBE IR ANTES DE auth.js) -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="../../js/auth.js"></script>
+<script src="../../js/router.js"></script>
+<script src="../../js/api.js"></script>
+<script src="../../js/utils.js"></script>
   <script>
     Router.verificarAcceso();
-    Auth.requiereRol('admin', 'delegado');
+    Auth.requiereRol('administrador' , 'delegado');
     Router.renderNavbar();
 
     const usuario = Auth.getUsuario();

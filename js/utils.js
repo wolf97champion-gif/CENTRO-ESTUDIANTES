@@ -36,11 +36,12 @@ const Utils = {
     const horas   = Math.floor(diff / 3600000);
     const dias    = Math.floor(diff / 86400000);
 
-    if (minutos < 1)  return 'ahora mismo';
+    if (minutos < 1) return 'ahora mismo';
     if (minutos < 60) return `hace ${minutos} min`;
-    if (horas < 24)   return `hace ${horas} ${horas === 1 ? 'hora' : 'horas'}`;
-    if (dias < 7)     return `hace ${dias} ${dias === 1 ? 'día' : 'días'}`;
-    return Utils.formatearFechaCorta(fechaISO);
+    if (horas < 24) return `hace ${horas} ${horas === 1 ? 'hora' : 'horas'}`;
+    if (dias < 7) return `hace ${dias} ${dias === 1 ? 'día' : 'días'}`;
+
+    return this.formatearFechaCorta(fechaISO);
   },
 
   // ---- Texto ----
@@ -75,31 +76,61 @@ const Utils = {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   },
 
-  //Validar EMAIL
-    validarEmail(email) {
+  // ---- VALIDACIONES ----
 
+  validarEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
+  
   },
 
   validarDNI(dni) {
-
+  
     return /^\d{7,8}$/.test(dni);
-
+  
   },
 
   validarPassword(password) {
-
+  
     return password.length >= 6;
-
+  
   },
 
+  // ---- IDs ----
+
   nuevoId(lista) {
-
-    if (!lista.length) return 1;
-
+    if (!lista || !lista.length) return 1;
     return Math.max(...lista.map(item => item.id)) + 1;
+  },
 
+  // ---- ALERTAS (🔥 FIX QUE TE FALTABA) ----
+
+    mostrarAlerta(mensaje, tipo = "info") {
+    if (typeof Swal !== "undefined") {
+      Swal.fire({
+        icon: tipo,
+        text: mensaje
+      });
+    } else {
+      alert(mensaje);
+    }
+  },
+
+  confirmar(mensaje, callback) {
+    if (typeof Swal !== "undefined") {
+      Swal.fire({
+        title: 'Confirmación',
+        text: mensaje,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#2563eb'
+      }).then(result => {
+        if (result.isConfirmed) callback();
+      });
+    } else {
+      if (confirm(mensaje)) callback();
+    }
   }
 
 };

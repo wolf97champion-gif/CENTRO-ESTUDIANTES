@@ -134,10 +134,12 @@
     </div>
   </div>
 
-  <script src="../../js/auth.js"></script>
-  <script src="../../js/router.js"></script>
-  <script src="../../js/api.js"></script>
-  <script src="../../js/utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="../../js/auth.js"></script>
+<script src="../../js/router.js"></script>
+<script src="../../js/api.js"></script>
+<script src="../../js/utils.js"></script>
   <script>
     Router.verificarAcceso();
     Router.renderNavbar();
@@ -280,49 +282,28 @@
     });
 
     /* ── Inscripción directa (sin confirmación) ── */
-    function inscribirse(eventoId) {
-
-  const evento = todosLosEventos.find(
-    e => e.id === eventoId
-  );
+  function inscribirse(eventoId) {
+  const evento = todosLosEventos.find(e => e.id === eventoId);
+  if (!evento) return;
 
   if (inscriptosCount(eventoId) >= evento.cupo) {
-
-    Utils.mostrarAlerta(
-      'Este evento no tiene más cupo disponible.',
-      'warning'
-    );
-
+    Utils.mostrarAlerta('Este evento no tiene más cupo disponible.', 'warning');
     return;
   }
 
-  Swal.fire({
-    title: 'Confirmar inscripción',
-    text: `¿Deseás inscribirte en "${evento.titulo}"?`,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'Sí, inscribirme',
-    cancelButtonText: 'Cancelar',
-    confirmButtonColor: '#2563eb'
-  }).then((result) => {
+  Utils.confirmar(
+    `¿Deseás inscribirte en "${evento.titulo}"?`,
+    () => {
+      inscripciones.push({
+        id: Date.now(),
+        evento_id: eventoId,
+        usuario_id: usuario.id
+      });
 
-    if (!result.isConfirmed) return;
-
-    inscripciones.push({
-      id: Date.now(),
-      evento_id: eventoId,
-      usuario_id: usuario.id
-    });
-
-    Utils.mostrarAlerta(
-      `¡Te inscribiste a "${evento.titulo}"!`,
-      'success'
-    );
-
-    filtrar(filtroActivo);
-
-  });
-
+      Utils.mostrarAlerta(`Te inscribiste a "${evento.titulo}"`, 'success');
+      filtrar(filtroActivo);
+    }
+  );
 }
 
     /* ── Modal: Confirmar cancelar inscripción ── */
@@ -412,7 +393,7 @@
 
     cargarEventos();
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 <script src="../../js/chatbot.js"></script>
 <script>

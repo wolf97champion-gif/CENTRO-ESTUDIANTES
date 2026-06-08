@@ -118,7 +118,7 @@
   <script src="../../js/utils.js"></script>
   <script>
     Router.verificarAcceso();
-    Auth.requiereRol('admin', 'docente');
+    Auth.requiereRol('administrador', 'docente');
     Router.renderNavbar();
 
     const usuario = Auth.getUsuario();
