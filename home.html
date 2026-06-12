@@ -545,65 +545,6 @@
       </div>
 
     </div><!-- /home-body -->
-
-    <!-- ===== CHATBOT BURBUJA FLOTANTE ===== -->
-    <div id="chat-bubble-btn" onclick="toggleChat()" style="
-      position:fixed; bottom:28px; right:28px;
-      width:58px; height:58px; border-radius:9999px;
-      background:#1A3A5C; color:#fff;
-      display:flex; align-items:center; justify-content:center;
-      font-size:26px; cursor:pointer; z-index:1000;
-      box-shadow:0 4px 18px rgba(26,58,92,0.35);
-      transition:transform 0.2s, box-shadow 0.2s;
-    " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-      🤖
-      <span id="chat-bubble-dot" style="
-        position:absolute; top:4px; right:4px;
-        width:12px; height:12px; background:#4A9FDB;
-        border-radius:9999px; border:2px solid #1A3A5C;
-      "></span>
-    </div>
-
-    <div id="chat-panel" style="
-      display:none; position:fixed; bottom:98px; right:28px;
-      width:300px; border-radius:14px; overflow:hidden;
-      box-shadow:0 8px 32px rgba(0,0,0,0.18);
-      z-index:1000; flex-direction:column;
-      animation: chatIn 0.22s ease;
-    ">
-      <style>
-        @keyframes chatIn {
-          from { opacity:0; transform:translateY(16px) scale(0.97); }
-          to   { opacity:1; transform:translateY(0) scale(1); }
-        }
-      </style>
-      <div style="background:#1A3A5C; padding:12px 14px; display:flex; align-items:center; gap:10px;">
-        <div style="width:36px;height:36px;border-radius:9999px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🤖</div>
-        <div style="flex:1;">
-          <div style="font-weight:700;color:#fff;font-size:13px;">CE BOT</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.6);">● En línea</div>
-        </div>
-        <span onclick="toggleChat()" style="color:rgba(255,255,255,0.6);cursor:pointer;font-size:20px;line-height:1;padding:2px 4px;">✕</span>
-      </div>
-      <div id="chatbot-msgs" style="
-        background:#fff; padding:12px; max-height:240px;
-        overflow-y:auto; display:flex; flex-direction:column; gap:8px;
-      ">
-        <div class="bubble bubble--bot">¡Hola! Soy CE Bot 🤖<br>¿Cómo puedo ayudarte?</div>
-      </div>
-      <div id="chat-sugs" style="background:#fff;display:flex;flex-direction:column;gap:5px;padding:0 10px 8px;">
-        <button class="chat-sug" onclick="sendSug('¿Cuáles son los próximos eventos?')">¿Cuáles son los próximos eventos?</button>
-        <button class="chat-sug" onclick="sendSug('¿Cómo puedo presentar una propuesta?')">¿Cómo puedo presentar una propuesta?</button>
-        <button class="chat-sug" onclick="sendSug('¿Dónde encuentro los documentos importantes?')">¿Dónde encuentro los documentos importantes?</button>
-        <button class="chat-sug" onclick="sendSug('Quiero contactarme con el CE')">Quiero contactarme con el CE</button>
-      </div>
-      <div style="background:#fff;display:flex;align-items:center;gap:6px;padding:8px 10px;border-top:1px solid #E0E4EA;">
-        <input class="chat-input" id="chat-input" type="text" placeholder="Escribí tu consulta..."
-          onkeydown="if(event.key==='Enter')sendMsg()" style="flex:1;" />
-        <button class="chat-send" onclick="sendMsg()">➤</button>
-      </div>
-    </div>
-
     <footer class="footer">
       <div class="footer__social">
         Seguinos en nuestras redes
@@ -660,14 +601,7 @@
   // ── CHATBOT FLOTANTE — toggle ─────────────────────────────────────────────
   let chatAbierto = false;
 
-  function toggleChat() {
-    chatAbierto = !chatAbierto;
-    const panel = document.getElementById('chat-panel');
-    panel.style.display = chatAbierto ? 'flex' : 'none';
-    if (chatAbierto) {
-      setTimeout(() => document.getElementById('chat-input').focus(), 100);
-    }
-  }
+  
 
 // ── PANEL DE USUARIO ─────────────────────────────────────────────────────
 
@@ -1037,6 +971,7 @@ setInterval(() => goSlide((slideIdx + 1) % slides.length), 5000);
   cargarNovedades();
   cargarEventos();
 </script>
-
+<script src="js/chatbot.js"></script>
+<script>Chatbot.init();</script>
 </body>
 </html>

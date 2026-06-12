@@ -1,490 +1,837 @@
 /* =============================================
-   chatbot.js — Widget de chat sin API key
-   Centro de Estudiantes Digital — Instituto N°57
-   Sistema de respuestas por palabras clave
+   chatbot.js — Asistente virtual CE Digital
+   Instituto N°57
+
+   - Sin API externa, lógica 100% local
+   - Compatible con auth.js y router.js del proyecto
+   - Usa localStorage 'usuarioActivo' con campo 'rol'
+   - Se activa con Chatbot.init() al final del body
+   - Funciona en todas las páginas (pages/**, home.html)
    ============================================= */
 
 const Chatbot = {
 
-  conversacion: [],
   abierto: false,
-  escribiendo: false,
+  datos: null,
+  cargando: false,
+  inicializado: false,
 
-  // ---- BASE DE CONOCIMIENTO ----
-  // Cada entrada tiene palabras clave y una o más respuestas posibles
-  conocimiento: [
-
-    // SALUDOS
-    {
-      claves: ['hola', 'buenas', 'buen dia', 'buenos dias', 'buenas tardes', 'buenas noches', 'hey', 'hi'],
-      respuestas: [
-        '¡Hola! 👋 ¿En qué puedo ayudarte hoy?',
-        '¡Buenas! Estoy acá para ayudarte. ¿Qué necesitás?',
-        '¡Hola! ¿Tenés alguna consulta sobre el instituto o el sistema?'
-      ]
-    },
-
-    // DESPEDIDAS
-    {
-      claves: ['chau', 'adios', 'hasta luego', 'nos vemos', 'bye', 'gracias', 'muchas gracias'],
-      respuestas: [
-        '¡Hasta luego! 👋 Cualquier consulta, acá estoy.',
-        '¡Chau! Que te vaya bien. 😊',
-        '¡De nada! Si necesitás algo más, avisame.'
-      ]
-    },
-
-    // LOGIN / ACCESO
-    {
-      claves: ['login', 'entrar', 'iniciar sesion', 'ingresar', 'no puedo entrar', 'no me deja entrar', 'contrasena', 'password', 'olvide', 'olvide mi contrasena'],
-      respuestas: [
-        'Para iniciar sesión usás tu correo institucional (@instituto57.edu.ar) y tu contraseña. Si la olvidaste, podés cambiarla desde "Mi Perfil" una vez que entres, o contactar al administrador del sistema. 🔐',
-        'El acceso es con tu correo del instituto y contraseña. Si tenés problemas, contactá al admin para que restablezca tu contraseña.'
-      ]
-    },
-
-    // ROLES Y PERMISOS
-    {
-      claves: ['rol', 'roles', 'permiso', 'permisos', 'cambiar rol', 'cambio de rol', 'admin', 'administrador', 'quien puede', 'acceso'],
-      respuestas: [
-        'El sistema tiene 4 roles:\n👑 <b>Admin</b> — acceso total, gestiona usuarios\n🗣 <b>Delegado</b> — publica novedades y eventos\n📚 <b>Docente</b> — carga avisos de materias y fechas\n🎒 <b>Alumno</b> — consulta toda la información\n\nSolo el Admin puede cambiar el rol de alguien, desde la sección "Gestión de Usuarios".',
-        'Los roles los asigna únicamente el Administrador. Si necesitás un cambio de rol, contactalo directamente o hablá con la dirección del instituto.'
-      ]
-    },
-
-    // NOVEDADES
-    {
-      claves: ['novedad', 'novedades', 'noticias', 'aviso', 'avisos', 'publicar', 'publicar novedad', 'anuncio'],
-      respuestas: [
-        'Las novedades las podés ver en la sección "Novedades" del menú. Están organizadas por categoría: 📚 Académico, 🎉 Social, 🏫 Institucional y 🔴 Urgente.\n\nSi sos Delegado o Admin, podés publicar novedades desde "Nueva novedad".',
-        'En la sección Novedades encontrás todos los avisos del instituto. Podés filtrarlos por categoría o buscar por palabra clave. 📰'
-      ]
-    },
-
-    // CALENDARIO
-    {
-      claves: ['calendario', 'fechas', 'parcial', 'parciales', 'final', 'finales', 'examen', 'examenes', 'cuando', 'cuándo'],
-      respuestas: [
-        'El calendario académico está en la sección "Calendario" del menú. Ahí vas a ver todas las fechas importantes: parciales, finales, feriados y eventos. 📅\n\nLos docentes cargan las fechas de sus materias desde su panel.',
-        'Para ver fechas de parciales y finales, entrá a la sección "Calendario". Podés navegar mes por mes y hacer clic en cada evento para ver los detalles. 🗓️'
-      ]
-    },
-
-    // EVENTOS
-    {
-      claves: ['evento', 'eventos', 'inscribir', 'inscripcion', 'inscribirme', 'actividad', 'actividades', 'hackathon', 'taller', 'charla', 'jornada'],
-      respuestas: [
-        'Los eventos del Centro de Estudiantes los encontrás en la sección "Eventos". Para inscribirte, hacé clic en el evento y luego en "Inscribirse". 🎟️\n\nFijate en el cupo disponible, ¡algunos eventos se llenan rápido!',
-        'Para inscribirte a un evento: Eventos → elegís el que te interesa → botón "Inscribirse". Podés cancelar tu inscripción en cualquier momento desde el mismo lugar.'
-      ]
-    },
-
-    // REGLAMENTOS / DOCUMENTOS
-    {
-      claves: ['reglamento', 'reglamentos', 'documento', 'documentos', 'regimen', 'normas', 'estatuto', 'beca', 'becas', 'convivencia'],
-      respuestas: [
-        'Todos los documentos oficiales están en la sección "Reglamentos". Ahí encontrás:\n📄 Régimen Académico\n📄 Reglamento de Convivencia\n📄 Régimen de Becas\n📄 Estatuto del Centro de Estudiantes',
-        'Los reglamentos y documentos oficiales están en la sección "Reglamentos" del menú. También hay una sección de preguntas frecuentes que puede ayudarte. 📚'
-      ]
-    },
-
-    // BECAS
-    {
-      claves: ['beca', 'becas', 'solicitar beca', 'ayuda economica', 'ayuda económica'],
-      respuestas: [
-        'Para solicitar una beca tenés que presentar la documentación indicada en el "Régimen de Becas" (lo encontrás en Reglamentos).\n\n📅 Plazos:\n• 1er cuatrimestre: antes del 31 de marzo\n• 2do cuatrimestre: antes del 31 de julio\n\nCualquier duda, consultá en la secretaría del instituto.'
-      ]
-    },
-
-    // ASISTENCIA / FALTAS
-    {
-      claves: ['falta', 'faltas', 'asistencia', 'inasistencia', 'perder regularidad', 'regular', 'porcentaje'],
-      respuestas: [
-        'El régimen académico establece un máximo del <b>25% de inasistencias</b> por materia. Si superás ese límite, perdés la condición de alumno regular en esa materia. ⚠️\n\nPara más detalles, consultá el Régimen Académico en la sección Reglamentos.'
-      ]
-    },
-
-    // PERFIL
-    {
-      claves: ['perfil', 'mi perfil', 'datos', 'cambiar datos', 'editar', 'nombre', 'email', 'correo'],
-      respuestas: [
-        'Podés ver y editar tu información personal desde "Mi Perfil" en la esquina superior derecha (tu avatar). Ahí podés cambiar tu nombre, correo y contraseña. 👤'
-      ]
-    },
-
-    // CARRERAS
-    {
-      claves: ['carrera', 'carreras', 'tecnicatura', 'ciencia de datos', 'inteligencia artificial', 'redes', 'comunicaciones', 'materias', 'plan de estudios'],
-      respuestas: [
-        'El instituto ofrece dos carreras:\n\n🎓 <b>Tecnicatura en Ciencia de Datos e IA</b> (TSCDIAI)\n🎓 <b>Tecnicatura en Redes y Comunicaciones</b> (TSRC)\n\nPara consultar el plan de estudios completo, hablá con la secretaría académica.',
-        'Actualmente hay dos tecnicaturas: Ciencia de Datos e IA, y Redes y Comunicaciones. ¿Sobre cuál necesitás información? 🎓'
-      ]
-    },
-
-    // SECRETARIA / CONTACTO
-    {
-      claves: ['secretaria', 'secretaría', 'contacto', 'consulta presencial', 'horario', 'horarios', 'donde queda', 'direccion', 'dirección'],
-      respuestas: [
-        'Para consultas que no puedo resolver desde acá, te recomiendo ir directamente a la secretaría del instituto. Ellos pueden ayudarte con trámites, inscripciones y cualquier gestión administrativa. 🏫',
-        'La secretaría del instituto es el lugar indicado para consultas administrativas, inscripciones y trámites presenciales.'
-      ]
-    },
-
-    // CENTRO DE ESTUDIANTES
-    {
-      claves: ['centro de estudiantes', 'ce', 'delegado', 'que hace el ce', 'para que sirve'],
-      respuestas: [
-        'El Centro de Estudiantes representa a todos los alumnos del instituto. Se encarga de:\n🎉 Organizar eventos y actividades\n📢 Publicar novedades importantes\n📋 Gestionar el calendario académico\n🤝 Ser el nexo entre alumnos y la institución\n\n¡Cualquier inquietud podés hacérsela llegar al delegado!',
-      ]
-    },
-
-    // SISTEMA / TECNOLOGÍA
-    {
-      claves: ['sistema', 'plataforma', 'web', 'pagina', 'página', 'app', 'como funciona', 'que es esto'],
-      respuestas: [
-        'Esta es la plataforma digital del Centro de Estudiantes del Instituto N°57. Te permite:\n📰 Ver novedades y avisos\n📅 Consultar el calendario\n🎟️ Inscribirte a eventos\n📄 Acceder a reglamentos\n\nTodo en un solo lugar, desde cualquier dispositivo. 💻'
-      ]
-    },
-
-    // NO ENTIENDO / AYUDA GENERAL
-    {
-      claves: ['ayuda', 'help', 'no entiendo', 'no se', 'no sé', 'que puedo preguntar', 'sobre que me podés ayudar'],
-      respuestas: [
-        'Puedo ayudarte con:\n📅 Fechas de parciales y finales\n🎟️ Inscripción a eventos\n📰 Novedades del instituto\n📄 Reglamentos y becas\n👤 Tu perfil y contraseña\n🎓 Información sobre carreras\n\n¿Sobre qué querés saber?',
-        '¡Claro! Podés preguntarme sobre el calendario, eventos, novedades, reglamentos, roles del sistema o cualquier duda sobre el instituto. ¿Por dónde empezamos? 😊'
-      ]
-    }
-  ],
-
-  // ---- RESPUESTAS CUANDO NO ENTIENDE ----
-  respuestasNoEntiendo: [
-    'Mmm, no estoy seguro de entender bien tu consulta. ¿Podés reformularla? También podés preguntarme sobre el calendario, eventos, novedades o reglamentos. 🤔',
-    'No tengo información sobre eso. Para consultas específicas, te recomiendo hablar con la secretaría del instituto o con el delegado. 😊',
-    'Esa consulta está fuera de mi alcance por ahora. ¿Puedo ayudarte con algo sobre el calendario, eventos, novedades o reglamentos?',
-    'No encontré una respuesta para eso. Probá preguntarme de otra forma, o contactá directamente a la secretaría del instituto. 🏫'
-  ],
-
-  // ---- LÓGICA DE BÚSQUEDA ----
-  buscarRespuesta(mensaje) {
-    const texto = mensaje.toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar tildes
-      .replace(/[¿?¡!.,;:]/g, '');                      // quitar puntuación
-
-    let mejorCoincidencia = null;
-    let maxCoincidencias = 0;
-
-    for (const entrada of this.conocimiento) {
-      let coincidencias = 0;
-      for (const clave of entrada.claves) {
-        if (texto.includes(clave)) coincidencias++;
-      }
-      if (coincidencias > maxCoincidencias) {
-        maxCoincidencias = coincidencias;
-        mejorCoincidencia = entrada;
-      }
-    }
-
-    if (mejorCoincidencia && maxCoincidencias > 0) {
-      const respuestas = mejorCoincidencia.respuestas;
-      return respuestas[Math.floor(Math.random() * respuestas.length)];
-    }
-
-    // No encontró nada
-    return this.respuestasNoEntiendo[
-      Math.floor(Math.random() * this.respuestasNoEntiendo.length)
-    ];
+  /* ── IDs del DOM ── */
+  IDS: {
+    ROOT:     'chatbot-root',
+    BTN:      'chatbot-btn',
+    PANEL:    'chatbot-panel',
+    MENSAJES: 'chatbot-mensajes',
+    INPUT:    'chatbot-input',
+    SEND:     'chatbot-send',
+    SUGS:     'chatbot-sugs',
   },
 
-  // ---- SALUDO SEGÚN ROL ----
-  getMensajeBienvenida(usuario) {
-    if (!usuario) {
-      return '¡Hola! 👋 Soy el asistente del CE Digital del Instituto N°57. ¿Tenés alguna pregunta sobre el sistema o el instituto?';
+  /* ================================================================
+     INIT — punto de entrada, llamado desde cada página
+     ================================================================ */
+  init() {
+    if (this.inicializado) return;
+    this.inicializado = true;
+    this._inyectarHTML();
+    this._bindEventos();
+    this._cargarDatos();
+  },
+
+  /* ================================================================
+     USUARIO ACTIVO — lee del localStorage del proyecto
+     ================================================================ */
+  _getUsuario() {
+    try {
+      return JSON.parse(localStorage.getItem('usuarioActivo')) || null;
+    } catch {
+      return null;
     }
+  },
+
+  /* ================================================================
+     RAÍZ DEL PROYECTO — detecta si estamos en pages/** o en raíz
+     ================================================================ */
+  _getRaiz() {
+    const ruta = window.location.pathname;
+    const match = ruta.match(/^(.*\/)pages\//);
+    if (match) return match[1];
+    if (ruta.endsWith('home.html') || ruta.endsWith('/') || ruta.endsWith('index.html')) {
+      return ruta.substring(0, ruta.lastIndexOf('/') + 1);
+    }
+    return '/';
+  },
+
+  /* ================================================================
+     CARGA DE DATOS — todos los JSON desde /api/
+     ================================================================ */
+  async _cargarDatos() {
+    if (this.datos || this.cargando) return;
+    this.cargando = true;
+    const raiz = this._getRaiz();
+    try {
+      const [novedades, eventos, calendario, reglamentos, carreras] = await Promise.all([
+        fetch(raiz + 'api/novedades.json').then(r => r.json()).catch(() => ({ novedades: [], categorias: [] })),
+        fetch(raiz + 'api/eventos.json').then(r => r.json()).catch(() => ({ eventos: [], inscripciones: [] })),
+        fetch(raiz + 'api/calendario.json').then(r => r.json()).catch(() => ({ fechas: [], tipos: [] })),
+        fetch(raiz + 'api/reglamentos.json').then(r => r.json()).catch(() => ({ reglamentos: [], faq: [] })),
+        fetch(raiz + 'api/carreras.json').then(r => r.json()).catch(() => ({ carreras: [] })),
+      ]);
+      this.datos = { novedades, eventos, calendario, reglamentos, carreras };
+    } catch (err) {
+      console.warn('[Chatbot] Error cargando datos:', err);
+      this.datos = {};
+    }
+    this.cargando = false;
+  },
+
+  /* ================================================================
+     MOTOR DE RESPUESTAS — detecta intención, responde con datos reales
+     ================================================================ */
+  _responder(texto, usuario) {
+    const t = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[¿?¡!.,;:]/g, '');
+    const rol = usuario?.rol || 'visitante';
+
+    /* Saludos */
+    if (/^(hola|buenas|buen dia|buenos dias|buenas tardes|buenas noches|hey|hi|que tal|como estas)/.test(t))
+      return this._respSaludo(usuario);
+
+    /* Ayuda general */
+    if (/\b(ayuda|que podes|que sabes|opciones|menu|para que sirves|que puedo preguntar)\b/.test(t))
+      return this._respAyuda(rol);
+
+    /* Novedades */
+    if (/\b(novedad|novedades|noticias|aviso|avisos|comunicado|anuncio)\b/.test(t)) {
+      if (/\b(urgente|urgentes|importante)\b/.test(t))   return this._respNovedadesCat('urgente');
+      if (/\b(academico|academica|acad)\b/.test(t))      return this._respNovedadesCat('academico');
+      if (/\b(social)\b/.test(t))                        return this._respNovedadesCat('social');
+      if (/\b(institucional)\b/.test(t))                 return this._respNovedadesCat('institucional');
+      if (/\b(mis|publique|publico|cargue)\b/.test(t) && ['docente','delegado','admin'].includes(rol))
+        return this._respMisNovedades(usuario);
+      return this._respNovedades(usuario);
+    }
+
+    /* Eventos */
+    if (/\b(evento|eventos|jornada|taller|hackathon|charla|actividad)\b/.test(t)) {
+      if (/\b(inscripto|anote|anotado|estoy anotado|mis eventos)\b/.test(t))
+        return this._respMisEventos(usuario);
+      if (/\b(inscribir|anotarme|como me anoto|como me inscribo|quiero ir)\b/.test(t))
+        return this._respComoInscribirse(usuario);
+      if (/\b(cupo|lugares|hay lugar|quedan lugares)\b/.test(t))
+        return this._respCupos();
+      if (/\b(gestionar|cree|cargue|mis eventos)\b/.test(t) && ['delegado','admin'].includes(rol))
+        return this._respEventosDelegado(usuario);
+      return this._respEventos(usuario);
+    }
+
+    /* Calendario */
+    if (/\b(calendario|fechas|fecha|cuando|proximas fechas|cronograma)\b/.test(t)) {
+      if (/\b(parcial|parciales|examen|examenes|evaluacion)\b/.test(t)) return this._respParciales(usuario);
+      if (/\b(final|finales)\b/.test(t))                               return this._respFinales();
+      if (/\b(feriado|feriados|libre|no hay clases)\b/.test(t))        return this._respFeriados();
+      if (/\b(receso|vacaciones|descanso)\b/.test(t))                  return this._respReceso();
+      return this._respCalendario(usuario);
+    }
+
+    /* Parciales directos */
+    if (/\b(parcial|parciales|examen|instancia|evaluacion)\b/.test(t))
+      return this._respParciales(usuario);
+
+    /* Inscripción a cursada */
+    if (/\b(inscripcion|inscribirme|cursada|reinscripcion|me anoto a la cursada|anotarme a materias)\b/.test(t))
+      return this._respInscripcionCursada(usuario);
+
+    /* Login / acceso */
+    if (/\b(login|entrar|iniciar sesion|no puedo entrar|contrasena|password|olvide)\b/.test(t))
+      return this._respLogin();
+
+    /* Roles */
+    if (/\b(rol|roles|permiso|permisos|cambiar rol|quien puede)\b/.test(t))
+      return this._respRoles();
+
+    /* Reglamentos */
+    if (/\b(reglamento|reglamentos|norma|normas|estatuto|regimen)\b/.test(t))
+      return this._respReglamentos();
+
+    /* Faltas */
+    if (/\b(falta|faltas|asistencia|inasistencia|regular|regularidad)\b/.test(t))
+      return this._respFaltas();
+
+    /* Becas */
+    if (/\b(beca|becas|ayuda economica|subsidio)\b/.test(t))
+      return this._respBecas();
+
+    /* Carreras / materias */
+    if (/\b(carrera|carreras|materia|materias|plan|tecnicatura)\b/.test(t)) {
+      if (/\b(mi carrera|mis materias|mi plan)\b/.test(t)) return this._respMiCarrera(usuario);
+      return this._respCarreras();
+    }
+
+    /* Mis materias (docente) */
+    if (/\b(mis materias|dicto|doy clases|que materias tengo)\b/.test(t) && ['docente','admin'].includes(rol))
+      return this._respMisMaterias(usuario);
+
+    /* Inscriptos (delegado/admin) */
+    if (/\b(inscriptos|quien se anoto|lista|asistentes)\b/.test(t) && ['delegado','admin'].includes(rol))
+      return this._respInscriptos(usuario);
+
+    /* Estadísticas admin */
+    if (/\b(estadistica|resumen|reporte|dashboard|total|cuantos hay)\b/.test(t) && rol === 'admin')
+      return this._respEstadisticas();
+
+    /* Perfil */
+    if (/\b(perfil|mi perfil|mis datos|cambiar datos|editar perfil)\b/.test(t))
+      return this._respPerfil(usuario);
+
+    /* Contacto / secretaría */
+    if (/\b(secretaria|contacto|telefono|mail|correo|atencion|donde queda)\b/.test(t))
+      return this._respContacto();
+
+    /* Centro de estudiantes */
+    if (/\b(centro de estudiantes|ce|para que sirve el ce)\b/.test(t))
+      return this._respCE();
+
+    /* Conflictos */
+    if (/\b(problema|conflicto|queja|reclamo|inconveniente)\b/.test(t))
+      return this._respConflictos();
+
+    return this._respFallback(rol);
+  },
+
+  /* ================================================================
+     RESPUESTAS
+     ================================================================ */
+
+  _respSaludo(usuario) {
+    if (!usuario) return '¡Hola! 👋 Soy el asistente del CE Digital. Iniciá sesión para ver información personalizada. ¿En qué puedo ayudarte?';
     const nombre = usuario.nombre.split(' ')[0];
-    const saludos = {
-      admin:    `¡Hola, ${nombre}! 👑 Como admin tenés acceso a todo. ¿En qué puedo ayudarte hoy?`,
-      delegado: `¡Hola, ${nombre}! 🗣 ¿Necesitás ayuda para publicar novedades o gestionar eventos?`,
-      docente:  `¡Hola, ${nombre}! 📚 ¿Querés publicar un aviso o cargar fechas de examen?`,
-      alumno:   `¡Hola, ${nombre}! 🎒 ¿Buscás info sobre el calendario, eventos o reglamentos?`
+    const h = new Date().getHours();
+    const momento = h < 12 ? 'Buenos días' : h < 20 ? 'Buenas tardes' : 'Buenas noches';
+    const msgs = {
+      admin:      `${momento}, ${nombre}! 👑 Tenés acceso completo al sistema. ¿En qué te ayudo?`,
+      delegado:   `${momento}, ${nombre}! 🗣 Puedo mostrarte el estado de tus eventos, inscriptos y novedades. ¿Qué necesitás?`,
+      docente:    `${momento}, ${nombre}! 📚 Puedo ayudarte con tus materias, el calendario y las novedades. ¿En qué te ayudo?`,
+      estudiante: `${momento}, ${nombre}! 🎒 Puedo ayudarte con parciales, eventos, reglamentos e inscripciones. ¿Qué necesitás?`,
     };
-    return saludos[usuario.perfil] || `¡Hola, ${nombre}! ¿En qué puedo ayudarte?`;
+    return msgs[usuario.rol] || `${momento}, ${nombre}! ¿En qué puedo ayudarte?`;
   },
 
-  // ---- SUGERENCIAS SEGÚN ROL ----
-  getSugerencias(usuario) {
-    const comunes = ['¿Cómo me inscribo a un evento?', '¿Dónde veo el calendario?', '¿Cuántas faltas puedo tener?'];
-    if (!usuario) return comunes;
-    const porRol = {
-      admin:    ['¿Cómo cambio el rol de un usuario?', '¿Qué puede hacer cada rol?'],
-      delegado: ['¿Cómo publico una novedad?', '¿Cómo creo un evento?'],
-      docente:  ['¿Cómo cargo un parcial al calendario?', '¿Cómo publico un aviso?'],
-      alumno:   ['¿Dónde están los reglamentos?', '¿Cómo solicito una beca?']
+  _respAyuda(rol) {
+    const base = 'Puedo ayudarte con:\n📅 Calendario y fechas de parciales\n🎟️ Eventos e inscripciones\n📢 Novedades del instituto\n📄 Reglamentos y becas\n🎓 Información sobre carreras\n🔐 Login y acceso al sistema';
+    const extra = {
+      docente:  '\n📚 Tus materias asignadas',
+      delegado: '\n📋 Estado de inscriptos en tus eventos\n📢 Tus novedades publicadas',
+      admin:    '\n📊 Estadísticas y resumen del sistema',
     };
-    return [...(porRol[usuario.perfil] || []), comunes[0]];
+    return base + (extra[rol] || '') + '\n\nEscribime o usá los botones de abajo. 👇';
   },
 
-  // ---- RENDER DEL WIDGET ----
-  render() {
-    if (document.getElementById('chatbot-widget')) return;
+  _respNovedades(usuario) {
+    const novs = this.datos?.novedades?.novedades || [];
+    if (!novs.length) return 'No hay novedades cargadas en este momento.';
+    let lista = novs;
+    // El proyecto no tiene carrera_id por usuario, mostramos todo
+    const recientes = lista.slice(0, 4);
+    const urgentes = recientes.filter(n => n.destacada);
+    let r = urgentes.length
+      ? `Hay ${urgentes.length} novedad${urgentes.length > 1 ? 'es' : ''} destacada${urgentes.length > 1 ? 's' : ''}:\n`
+      : 'Últimas novedades:\n';
+    recientes.forEach(n => {
+      const f = new Date(n.fecha).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' });
+      r += `\n${n.destacada ? '⭐ ' : ''}[${n.categoria.toUpperCase()}] ${n.titulo}\n   ${f} — ${n.contenido.slice(0, 90)}...\n`;
+    });
+    return r + '\nEntré a la sección Novedades para verlas todas. 📢';
+  },
 
-    const widget = document.createElement('div');
-    widget.id = 'chatbot-widget';
-    widget.innerHTML = `
-      <style>
-        #chatbot-widget * { box-sizing: border-box; }
-        #chatbot-btn {
-          position: fixed; bottom: 28px; right: 28px;
-          width: 56px; height: 56px; border-radius: 50%;
-          background: linear-gradient(135deg, #1A3A5C, #4A9FDB);
-          border: none; cursor: pointer;
-          box-shadow: 0 4px 16px rgba(26,58,92,0.35);
-          display: flex; align-items: center; justify-content: center;
-          font-size: 24px; z-index: 1000;
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        #chatbot-btn:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(26,58,92,0.45); }
-        #chatbot-btn .cb-badge {
-          position: absolute; top: -2px; right: -2px;
-          width: 16px; height: 16px; background: #2ECC71;
-          border-radius: 50%; border: 2px solid white;
-          animation: cb-pulse 2s infinite;
-        }
-        @keyframes cb-pulse {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.2); opacity: 0.8; }
-        }
-        #chatbot-panel {
-          position: fixed; bottom: 96px; right: 28px;
-          width: 360px; height: 520px; background: #fff;
-          border-radius: 18px; box-shadow: 0 8px 40px rgba(0,0,0,0.18);
-          display: flex; flex-direction: column; overflow: hidden;
-          z-index: 999; opacity: 0; pointer-events: none;
-          transform: translateY(16px) scale(0.97);
-          transition: opacity 0.22s ease, transform 0.22s ease;
-        }
-        #chatbot-panel.cb-open { opacity: 1; pointer-events: all; transform: translateY(0) scale(1); }
-        #cb-header {
-          background: linear-gradient(135deg, #1A3A5C 0%, #2a5f8f 100%);
-          padding: 16px 18px; display: flex; align-items: center;
-          gap: 12px; flex-shrink: 0;
-        }
-        #cb-avatar {
-          width: 38px; height: 38px; border-radius: 50%;
-          background: rgba(255,255,255,0.18);
-          display: flex; align-items: center; justify-content: center;
-          font-size: 20px; flex-shrink: 0;
-        }
-        #cb-header-info { flex: 1; }
-        #cb-header-name { color: #fff; font-weight: 600; font-size: 14px; font-family: 'Segoe UI', system-ui, sans-serif; }
-        #cb-header-status {
-          color: rgba(255,255,255,0.7); font-size: 11px;
-          font-family: 'Segoe UI', system-ui, sans-serif;
-          display: flex; align-items: center; gap: 4px; margin-top: 1px;
-        }
-        .cb-status-dot { width: 7px; height: 7px; background: #2ECC71; border-radius: 50%; }
-        #cb-close {
-          background: rgba(255,255,255,0.15); border: none; color: #fff;
-          width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
-          font-size: 16px; display: flex; align-items: center; justify-content: center;
-          transition: background 0.15s;
-        }
-        #cb-close:hover { background: rgba(255,255,255,0.25); }
-        #cb-messages {
-          flex: 1; overflow-y: auto; padding: 16px 14px;
-          display: flex; flex-direction: column; gap: 10px;
-          background: #F8FAFC; scroll-behavior: smooth;
-        }
-        #cb-messages::-webkit-scrollbar { width: 4px; }
-        #cb-messages::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
-        .cb-msg { display: flex; gap: 8px; align-items: flex-end; animation: cb-fadeup 0.2s ease; }
-        @keyframes cb-fadeup { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
-        .cb-msg--bot { flex-direction: row; }
-        .cb-msg--user { flex-direction: row-reverse; }
-        .cb-msg-avatar {
-          width: 28px; height: 28px; border-radius: 50%;
-          background: linear-gradient(135deg, #1A3A5C, #4A9FDB);
-          color: #fff; font-size: 14px;
-          display: flex; align-items: center; justify-content: center;
-          flex-shrink: 0; margin-bottom: 2px;
-        }
-        .cb-bubble {
-          max-width: 78%; padding: 10px 14px; border-radius: 16px;
-          font-size: 13px; line-height: 1.6;
-          font-family: 'Segoe UI', system-ui, sans-serif; word-break: break-word;
-        }
-        .cb-msg--bot .cb-bubble {
-          background: #fff; color: #1a2a3a; border-bottom-left-radius: 4px;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-        }
-        .cb-msg--user .cb-bubble {
-          background: linear-gradient(135deg, #1A3A5C, #2a5f8f);
-          color: #fff; border-bottom-right-radius: 4px;
-        }
-        #cb-sugerencias { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 10px; background: #F8FAFC; }
-        .cb-sugerencia {
-          background: #EAF4FB; color: #1A6FA0; border: 1px solid #c5e0f5;
-          border-radius: 20px; padding: 5px 12px; font-size: 11.5px;
-          cursor: pointer; font-family: 'Segoe UI', system-ui, sans-serif;
-          transition: background 0.15s; white-space: nowrap;
-        }
-        .cb-sugerencia:hover { background: #d0eaf8; }
-        .cb-typing { display: flex; align-items: center; gap: 4px; padding: 10px 14px;
-          background: #fff; border-radius: 16px; border-bottom-left-radius: 4px;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.07); width: fit-content;
-        }
-        .cb-typing span { width: 7px; height: 7px; background: #9CA3AF; border-radius: 50%; animation: cb-bounce 1.2s infinite; }
-        .cb-typing span:nth-child(2) { animation-delay: 0.2s; }
-        .cb-typing span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes cb-bounce { 0%,60%,100% { transform:translateY(0); } 30% { transform:translateY(-5px); } }
-        #cb-footer {
-          padding: 12px 14px; background: #fff; border-top: 1px solid #E8EDF2;
-          display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0;
-        }
-        #cb-input {
-          flex: 1; border: 1.5px solid #E0E4EA; border-radius: 12px;
-          padding: 9px 13px; font-size: 13px;
-          font-family: 'Segoe UI', system-ui, sans-serif;
-          resize: none; max-height: 90px; min-height: 38px;
-          line-height: 1.4; color: #1a2a3a; background: #F8FAFC;
-          transition: border-color 0.15s;
-        }
-        #cb-input:focus { outline: none; border-color: #4A9FDB; background: #fff; }
-        #cb-input::placeholder { color: #9CA3AF; }
-        #cb-send {
-          width: 38px; height: 38px; border-radius: 50%;
-          background: linear-gradient(135deg, #1A3A5C, #4A9FDB);
-          border: none; cursor: pointer;
-          display: flex; align-items: center; justify-content: center;
-          flex-shrink: 0; transition: opacity 0.15s, transform 0.15s;
-        }
-        #cb-send:hover { opacity: 0.88; transform: scale(1.05); }
-        #cb-send svg { width: 17px; height: 17px; fill: #fff; }
-        @media (max-width: 480px) {
-          #chatbot-panel { right: 12px; left: 12px; width: auto; bottom: 84px; }
-          #chatbot-btn { right: 16px; bottom: 16px; }
-        }
-      </style>
+  _respNovedadesCat(categoria) {
+    const novs = (this.datos?.novedades?.novedades || []).filter(n => n.categoria === categoria);
+    if (!novs.length) return `No hay novedades de tipo "${categoria}" en este momento.`;
+    const nombres = { urgente: 'Urgentes 🚨', academico: 'Académicas 📚', social: 'Sociales 🎉', institucional: 'Institucionales 🏫' };
+    let r = `Novedades ${nombres[categoria] || categoria}:\n`;
+    novs.slice(0, 4).forEach(n => {
+      const f = new Date(n.fecha).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' });
+      r += `\n${n.titulo} (${f})\n   ${n.contenido.slice(0, 100)}...\n`;
+    });
+    return r;
+  },
 
-      <button id="chatbot-btn" title="Asistente virtual" onclick="Chatbot.toggle()">
-        🎓
-        <div class="cb-badge"></div>
+  _respMisNovedades(usuario) {
+    const novs = (this.datos?.novedades?.novedades || []).filter(n => n.autor_id === usuario.id);
+    if (!novs.length) return 'Todavía no publicaste ninguna novedad. Podés hacerlo desde "Nueva novedad" en el menú.';
+    let r = `Tus novedades publicadas (${novs.length}):\n`;
+    novs.forEach(n => {
+      const f = new Date(n.fecha).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' });
+      r += `\n• ${n.titulo}\n  ${f} | ${n.categoria} | ${n.destacada ? '⭐ Destacada' : 'Normal'}\n`;
+    });
+    return r;
+  },
+
+  _respEventos(usuario) {
+    const eventos = this.datos?.eventos?.eventos || [];
+    const abiertos = eventos.filter(e => e.estado === 'abierto');
+    if (!abiertos.length) return 'No hay eventos con inscripción abierta en este momento. 📭';
+    const inscs = this.datos?.eventos?.inscripciones || [];
+    let r = `Hay ${abiertos.length} evento${abiertos.length > 1 ? 's' : ''} con inscripción abierta:\n`;
+    abiertos.forEach(e => {
+      const f    = new Date(e.fecha_inicio).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' });
+      const hora = new Date(e.fecha_inicio).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+      const cant = inscs.filter(i => i.evento_id === e.id).length;
+      const disp = e.cupo - cant;
+      const ya   = usuario ? inscs.some(i => i.evento_id === e.id && i.usuario_id === usuario.id) : false;
+      r += `\n${ya ? '✅ [Ya inscripto] ' : ''}${e.titulo}\n   📅 ${f} a las ${hora} · 📍 ${e.lugar}\n   👥 ${disp} lugar${disp !== 1 ? 'es' : ''} de ${e.cupo}\n`;
+    });
+    return r + '\n¿Querés saber cómo inscribirte?';
+  },
+
+  _respMisEventos(usuario) {
+    if (!usuario) return 'Tenés que iniciar sesión para ver tus eventos.';
+    const inscs = (this.datos?.eventos?.inscripciones || []).filter(i => i.usuario_id === usuario.id);
+    if (!inscs.length) return `${usuario.nombre.split(' ')[0]}, todavía no estás inscripto en ningún evento. Escribime "ver eventos" para ver los disponibles. 🎟️`;
+    const eventos = this.datos?.eventos?.eventos || [];
+    let r = `Estás inscripto en ${inscs.length} evento${inscs.length > 1 ? 's' : ''}:\n`;
+    inscs.forEach(i => {
+      const ev = eventos.find(e => e.id === i.evento_id);
+      if (!ev) return;
+      const f = new Date(ev.fecha_inicio).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' });
+      const h = new Date(ev.fecha_inicio).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+      r += `\n✅ ${ev.titulo}\n   📅 ${f} a las ${h} · 📍 ${ev.lugar}\n`;
+    });
+    return r;
+  },
+
+  _respComoInscribirse(usuario) {
+    if (!usuario) return 'Primero tenés que iniciar sesión para inscribirte a un evento. 🔐';
+    return 'Para inscribirte a un evento:\n\n1. Andá a la sección "Eventos" en el menú.\n2. Hacé clic en el evento que te interese.\n3. Verificá que haya cupo disponible.\n4. Hacé clic en "Inscribirme".\n\nTu inscripción queda registrada automáticamente. ¿Querés ver los eventos disponibles?';
+  },
+
+  _respCupos() {
+    const eventos = (this.datos?.eventos?.eventos || []).filter(e => e.estado === 'abierto');
+    if (!eventos.length) return 'No hay eventos con inscripción abierta en este momento.';
+    const inscs = this.datos?.eventos?.inscripciones || [];
+    let r = 'Cupos disponibles:\n';
+    eventos.forEach(e => {
+      const cant = inscs.filter(i => i.evento_id === e.id).length;
+      const disp = e.cupo - cant;
+      const st   = disp === 0 ? '🔴 Sin cupo' : disp <= 5 ? '🟡 Últimos lugares' : '🟢 Con lugar';
+      r += `\n${st} ${e.titulo}: ${disp} de ${e.cupo}`;
+    });
+    return r;
+  },
+
+  _respEventosDelegado(usuario) {
+    const mis   = (this.datos?.eventos?.eventos || []).filter(e => e.autor_id === usuario.id);
+    const inscs = this.datos?.eventos?.inscripciones || [];
+    if (!mis.length) return 'Todavía no creaste ningún evento. Podés hacerlo desde "Gestionar eventos" en el menú.';
+    let r = `Tus eventos (${mis.length}):\n`;
+    mis.forEach(e => {
+      const cant = inscs.filter(i => i.evento_id === e.id).length;
+      r += `\n📋 ${e.titulo}\n   Estado: ${e.estado} | Inscriptos: ${cant}/${e.cupo}\n`;
+    });
+    return r;
+  },
+
+  _respInscriptos(usuario) {
+    const eventos = this.datos?.eventos?.eventos || [];
+    const inscs   = this.datos?.eventos?.inscripciones || [];
+    const mis = usuario?.rol === 'admin' ? eventos : eventos.filter(e => e.autor_id === usuario.id);
+    if (!mis.length) return 'No tenés eventos para consultar.';
+    let r = 'Inscriptos por evento:\n';
+    mis.forEach(e => {
+      const cant = inscs.filter(i => i.evento_id === e.id).length;
+      r += `\n• ${e.titulo}: ${cant} inscripto${cant !== 1 ? 's' : ''} de ${e.cupo}`;
+    });
+    return r;
+  },
+
+  _respCalendario(usuario) {
+    const fechas = this.datos?.calendario?.fechas || [];
+    if (!fechas.length) return 'No hay fechas cargadas en el calendario. 📅';
+    const hoy = new Date();
+    const prox = fechas
+      .filter(f => new Date(f.fecha) >= hoy)
+      .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+      .slice(0, 5);
+    if (!prox.length) return 'No hay fechas próximas registradas en el calendario.';
+    const ico = { parcial: '📝', final: '📋', institucional: '🏫', feriado: '🏖️', receso: '🌙', evento: '🎉' };
+    let r = 'Próximas fechas:\n';
+    prox.forEach(f => {
+      const fecha = new Date(f.fecha).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+      r += `\n${ico[f.tipo] || '📌'} ${fecha}\n   ${f.titulo}\n`;
+    });
+    return r + '\nVé a la sección Calendario para ver todos los detalles. 📅';
+  },
+
+  _respParciales(usuario) {
+    const parciales = (this.datos?.calendario?.fechas || []).filter(f => f.tipo === 'parcial');
+    if (!parciales.length) return 'No hay fechas de parciales cargadas en este momento. Consultá con tu docente o en secretaría. 📝';
+    let r = 'Fechas de parciales:\n';
+    parciales.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)).forEach(f => {
+      const fecha = new Date(f.fecha).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+      r += `\n📝 ${fecha}\n   ${f.titulo}\n   ${f.descripcion}\n`;
+    });
+    return r + '\nRevisá el Calendario completo para más detalles.';
+  },
+
+  _respFinales() {
+    const finales = (this.datos?.calendario?.fechas || []).filter(f => f.tipo === 'final');
+    if (!finales.length) return 'No hay fechas de finales cargadas todavía. Se publican en el Calendario cuando estén disponibles. 📋';
+    let r = 'Fechas de finales:\n';
+    finales.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)).forEach(f => {
+      const fecha = new Date(f.fecha).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+      r += `\n📋 ${fecha}\n   ${f.titulo}\n   ${f.descripcion}\n`;
+    });
+    return r;
+  },
+
+  _respFeriados() {
+    const feriados = (this.datos?.calendario?.fechas || []).filter(f => f.tipo === 'feriado' || f.tipo === 'receso');
+    if (!feriados.length) return 'No hay feriados o recesos cargados en el calendario.';
+    let r = 'Feriados y recesos:\n';
+    feriados.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)).forEach(f => {
+      const fecha = new Date(f.fecha).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+      r += `\n${f.tipo === 'feriado' ? '🏖️' : '🌙'} ${fecha}: ${f.titulo}\n`;
+    });
+    return r;
+  },
+
+  _respReceso() {
+    const recesos = (this.datos?.calendario?.fechas || []).filter(f => f.tipo === 'receso');
+    if (!recesos.length) return 'No hay recesos cargados en el calendario todavía.';
+    let r = 'Recesos:\n';
+    recesos.forEach(f => {
+      const fecha = new Date(f.fecha).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' });
+      r += `\n🌙 ${f.titulo} — comienza el ${fecha}\n   ${f.descripcion}\n`;
+    });
+    return r;
+  },
+
+  _respInscripcionCursada(usuario) {
+    if (!usuario) return 'Tenés que iniciar sesión para consultar inscripciones a cursadas. 🔐';
+    if (usuario.rol === 'docente') return 'Las inscripciones a cursadas se gestionan por Secretaría. Para info sobre alumnos inscriptos en tus materias, consultá directamente allí.';
+
+    const nov = (this.datos?.novedades?.novedades || [])
+      .find(n => /inscripci/i.test(n.titulo) || /inscripci/i.test(n.contenido));
+    let r = 'Para inscribirte a una cursada:\n\n';
+    r += '1. Revisá el Calendario para las fechas de inscripción.\n';
+    r += '2. Presentate en Secretaría con DNI y libreta universitaria.\n';
+    r += '3. Informá las materias a las que querés inscribirte.\n';
+    r += '4. Verificá correlatividades con tu plan de estudios.\n';
+    if (nov) {
+      const f = new Date(nov.fecha).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' });
+      r += `\n📢 Novedad relacionada (${f}):\n${nov.titulo}\n${nov.contenido.slice(0, 150)}...`;
+    }
+    const inst = (this.datos?.calendario?.fechas || [])
+      .filter(f => f.tipo === 'institucional')
+      .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+      .slice(0, 3);
+    if (inst.length) {
+      r += '\n\nFechas institucionales próximas:\n';
+      inst.forEach(f => {
+        const fecha = new Date(f.fecha).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' });
+        r += `• ${f.titulo}: ${fecha}\n`;
+      });
+    }
+    return r;
+  },
+
+  _respLogin() {
+    return 'Para iniciar sesión usás tu usuario y contraseña en la pantalla de login. 🔐\n\nSi olvidaste tu contraseña o tenés problemas de acceso, contactá al administrador del sistema.\n\nDatos de prueba del sistema:\n• admin / 1234\n• delegado / 1234\n• docente / 1234\n• estudiante / 1234';
+  },
+
+  _respRoles() {
+    return 'El sistema tiene 4 roles:\n\n👑 Admin — acceso total, gestiona usuarios\n🗣 Delegado — publica novedades y eventos\n📚 Docente — carga avisos y fechas de materias\n🎒 Estudiante — consulta toda la información\n\nSolo el Admin puede cambiar el rol de alguien, desde "Gestión de Usuarios".';
+  },
+
+  _respReglamentos() {
+    const regs = this.datos?.reglamentos?.reglamentos || [];
+    if (!regs.length) return 'No hay reglamentos cargados. Podés consultarlos en Secretaría o en la sección Reglamentos.';
+    let r = 'Documentos disponibles:\n';
+    regs.forEach(reg => {
+      r += `\n📄 ${reg.titulo} (v${reg.version})\n   ${reg.descripcion}\n`;
+    });
+    return r + '\nPodés verlos en la sección Reglamentos del menú. 📁';
+  },
+
+  _respFaltas() {
+    const faq = (this.datos?.reglamentos?.faq || []).find(f => /falta|asistencia|regular/.test(f.pregunta.toLowerCase()));
+    if (faq) return `${faq.pregunta}\n\n${faq.respuesta}\n\nConsultá el Régimen Académico completo en la sección Reglamentos.`;
+    return 'El régimen académico permite un máximo del 25% de inasistencias por materia. Si superás ese límite, perdés la condición de alumno regular y debés rendir como libre. ⚠️\n\nMás info en la sección Reglamentos.';
+  },
+
+  _respBecas() {
+    const faq = (this.datos?.reglamentos?.faq || []).find(f => /beca/.test(f.pregunta.toLowerCase()));
+    if (faq) return `${faq.pregunta}\n\n${faq.respuesta}\n\nMás detalles en "Régimen de Becas" en la sección Reglamentos.`;
+    return 'Para solicitar una beca:\n\n• 1er cuatrimestre: documentación antes del 31 de marzo.\n• 2do cuatrimestre: antes del 31 de julio.\n\nRequisitos disponibles en la sección Reglamentos o en Secretaría. 📄';
+  },
+
+  _respCarreras() {
+    const carreras = this.datos?.carreras?.carreras || [];
+    if (!carreras.length) return 'No hay información de carreras cargada.';
+    let r = 'Carreras del Instituto:\n';
+    carreras.forEach(c => {
+      r += `\n🎓 ${c.nombre} (${c.codigo})\n   ${c.materias.length} materia${c.materias.length !== 1 ? 's' : ''}\n`;
+    });
+    return r;
+  },
+
+  _respMiCarrera(usuario) {
+    if (!usuario) return 'Iniciá sesión para ver información sobre tu carrera.';
+    // En este proyecto el usuario no tiene carrera_id, mostramos todas
+    return this._respCarreras();
+  },
+
+  _respMisMaterias(usuario) {
+    if (!usuario) return 'Iniciá sesión para ver tus materias.';
+    const carreras = this.datos?.carreras?.carreras || [];
+    const mias = [];
+    carreras.forEach(c => c.materias.forEach(m => {
+      if (m.docente_id === usuario.id) mias.push({ materia: m.nombre, carrera: c.nombre, semestre: m.semestre });
+    }));
+    if (!mias.length) return 'No tenés materias asignadas en el sistema. Si es un error, contactá a la dirección.';
+    let r = `Tus materias asignadas (${mias.length}):\n`;
+    mias.forEach(m => { r += `\n📚 ${m.materia}\n   ${m.carrera} — Semestre ${m.semestre}\n`; });
+    return r;
+  },
+
+  _respEstadisticas() {
+    const novs  = this.datos?.novedades?.novedades || [];
+    const evts  = this.datos?.eventos?.eventos || [];
+    const inscs = this.datos?.eventos?.inscripciones || [];
+    const carr  = this.datos?.carreras?.carreras || [];
+    const totalM = carr.reduce((a, c) => a + c.materias.length, 0);
+    return `Resumen del sistema:\n\n📢 Novedades: ${novs.length} (${novs.filter(n => n.destacada).length} destacadas)\n🎉 Eventos: ${evts.length} (${evts.filter(e => e.estado === 'abierto').length} abiertos)\n👥 Inscripciones: ${inscs.length}\n🎓 Carreras: ${carr.length} (${totalM} materias)`;
+  },
+
+  _respPerfil(usuario) {
+    if (!usuario) return 'Iniciá sesión para ver tu perfil.';
+    return `Tu perfil:\n\n👤 Nombre: ${usuario.nombre}\n🔑 Usuario: ${usuario.usuario}\n🎭 Rol: ${usuario.rol}\n\nPodés editar tus datos desde "Mi Perfil" en la barra superior.`;
+  },
+
+  _respCE() {
+    return 'El Centro de Estudiantes representa a todos los alumnos del Instituto N°57. Se encarga de:\n\n🎉 Organizar eventos y actividades\n📢 Publicar novedades importantes\n📋 Gestionar el calendario académico\n🤝 Ser el nexo entre alumnos y la institución\n\n¡Cualquier inquietud podés hacérsela llegar al delegado!';
+  },
+
+  _respConflictos() {
+    const faq = (this.datos?.reglamentos?.faq || []).find(f => /conflicto|docente/.test(f.pregunta.toLowerCase()));
+    if (faq) return `${faq.pregunta}\n\n${faq.respuesta}`;
+    return 'Ante cualquier conflicto o inconveniente:\n\n1. Podés acudir al Centro de Estudiantes.\n2. O dirigirte a la Dirección del Instituto.\n3. El Reglamento de Convivencia detalla el procedimiento.\n\nEncontrás todo en la sección Reglamentos. 📄';
+  },
+
+  _respContacto() {
+    return 'Para contactar al Instituto:\n\n🏫 Secretaría: presentate personalmente en el horario de atención.\n💻 CE Digital: desde acá consultás novedades, eventos y reglamentos.\n🚨 Urgente: dirigite directamente a la Dirección.\n\n¿Necesitás ayuda con algún trámite específico?';
+  },
+
+  _respFallback(rol) {
+    const tips = {
+      admin:      '"estadísticas", "eventos", "novedades", "usuarios"',
+      delegado:   '"mis eventos", "inscriptos", "novedades", "calendario"',
+      docente:    '"mis materias", "calendario", "novedades", "reglamentos"',
+      estudiante: '"parciales", "eventos", "inscripción a cursada", "becas", "faltas"',
+      visitante:  '"novedades", "eventos", "reglamentos", "carreras"',
+    };
+    return `Mmm, no entendí bien tu consulta. 🤔\n\nPodés preguntarme sobre: ${tips[rol] || tips.visitante}.\n\nO usá los botones de sugerencias de abajo. 👇`;
+  },
+
+  /* ================================================================
+     SUGERENCIAS Y BIENVENIDA POR ROL
+     ================================================================ */
+  _getSugerencias(rol) {
+    const s = {
+      admin:      ['Estadísticas del sistema', 'Ver todos los eventos', 'Novedades recientes', '¿Qué puede hacer cada rol?'],
+      delegado:   ['¿Cómo van mis eventos?', '¿Cuántos inscriptos hay?', 'Ver novedades', '¿Cómo publico una novedad?'],
+      docente:    ['Mis materias', '¿Qué novedades publiqué?', 'Ver calendario', '¿Cómo cargo un parcial?'],
+      estudiante: ['¿Cuándo tengo parciales?', '¿En qué eventos estoy?', 'Inscripción a cursada', '¿Cuántas faltas puedo tener?'],
+      visitante:  ['Ver novedades', 'Ver eventos', 'Reglamentos', '¿Cómo inicio sesión?'],
+    };
+    return s[rol] || s.visitante;
+  },
+
+  _getBienvenida(usuario) {
+    if (!usuario) return '¡Hola! 👋 Soy el asistente del CE Digital del Instituto N°57. ¿En qué puedo ayudarte?';
+    const n = usuario.nombre.split(' ')[0];
+    const m = {
+      admin:      `¡Hola, ${n}! 👑 Tenés acceso completo. ¿Qué querés consultar?`,
+      delegado:   `¡Hola, ${n}! 🗣 Puedo mostrarte el estado de tus eventos e inscriptos. ¿Arrancamos?`,
+      docente:    `¡Hola, ${n}! 📚 Puedo ayudarte con tus materias, el calendario y las novedades.`,
+      estudiante: `¡Hola, ${n}! 🎒 Puedo ayudarte con parciales, eventos, inscripciones y reglamentos.`,
+    };
+    return m[usuario.rol] || `¡Hola, ${n}! ¿En qué puedo ayudarte?`;
+  },
+
+  /* ================================================================
+     UI — Toggle
+     ================================================================ */
+  toggle() {
+    this.abierto = !this.abierto;
+    const panel = document.getElementById(this.IDS.PANEL);
+    const btn   = document.getElementById(this.IDS.BTN);
+    if (this.abierto) {
+      panel.classList.add('cb-open');
+      btn.innerHTML = '✕';
+      const cont = document.getElementById(this.IDS.MENSAJES);
+      if (cont && cont.children.length === 0) {
+        const usuario = this._getUsuario();
+        this._addMsg('bot', this._getBienvenida(usuario));
+        this._renderSugs(usuario?.rol || 'visitante');
+      }
+      setTimeout(() => document.getElementById(this.IDS.INPUT)?.focus(), 200);
+    } else {
+      panel.classList.remove('cb-open');
+      btn.innerHTML = '🤖';
+    }
+  },
+
+  _renderSugs(rol) {
+    const cont = document.getElementById(this.IDS.SUGS);
+    if (!cont) return;
+    cont.innerHTML = this._getSugerencias(rol).map(s =>
+      `<button class="cb-sug" onclick="Chatbot._onSug('${s.replace(/'/g, "\\'")}')">${s}</button>`
+    ).join('');
+  },
+
+  _addMsg(tipo, texto) {
+    const cont = document.getElementById(this.IDS.MENSAJES);
+    if (!cont) return;
+    const d = document.createElement('div');
+    d.className = `cb-msg cb-msg--${tipo}`;
+    const html = texto.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    d.innerHTML = tipo === 'bot'
+      ? `<div class="cb-avatar">🤖</div><div class="cb-bubble">${html}</div>`
+      : `<div class="cb-bubble">${html}</div>`;
+    cont.appendChild(d);
+    cont.scrollTop = cont.scrollHeight;
+  },
+
+  _showTyping() {
+    const cont = document.getElementById(this.IDS.MENSAJES);
+    if (!cont) return;
+    const el = document.createElement('div');
+    el.className = 'cb-msg cb-msg--bot';
+    el.id = 'cb-typing';
+    el.innerHTML = `<div class="cb-avatar">🤖</div><div class="cb-bubble cb-typing"><span></span><span></span><span></span></div>`;
+    cont.appendChild(el);
+    cont.scrollTop = cont.scrollHeight;
+  },
+
+  _hideTyping() { document.getElementById('cb-typing')?.remove(); },
+
+  _setActive(ok) {
+    const inp = document.getElementById(this.IDS.INPUT);
+    const btn = document.getElementById(this.IDS.SEND);
+    if (inp) inp.disabled = !ok;
+    if (btn) btn.disabled = !ok;
+  },
+
+  async _send() {
+    const inp = document.getElementById(this.IDS.INPUT);
+    if (!inp) return;
+    const texto = inp.value.trim();
+    if (!texto) return;
+    inp.value = '';
+    this._addMsg('user', texto);
+    this._setActive(false);
+    this._showTyping();
+    if (!this.datos) await this._cargarDatos();
+    await new Promise(r => setTimeout(r, 400 + Math.random() * 300));
+    const usuario = this._getUsuario();
+    const resp = this._responder(texto, usuario);
+    this._hideTyping();
+    this._addMsg('bot', resp);
+    this._setActive(true);
+    document.getElementById(this.IDS.INPUT)?.focus();
+  },
+
+  _onSug(texto) {
+    const inp = document.getElementById(this.IDS.INPUT);
+    if (inp) { inp.value = texto; this._send(); }
+  },
+
+  _bindEventos() {
+    document.getElementById(this.IDS.BTN)?.addEventListener('click', () => this.toggle());
+    document.getElementById(this.IDS.SEND)?.addEventListener('click', () => this._send());
+    document.getElementById(this.IDS.INPUT)?.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this._send(); }
+    });
+    document.addEventListener('click', e => {
+      if (!this.abierto) return;
+      const panel = document.getElementById(this.IDS.PANEL);
+      const btn   = document.getElementById(this.IDS.BTN);
+      if (panel && !panel.contains(e.target) && !btn?.contains(e.target)) this.toggle();
+    });
+  },
+
+  /* ================================================================
+     HTML + CSS inyectados en el body
+     ================================================================ */
+  _inyectarHTML() {
+    if (document.getElementById(this.IDS.ROOT)) return;
+
+    const css = `
+      #chatbot-root * { box-sizing: border-box; }
+      #chatbot-btn {
+        position: fixed; bottom: 28px; right: 28px; width: 56px; height: 56px;
+        border-radius: 50%; background: linear-gradient(135deg, #1A3A5C, #4A9FDB);
+        color: #fff; font-size: 24px; border: none; cursor: pointer;
+        box-shadow: 0 4px 18px rgba(26,58,92,.40);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 9998; transition: transform .2s, box-shadow .2s;
+        user-select: none;
+      }
+      #chatbot-btn:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(26,58,92,.50); }
+      #chatbot-btn:active { transform: scale(.95); }
+      #chatbot-btn .cb-dot {
+        position: absolute; top: -2px; right: -2px; width: 14px; height: 14px;
+        background: #2ECC71; border-radius: 50%; border: 2px solid #fff;
+        animation: cb-pulse 2s infinite;
+      }
+      @keyframes cb-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
+
+      #chatbot-panel {
+        position: fixed; bottom: 96px; right: 28px; width: 360px; max-height: 560px;
+        background: #fff; border-radius: 18px;
+        box-shadow: 0 8px 40px rgba(0,0,0,.18);
+        display: flex; flex-direction: column; overflow: hidden;
+        z-index: 9999; opacity: 0; pointer-events: none;
+        transform: translateY(14px) scale(.97);
+        transition: opacity .22s ease, transform .22s ease;
+      }
+      #chatbot-panel.cb-open { opacity: 1; pointer-events: all; transform: translateY(0) scale(1); }
+
+      #cb-header {
+        background: linear-gradient(135deg, #1A3A5C 0%, #2a5f8f 100%);
+        padding: 14px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+      }
+      #cb-hdr-avatar {
+        width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.15);
+        display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+      }
+      #cb-hdr-nombre { color: #fff; font-weight: 700; font-size: 14px; font-family: 'Segoe UI',system-ui,sans-serif; }
+      #cb-hdr-estado {
+        color: rgba(255,255,255,.7); font-size: 11px; display: flex; align-items: center; gap: 4px; margin-top: 1px;
+        font-family: 'Segoe UI',system-ui,sans-serif;
+      }
+      #cb-hdr-estado span { width: 7px; height: 7px; background: #2ECC71; border-radius: 50%; }
+      #cb-close {
+        background: rgba(255,255,255,.12); border: none; color: #fff; width: 28px; height: 28px;
+        border-radius: 50%; cursor: pointer; font-size: 14px; margin-left: auto;
+        display: flex; align-items: center; justify-content: center; transition: background .15s;
+      }
+      #cb-close:hover { background: rgba(255,255,255,.24); }
+
+      #chatbot-mensajes {
+        flex: 1; overflow-y: auto; padding: 14px;
+        display: flex; flex-direction: column; gap: 10px; background: #F8FAFC;
+        scroll-behavior: smooth;
+      }
+      #chatbot-mensajes::-webkit-scrollbar { width: 4px; }
+      #chatbot-mensajes::-webkit-scrollbar-thumb { background: #E0E4EA; border-radius: 4px; }
+
+      .cb-msg { display: flex; gap: 8px; align-items: flex-end; animation: cb-pop .2s ease; }
+      @keyframes cb-pop { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+      .cb-msg--bot  { flex-direction: row; }
+      .cb-msg--user { flex-direction: row-reverse; }
+      .cb-avatar {
+        width: 28px; height: 28px; border-radius: 50%;
+        background: linear-gradient(135deg,#1A3A5C,#4A9FDB);
+        color: #fff; font-size: 14px; flex-shrink: 0; margin-bottom: 2px;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .cb-bubble {
+        max-width: 78%; padding: 9px 13px; border-radius: 16px;
+        font-size: 13px; line-height: 1.6;
+        font-family: 'Segoe UI',system-ui,sans-serif; word-break: break-word;
+      }
+      .cb-msg--bot .cb-bubble {
+        background: #fff; color: #1a2a3a; border-bottom-left-radius: 4px;
+        box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      }
+      .cb-msg--user .cb-bubble {
+        background: linear-gradient(135deg,#1A3A5C,#2a5f8f);
+        color: #fff; border-bottom-right-radius: 4px;
+      }
+
+      .cb-typing { display: flex; align-items: center; gap: 4px; }
+      .cb-typing span {
+        width: 7px; height: 7px; border-radius: 50%; background: #9CA3AF;
+        animation: cb-bounce 1.2s infinite;
+      }
+      .cb-typing span:nth-child(2){animation-delay:.2s}
+      .cb-typing span:nth-child(3){animation-delay:.4s}
+      @keyframes cb-bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+
+      #chatbot-sugs {
+        display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px 6px;
+        background: #F8FAFC; border-top: 1px solid #E8EDF2; flex-shrink: 0;
+      }
+      .cb-sug {
+        background: #EAF4FB; color: #1A6FA0; border: 1px solid #c5e0f5;
+        border-radius: 999px; padding: 4px 11px; font-size: 11px; cursor: pointer;
+        font-family: 'Segoe UI',system-ui,sans-serif;
+        transition: background .15s, color .15s; white-space: nowrap;
+      }
+      .cb-sug:hover { background: #1A3A5C; color: #fff; border-color: #1A3A5C; }
+
+      #cb-footer {
+        display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+        background: #fff; border-top: 1px solid #E8EDF2; flex-shrink: 0;
+      }
+      #chatbot-input {
+        flex: 1; padding: 9px 13px; border: 1.5px solid #E0E4EA; border-radius: 999px;
+        font-size: 13px; font-family: 'Segoe UI',system-ui,sans-serif;
+        background: #F8FAFC; color: #1a2a3a; outline: none;
+        transition: border-color .18s, box-shadow .18s, background .18s;
+      }
+      #chatbot-input:focus {
+        border-color: #4A9FDB; box-shadow: 0 0 0 3px rgba(74,159,219,.15); background: #fff;
+      }
+      #chatbot-input:disabled { opacity: .5; cursor: not-allowed; }
+      #chatbot-input::placeholder { color: #9CA3AF; }
+      #chatbot-send {
+        width: 38px; height: 38px; border-radius: 50%;
+        background: linear-gradient(135deg,#1A3A5C,#4A9FDB);
+        color: #fff; border: none; cursor: pointer; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        transition: opacity .18s, transform .12s;
+      }
+      #chatbot-send:hover  { opacity: .88; }
+      #chatbot-send:active { transform: scale(.9); }
+      #chatbot-send:disabled { opacity: .4; cursor: default; }
+      #chatbot-send svg { width: 17px; height: 17px; fill: #fff; }
+
+      @media (max-width: 480px) {
+        #chatbot-panel { width: calc(100vw - 24px); right: 12px; bottom: 84px; }
+        #chatbot-btn   { right: 16px; bottom: 16px; }
+      }
+    `;
+
+    const html = `
+      <style>${css}</style>
+      <button id="${this.IDS.BTN}" title="Asistente virtual">
+        🤖<div class="cb-dot"></div>
       </button>
-
-      <div id="chatbot-panel">
+      <div id="${this.IDS.PANEL}">
         <div id="cb-header">
-          <div id="cb-avatar">🤖</div>
-          <div id="cb-header-info">
-            <div id="cb-header-name">Asistente CE</div>
-            <div id="cb-header-status">
-              <div class="cb-status-dot"></div>
-              En línea · Instituto N°57
-            </div>
+          <div id="cb-hdr-avatar">🤖</div>
+          <div style="flex:1">
+            <div id="cb-hdr-nombre">Asistente CE</div>
+            <div id="cb-hdr-estado"><span></span>En línea · Instituto N°57</div>
           </div>
-          <button id="cb-close" onclick="Chatbot.toggle()" title="Cerrar">✕</button>
+          <button id="cb-close" onclick="Chatbot.toggle()">✕</button>
         </div>
-
-        <div id="cb-messages"></div>
-        <div id="cb-sugerencias"></div>
-
+        <div id="${this.IDS.MENSAJES}"></div>
+        <div id="${this.IDS.SUGS}"></div>
         <div id="cb-footer">
-          <textarea id="cb-input" placeholder="Escribí tu consulta..." rows="1"
-            onkeydown="Chatbot.onKeyDown(event)"
-            oninput="Chatbot.autoResize(this)"></textarea>
-          <button id="cb-send" onclick="Chatbot.enviar()" title="Enviar">
+          <input id="${this.IDS.INPUT}" type="text" placeholder="Escribí tu consulta..." maxlength="400" autocomplete="off"/>
+          <button id="${this.IDS.SEND}" title="Enviar">
             <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
           </button>
         </div>
       </div>
     `;
-    document.body.appendChild(widget);
-  },
 
-  agregarMensaje(texto, tipo = 'bot') {
-    const contenedor = document.getElementById('cb-messages');
-    const div = document.createElement('div');
-    div.className = `cb-msg cb-msg--${tipo}`;
-    if (tipo === 'bot') {
-      div.innerHTML = `<div class="cb-msg-avatar">🤖</div><div class="cb-bubble">${texto.replace(/\n/g, '<br>')}</div>`;
-    } else {
-      div.innerHTML = `<div class="cb-bubble">${texto.replace(/\n/g, '<br>')}</div>`;
-    }
-    contenedor.appendChild(div);
-    contenedor.scrollTop = contenedor.scrollHeight;
-  },
-
-  mostrarEscribiendo() {
-    const contenedor = document.getElementById('cb-messages');
-    const div = document.createElement('div');
-    div.className = 'cb-msg cb-msg--bot';
-    div.id = 'cb-typing-indicator';
-    div.innerHTML = `<div class="cb-msg-avatar">🤖</div><div class="cb-typing"><span></span><span></span><span></span></div>`;
-    contenedor.appendChild(div);
-    contenedor.scrollTop = contenedor.scrollHeight;
-  },
-
-  quitarEscribiendo() {
-    document.getElementById('cb-typing-indicator')?.remove();
-  },
-
-  renderSugerencias(usuario) {
-    const contenedor = document.getElementById('cb-sugerencias');
-    const sugerencias = this.getSugerencias(usuario);
-    contenedor.innerHTML = sugerencias.map(s =>
-      `<button class="cb-sugerencia" onclick="Chatbot.enviarSugerencia('${s.replace(/'/g, "\\'")}')">${s}</button>`
-    ).join('');
-  },
-
-  toggle() {
-    this.abierto = !this.abierto;
-    document.getElementById('chatbot-panel').classList.toggle('cb-open', this.abierto);
-    if (this.abierto) setTimeout(() => document.getElementById('cb-input')?.focus(), 250);
-  },
-
-  enviarSugerencia(texto) {
-    document.getElementById('cb-input').value = texto;
-    document.getElementById('cb-sugerencias').innerHTML = '';
-    this.enviar();
-  },
-
-  async enviar() {
-    const input = document.getElementById('cb-input');
-    const texto = input.value.trim();
-    if (!texto || this.escribiendo) return;
-
-    input.value = '';
-    input.style.height = 'auto';
-    this.escribiendo = true;
-
-    this.agregarMensaje(texto, 'user');
-    this.mostrarEscribiendo();
-
-    // Simular tiempo de "escritura" para que se sienta natural (600ms–1200ms)
-    const delay = 600 + Math.random() * 600;
-    await new Promise(r => setTimeout(r, delay));
-
-    this.quitarEscribiendo();
-    const respuesta = this.buscarRespuesta(texto);
-    this.agregarMensaje(respuesta, 'bot');
-
-    this.escribiendo = false;
-    document.getElementById('cb-input').focus();
-  },
-
-  onKeyDown(e) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.enviar(); }
-  },
-
-  autoResize(el) {
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 90) + 'px';
-  },
-
-  init() {
-    this.render();
-    const usuario = typeof Auth !== 'undefined' ? Auth.getUsuario() : null;
-    setTimeout(() => {
-      this.agregarMensaje(this.getMensajeBienvenida(usuario), 'bot');
-      this.renderSugerencias(usuario);
-    }, 400);
+    const w = document.createElement('div');
+    w.id = this.IDS.ROOT;
+    w.innerHTML = html;
+    document.body.appendChild(w);
   }
 };
