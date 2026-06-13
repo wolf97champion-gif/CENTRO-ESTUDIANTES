@@ -122,43 +122,43 @@ const Auth = {
 
   },
 
-  // ===== VERIFICAR ROL =====
-  requiereRol(rol) {
+// ===== VERIFICAR UNO O VARIOS ROLES =====
+requiereRol(...roles) {
 
-    const usuario = this.getUsuario();
+  const usuario = this.getUsuario();
 
-    if (!usuario) {
+  if (!usuario) {
 
-      Swal.fire({
-        icon: 'warning',
-        title: 'Sesión expirada',
-        text: 'Debes iniciar sesión.'
-      }).then(() => {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Sesión expirada',
+      text: 'Debes iniciar sesión.'
+    }).then(() => {
 
-        window.location.href = "../../index.html";
+      window.location.href = "../../index.html";
 
-      });
+    });
 
-      return false;
-    }
+    return false;
+  }
 
-    if (usuario.rol !== rol) {
+  if (!roles.includes(usuario.rol)) {
 
-      Swal.fire({
-        icon: 'error',
-        title: 'Acceso denegado',
-        text: `Se requiere rol: ${rol}`
-      }).then(() => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Acceso denegado',
+      text: `Roles permitidos: ${roles.join(', ')}`
+    }).then(() => {
 
-        window.location.href = "../../home.html";
+      window.location.href = "../../home.html";
 
-      });
+    });
 
-      return false;
-    }
+    return false;
+  }
 
-    return true;
-  },
+  return true;
+},
 
   // ===== CERRAR SESIÓN =====
   logout() {
